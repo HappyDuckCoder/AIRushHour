@@ -76,15 +76,19 @@ class Game:
         target_img = pygame.image.load("target.png")
         self.images['target'] = pygame.transform.scale(target_img, (TILE * 2, TILE))
         
-        # v2 car (horizontal 2 tiles)
+        # v2 car horizontal (2 tiles)
         v2_img = pygame.image.load("vh2h.png")
-        self.images['v2'] = pygame.transform.scale(v2_img, (TILE * 2, TILE))
+        self.images['v2_h'] = pygame.transform.scale(v2_img, (TILE * 2, TILE))
+
+        # v2 car vertical (2 tiles) - FIX: Rotate và scale đúng cách
+        v2_rotated = pygame.transform.rotate(v2_img, 90)
+        self.images['v2_v'] = pygame.transform.scale(v2_rotated, (TILE, TILE * 2))  # Vertical: width=TILE, height=TILE*2
         
-        # v3 car - FIX: Load và scale đúng cách cho cả horizontal và vertical
+        # v3 car horizontal (3 tiles)
         v3_img = pygame.image.load("vh3h.png")
         self.images['v3_h'] = pygame.transform.scale(v3_img, (TILE * 3, TILE))  # Horizontal
         
-        # FIX: Rotate trước rồi mới scale để tránh méo hình
+        # v3 car vertical (3 tiles) - Rotate trước rồi mới scale để tránh méo hình
         v3_rotated = pygame.transform.rotate(v3_img, 90)
         self.images['v3_v'] = pygame.transform.scale(v3_rotated, (TILE, TILE * 3))  # Vertical
         
@@ -228,24 +232,24 @@ class Game:
         self.solve_dfs_btn.draw(surface)
         self.reset_btn.draw(surface)
         
-        # Draw instructions và game status - UPDATED instructions
-        font = pygame.font.SysFont(None, 24)
-        instructions = [
-            "Rush Hour Puzzle Solver",
-            "Click 'Solve BFS' or 'Solve DFS' to watch AI solve", 
-            "Click 'Reset' to return to initial state",
-            "Goal: Get RED car to exit →",
-            f"Algorithm: {self.current_algorithm}",
-            f"Status: {'Solving...' if self.show_solution else 'Ready to solve'}",
-            f"Solved: {'YES!' if self.map.is_solved() else 'Not yet'}",
-            f"Animation: {self.current_move_index}/{len(self.solved_moves)} moves" if self.show_solution else "Choose BFS (optimal) or DFS (faster search)"
-        ]
-        for i, text in enumerate(instructions):
-            color = (255, 255, 100) if i == 0 else (255, 255, 255)
-            if "Solved: YES!" in text:
-                color = (100, 255, 100)
-            text_surf = font.render(text, True, color)
-            surface.blit(text_surf, (50, 50 + i * 25))
+        # # Draw instructions và game status - UPDATED instructions
+        # font = pygame.font.SysFont(None, 24)
+        # instructions = [
+        #     "Rush Hour Puzzle Solver",
+        #     "Click 'Solve BFS' or 'Solve DFS' to watch AI solve", 
+        #     "Click 'Reset' to return to initial state",
+        #     "Goal: Get RED car to exit →",
+        #     f"Algorithm: {self.current_algorithm}",
+        #     f"Status: {'Solving...' if self.show_solution else 'Ready to solve'}",
+        #     f"Solved: {'YES!' if self.map.is_solved() else 'Not yet'}",
+        #     f"Animation: {self.current_move_index}/{len(self.solved_moves)} moves" if self.show_solution else "Choose BFS (optimal) or DFS (faster search)"
+        # ]
+        # for i, text in enumerate(instructions):
+        #     color = (255, 255, 100) if i == 0 else (255, 255, 255)
+        #     if "Solved: YES!" in text:
+        #         color = (100, 255, 100)
+        #     text_surf = font.render(text, True, color)
+        #     surface.blit(text_surf, (50, 50 + i * 25))
 
     # REMOVED: handle_keys method completely - no manual control
 
@@ -286,7 +290,9 @@ class Vehicle:
 
     def get_image(self):
         """Lấy hình ảnh phù hợp dựa trên orientation"""
-        if self.image_key == 'v3':
+        if self.image_key.startswith('v2'):
+            return self.images[f'v2_{self.orient}']
+        elif self.image_key.startswith('v3'):
             return self.images[f'v3_{self.orient}']
         return self.images[self.image_key]
 
@@ -303,7 +309,7 @@ class Vehicle:
         else:
             draw_x, draw_y = self.x, self.y
             
-        if self.images and self.image_key in self.images:
+        if self.images and self.image_key in self.images or (self.image_key.startswith('v2') or self.image_key.startswith('v3')):
             image = self.get_image()
             screen_x = BOARD_OFFSET_X + draw_x * TILE
             screen_y = BOARD_OFFSET_Y + draw_y * TILE
@@ -339,12 +345,12 @@ class Map:
     def load_vehicles(self):
         """Tạo các vehicle với layout phù hợp với hình ảnh"""
         self.initial_vehicles = [
-            Vehicle('target', 'h', 2, 0, 2, True, self.images),    # Target car (đỏ) - row 3
-            Vehicle('v2', 'h', 2, 0, 0, False, self.images),       # Top-left horizontal
-            Vehicle('v2', 'h', 2, 3, 1, False, self.images),       # Top-right horizontal  
-            Vehicle('v3_v', 'v', 3, 2, 0, False, self.images),       # Center vertical
-            Vehicle('v2', 'h', 2, 0, 4, False, self.images),       # Bottom-left horizontal
-            Vehicle('v2', 'h', 2, 4, 3, False, self.images),       # Right vertical
+            Vehicle('target', 'h', 2, 0, 2, True, self.images),    
+            Vehicle('v2', 'h', 2, 0, 0, False, self.images),       
+            Vehicle('v2', 'h', 2, 3, 1, False, self.images),       
+            Vehicle('v3', 'v', 3, 2, 0, False, self.images),     
+            Vehicle('v2', 'h', 2, 0, 4, False, self.images),       
+            Vehicle('v2', 'v', 2, 4, 3, False, self.images),       # FIX: Đây là vertical 2-tile vehicle
         ]
         self.reset()
 
