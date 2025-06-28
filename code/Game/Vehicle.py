@@ -1,4 +1,5 @@
 from constants import *
+from Graphic.Graphic import *
 
 # ===============================
 # Vehicle Class
@@ -37,16 +38,7 @@ class Vehicle:
         return (board_x, board_y) in self.positions()
 
     def draw(self, surf, pos_override=None):
-        if pos_override:
-            draw_x, draw_y = pos_override
-        else:
-            draw_x, draw_y = self.x, self.y
-            
-        image = self.get_image()
-        if image:
-            screen_x = BOARD_OFFSET_X + draw_x * TILE
-            screen_y = BOARD_OFFSET_Y + draw_y * TILE
-            surf.blit(image, (screen_x, screen_y))
+        gfx.draw_vehicle(surf, self, pos_override)
 
     def copy(self):
         return Vehicle(self.image_key, self.orient, self.len, self.x, self.y, self.is_target, self.images)

@@ -1,6 +1,7 @@
 from constants import *
 from UI.Button import *
 from Screen.BaseScreen import *
+from Graphic.Graphic import *
 
 # ===============================
 # Menu Screen
@@ -10,23 +11,19 @@ class MenuScreen(Screen):
         super().__init__(screen_manager)
         self.play_btn = Button("PLAY", (SCREEN_W//2 - 100, SCREEN_H//2 - 50), 200, 60)
         
-    def draw(self, surface):
+    def draw_menu_background(self, surface):
+        """Draw menu screen background"""
         surface.fill((30, 30, 60))
-        
-        # Title
-        font = pygame.font.SysFont(None, 96)
-        title = font.render("RUSH HOUR", True, YELLOW)
-        title_rect = title.get_rect(center=(SCREEN_W//2, 200))
-        surface.blit(title, title_rect)
-        
-        # Subtitle
-        small_font = pygame.font.SysFont(None, 36)
-        subtitle = small_font.render("Puzzle Game", True, WHITE)
-        subtitle_rect = subtitle.get_rect(center=(SCREEN_W//2, 250))
-        surface.blit(subtitle, subtitle_rect)
-        
-        # Button
-        self.play_btn.draw(surface)
+
+    def draw_menu_screen(self, surface, play_button):
+        """Draw complete menu screen"""
+        self.draw_menu_background(surface)
+        gfx.draw_title(surface, "RUSH HOUR", (SCREEN_W//2, 200))
+        gfx.draw_subtitle(surface, "Puzzle Game", (SCREEN_W//2, 250))
+        gfx.draw_button(surface, play_button)    
+
+    def draw(self, surface):        
+        self.draw_menu_screen(surface, self.play_btn)
         
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -52,22 +49,23 @@ class LevelSelectScreen(Screen):
             x = start_x + i * (button_width + 20)
             y = start_y
             self.level_buttons.append(Button(f"Level {i+1}", (x, y), button_width, button_height))
-            
-    def draw(self, surface):
+
+    def draw_level_select_background(self, surface):
+        """Draw level select screen background"""
         surface.fill((25, 35, 50))
+
+    def draw_level_select_screen(self, surface, level_buttons, back_button):
+        """Draw complete level select screen"""
+        self.draw_level_select_background(surface)
+        gfx.draw_title(surface, "SELECT LEVEL", (SCREEN_W//2, 150), 64, WHITE)
         
-        # Title
-        font = pygame.font.SysFont(None, 64)
-        title = font.render("SELECT LEVEL", True, WHITE)
-        title_rect = title.get_rect(center=(SCREEN_W//2, 150))
-        surface.blit(title, title_rect)
+        for btn in level_buttons:
+            gfx.draw_button(surface, btn)
         
-        # Level buttons
-        for btn in self.level_buttons:
-            btn.draw(surface)
-            
-        # Back button
-        self.back_btn.draw(surface)
+        gfx.draw_button(surface, back_button)
+
+    def draw(self, surface):
+        self.draw_level_select_screen(surface, self.level_buttons, self.back_btn)
         
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:

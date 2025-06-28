@@ -1,8 +1,8 @@
 from SolverAlgorithms.Solver import DFSSolver
 from Game.Vehicle import Vehicle
 from constants import *
-import pygame
 import time
+from Graphic.Graphic import *
 
 # ===============================
 # Map Class
@@ -159,18 +159,51 @@ class Map:
                 self.selected_vehicle.x = new_x
                 self.selected_vehicle.y = new_y
 
-    def draw(self, surf):
-        # Draw map overlay
+    def draw_map_overlay(self, surface):
+        """Draw map overlay"""
         if 'map' in self.images and self.images['map']:
-            surf.blit(self.images['map'], (BOARD_OFFSET_X, BOARD_OFFSET_Y))
+            surface.blit(self.images['map'], (BOARD_OFFSET_X, BOARD_OFFSET_Y))
 
-        # Draw exit
-        exit_rect = pygame.Rect(BOARD_OFFSET_X + MAP_N * TILE, BOARD_OFFSET_Y + 2 * TILE, 20, TILE)
-        pygame.draw.rect(surf, (255, 200, 200), exit_rect)
+    def draw_exit(self, surface):
+        """Draw exit area"""
+        exit_rect = pygame.Rect(
+            BOARD_OFFSET_X + MAP_N * TILE, 
+            BOARD_OFFSET_Y + 2 * TILE, 
+            20, 
+            TILE
+        )
+        pygame.draw.rect(surface, (255, 200, 200), exit_rect)
 
-        # Draw vehicles
-        for vehicle in self.vehicles:
-            vehicle.draw(surf)
+    def draw_vehicle(self, surface, vehicle, pos_override=None):
+        """Draw a single vehicle"""
+        if pos_override:
+            draw_x, draw_y = pos_override
+        else:
+            draw_x, draw_y = vehicle.x, vehicle.y
+            
+        image = self.get_vehicle_image(vehicle)
+        if image:
+            screen_x = BOARD_OFFSET_X + draw_x * TILE
+            screen_y = BOARD_OFFSET_Y + draw_y * TILE
+            surface.blit(image, (screen_x, screen_y))
+
+    def get_vehicle_image(self, vehicle):
+        """Get appropriate image for vehicle"""
+        if vehicle.image_key.startswith('v2'):
+            return self.images.get(f'v2_{vehicle.orient}')
+        elif vehicle.image_key.startswith('v3'):
+            return self.images.get(f'v3_{vehicle.orient}')
+        return self.images.get(vehicle.image_key)
+
+    def draw_all_vehicles(self, surface, vehicles):
+        """Draw all vehicles"""
+        for vehicle in vehicles:
+            self.draw_vehicle(surface, vehicle)
+
+    def draw(self, surf):
+        self.draw_map_overlay(surf)
+        self.draw_exit(surf)
+        self.draw_all_vehicles(surf, self.vehicles)
 
     def is_solved(self):
         for vehicle in self.vehicles:

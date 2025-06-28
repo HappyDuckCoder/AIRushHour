@@ -1,5 +1,6 @@
 from constants import *
 import pygame
+from Graphic.Graphic import *
 
 # ===============================
 # Button Class
@@ -15,11 +16,7 @@ class Button:
         self.rect = pygame.Rect(pos[0], pos[1], width, height)
 
     def draw(self, surf):
-        pygame.draw.rect(surf, self.color, self.rect)
-        pygame.draw.rect(surf, WHITE, self.rect, 2)
-        text_surf = self.font.render(self.text, True, BLACK)
-        text_rect = text_surf.get_rect(center=self.rect.center)
-        surf.blit(text_surf, text_rect)
+        gfx.draw_button(surf, self)
 
     def hit(self, mpos):
         return self.rect.collidepoint(mpos)

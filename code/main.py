@@ -11,6 +11,7 @@ from Screen.GameScreen import *
 class Program:
     def __init__(self):
         pygame.init()
+
         self.screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
         pygame.display.set_caption("Rush Hour Puzzle")
         self.clock = pygame.time.Clock()
