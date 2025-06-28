@@ -22,6 +22,7 @@ class Map:
         self.current_move_index = 0
         self.move_timer = 0
         self.move_delay = 0.5  # seconds between moves
+        self.list_solver = []
 
     def create_level_data(self):
         """Create 2 different level configurations"""
@@ -70,8 +71,15 @@ class Map:
                 self.current_move_index = 0
                 self.solving = True
                 self.move_timer = time.time()
+                
+                self.list_solver = solution
+                self.print_solution(solution)
             else:
                 print("No solution found!")
+
+    def print_solution(self, solution):
+        for move in solution:
+            print(f"Move: {move}")
 
     def update_solving(self):
         """Update the solving animation"""
@@ -85,9 +93,7 @@ class Map:
                     # Apply the move
                     self.vehicles[vehicle_index].x += dx
                     self.vehicles[vehicle_index].y += dy
-                    
-                    print(f"Applied move {self.current_move_index + 1}/{len(self.solution_moves)}: Vehicle {vehicle_index} moved by ({dx}, {dy})")
-                    
+                                        
                     self.current_move_index += 1
                     self.move_timer = current_time
                 else:
