@@ -1,13 +1,30 @@
 from constants import *
+from abc import ABC, abstractmethod
 
-#== == == == == == == == == == == == == == == =
-#DFS Solver
-#== == == == == == == == == == == == == == == =
-class DFSSolver:
+#==============================================
+# Strategy Interface
+#==============================================
+class SolverStrategy(ABC):
+    """Abstract base class for solving strategies"""
+    
+    @abstractmethod
+    def solve(self, map_obj):
+        """Solve the puzzle and return list of moves"""
+        pass
+    
+    @abstractmethod
+    def get_name(self):
+        """Return the name of the strategy"""
+        pass
+
+#==============================================
+# Base Solver Class (Common functionality)
+#==============================================
+class BaseSolver:
+    """Base class containing common solver functionality"""
+    
     def __init__(self, map_obj):
         self.map = map_obj
-        self.visited = set()
-        self.solution = []
         
     def get_state_key(self, vehicles):
         """Create a unique key for the current state"""
@@ -90,10 +107,25 @@ class DFSSolver:
         new_vehicles[vehicle_index].x += dx
         new_vehicles[vehicle_index].y += dy
         return new_vehicles
+
+#==============================================
+# Concrete Strategy: DFS
+#==============================================
+class DFSStrategy(SolverStrategy, BaseSolver):
+    """Depth-First Search strategy"""
     
-    def dfs(self, vehicles, path, depth=0, max_depth=50):
+    def __init__(self, map_obj, max_depth=50):
+        super().__init__(map_obj)
+        self.max_depth = max_depth
+        self.visited = set()
+        self.solution = []
+    
+    def get_name(self):
+        return f"DFS (max_depth={self.max_depth})"
+    
+    def dfs(self, vehicles, path, depth=0):
         """DFS search for solution"""
-        if depth > max_depth:
+        if depth > self.max_depth:
             return False
             
         state_key = self.get_state_key(vehicles)
@@ -112,7 +144,7 @@ class DFSSolver:
             new_vehicles = self.apply_move(vehicles, move)
             path.append(move)
             
-            if self.dfs(new_vehicles, path, depth + 1, max_depth):
+            if self.dfs(new_vehicles, path, depth + 1):
                 return True
             
             path.pop()
@@ -120,13 +152,96 @@ class DFSSolver:
         return False
     
     def solve(self):
-        """Solve the puzzle and return list of moves"""
+        """Solve the puzzle using DFS"""
         self.visited.clear()
         self.solution.clear()
         
         initial_vehicles = [v.copy() for v in self.map.vehicles]
         
-        if self.dfs(initial_vehicles, [], 0, 50):
+        if self.dfs(initial_vehicles, [], 0):
             return self.solution
         else:
             return None
+
+#==============================================
+# Concrete Strategy: BFS
+#==============================================
+from collections import deque
+
+class BFSStrategy(SolverStrategy, BaseSolver):
+    """Breadth-First Search strategy"""
+    
+    def __init__(self, map_obj, max_moves=1000):
+        super().__init__(map_obj)
+        self.max_moves = max_moves
+    
+    def get_name(self):
+        return f"BFS (max_moves={self.max_moves})"
+    
+    def solve(self):
+        """Solve the puzzle using BFS"""
+        initial_vehicles = [v.copy() for v in self.map.vehicles]
+        initial_state = self.get_state_key(initial_vehicles)
+        
+        if self.is_solved(initial_vehicles):
+            return []
+        
+        queue = deque([(initial_vehicles, [])])
+        visited = {initial_state}
+        moves_count = 0
+        
+        while queue and moves_count < self.max_moves:
+            current_vehicles, path = queue.popleft()
+            moves_count += 1
+            
+            moves = self.get_possible_moves(current_vehicles)
+            
+            for move in moves:
+                new_vehicles = self.apply_move(current_vehicles, move)
+                new_state = self.get_state_key(new_vehicles)
+                
+                if new_state not in visited:
+                    visited.add(new_state)
+                    new_path = path + [move]
+                    
+                    if self.is_solved(new_vehicles):
+                        return new_path
+                    
+                    queue.append((new_vehicles, new_path))
+        
+        return None
+
+#==============================================
+# Context: Puzzle Solver
+#==============================================
+class PuzzleSolver:
+    def __init__(self, map_obj, strategy: SolverStrategy = None):
+        self.map = map_obj
+        self.strategy = strategy or DFSStrategy(map_obj)
+    
+    def set_strategy(self, strategy: SolverStrategy):
+        """Change the solving strategy"""
+        self.strategy = strategy
+    
+    def solve(self):
+        """Solve the puzzle using current strategy"""
+        print(f"Using strategy: {self.strategy.get_name()}")
+        return self.strategy.solve()
+    
+    def get_strategy_name(self):
+        """Get the name of current strategy"""
+        return self.strategy.get_name()
+
+#==============================================
+# Strategy Factory (Optional - for easy creation)
+#==============================================
+class StrategyFactory:
+    """Factory to create different strategies"""
+    
+    @staticmethod
+    def create_dfs(map_obj, max_depth=50):
+        return DFSStrategy(map_obj, max_depth)
+    
+    @staticmethod
+    def create_bfs(map_obj, max_moves=1000):
+        return BFSStrategy(map_obj, max_moves)

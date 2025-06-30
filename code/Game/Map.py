@@ -1,4 +1,4 @@
-from SolverAlgorithms.Solver import DFSSolver
+from SolverAlgorithms.Solver import *
 from Game.Vehicle import Vehicle
 from constants import *
 import time
@@ -16,7 +16,9 @@ class Map:
         self.level_data = self.create_level_data()
         self.load_level(1)
         self.selected_vehicle = None
-        self.solver = DFSSolver(self)
+        
+        self.solver = None
+
         self.solving = False
         self.solution_moves = []
         self.current_move_index = 0
@@ -60,11 +62,23 @@ class Map:
         self.current_move_index = 0
         self.move_timer = 0
 
-    def start_solving(self):
-        """Start the DFS solving process"""
+    def start_solving(self, nameAlgo: str):
         if not self.solving:
-            print("Starting DFS solver...")
+            print(f"Starting {nameAlgo} solver...")
+
+            # Chọn chiến lược phù hợp
+            if nameAlgo.lower() == "dfs":
+                strategy = StrategyFactory.create_dfs(self)
+            elif nameAlgo.lower() == "bfs":
+                strategy = StrategyFactory.create_bfs(self)
+            else:
+                print(f"Unknown algorithm: {nameAlgo}")
+                return
+            
+            self.solver = PuzzleSolver(self, strategy)
+
             solution = self.solver.solve()
+
             if solution:
                 print(f"Solution found with {len(solution)} moves!")
                 self.solution_moves = solution

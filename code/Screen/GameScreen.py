@@ -16,7 +16,8 @@ class GameScreen(Screen):
         # Buttons
         self.reset_btn = Button("Reset", (50, SCREEN_H - 100), 120, 40)
         self.back_btn = Button("Menu", (50, 50), 120, 40)
-        self.solve_btn = Button("Solve", (50, SCREEN_H - 150), 120, 40, ORANGE)
+        self.solve_dfs = Button("Solve With DFS", (50, SCREEN_H - 150), 120, 40, ORANGE)
+        self.solve_bfs = Button("Solve With BFS", (50, SCREEN_H - 200), 120, 40, BLUE)
 
         self.images = {}
 
@@ -24,7 +25,6 @@ class GameScreen(Screen):
         self.load_images()
 
     def load_images(self):
-        """Load all necessary images"""
         self.images = gfx.images
         
     def load_level(self, level_num):
@@ -53,7 +53,7 @@ class GameScreen(Screen):
             gfx.draw_button(surface, button)
 
     def draw(self, surface):
-        self.draw_game_screen(surface, [self.reset_btn, self.back_btn, self.solve_btn])
+        self.draw_game_screen(surface, [self.reset_btn, self.back_btn, self.solve_dfs, self.solve_bfs])
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -61,8 +61,10 @@ class GameScreen(Screen):
                 self.map.reset()
             elif self.back_btn.hit(event.pos):
                 self.screen_manager.set_screen('menu')
-            elif self.solve_btn.hit(event.pos):
-                self.map.start_solving()
+            elif self.solve_dfs.hit(event.pos):
+                self.map.start_solving("DFS")
+            elif self.solve_bfs.hit(event.pos):
+                self.map.start_solving("BFS")
             else:
                 self.map.handle_mouse_down(event.pos)
         elif event.type == pygame.MOUSEBUTTONUP:
