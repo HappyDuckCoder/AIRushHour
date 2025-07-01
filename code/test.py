@@ -429,7 +429,7 @@ class RushHourGame:
             self.solution_text.insert(tk.END, "Puzzle is already solved!\n")
             return
         
-        queue = deque([(start_state, [])])
+            
         visited = {start_state}
         
         max_iterations = 50000  # Prevent infinite loops

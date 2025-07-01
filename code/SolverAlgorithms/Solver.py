@@ -22,8 +22,11 @@ class SolverStrategy(ABC):
 #==============================================
 class BaseSolver:
 
-    # state: list các tuple của các xe 
+    # state: list các tuple của các xe, list của [{'A', 2, 3}, ...]
     # table: dict các (state, parent_state (để gen path), move, g(n), f(n)) 
+
+    # input: init state: list những cái xe 
+    # output: return list of moves [{'A', 0, 1},....]
 
     def __init__(self, map_obj):
         self.map = map_obj
@@ -177,6 +180,9 @@ class DFSStrategy(SolverStrategy, BaseSolver):
     
     def solve(self):
         """Solve the puzzle using DFS"""
+        
+        # self.clock.startTimer()
+
         self.visited.clear()
         self.solution.clear()
         
@@ -241,6 +247,10 @@ class BFSStrategy(SolverStrategy, BaseSolver):
 #==============================================
 class UCSStrategy(SolverStrategy, BaseSolver):
     """Uniform Cost Search strategy"""
+    pass
+
+class AStarStrategy(SolverStrategy, BaseSolver):
+    """A* Search strategy"""
     pass
 
 #==============================================
