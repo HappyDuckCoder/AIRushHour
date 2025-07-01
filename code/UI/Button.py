@@ -6,7 +6,7 @@ from Graphic.Graphic import *
 # Button Class
 # ===============================
 class Button:
-    def __init__(self, text, pos, width=120, height=40, color=GREEN):
+    def __init__(self, text, pos, width=120, height=40, color=GREEN, image=None):
         self.text = text
         self.pos = pos
         self.width = width

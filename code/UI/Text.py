@@ -1,1 +1,3 @@
 # chữ
+
+# class Text:

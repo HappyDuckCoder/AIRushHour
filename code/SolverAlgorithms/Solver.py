@@ -235,6 +235,14 @@ class BFSStrategy(SolverStrategy, BaseSolver):
         
         return None
 
+
+#==============================================
+# Concrete Strategy: UCS
+#==============================================
+class UCSStrategy(SolverStrategy, BaseSolver):
+    """Uniform Cost Search strategy"""
+    pass
+
 #==============================================
 # Context: Puzzle Solver
 #==============================================

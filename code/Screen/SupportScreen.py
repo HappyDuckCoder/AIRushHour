@@ -18,8 +18,13 @@ class MenuScreen(Screen):
     def draw_menu_screen(self, surface, play_button):
         """Draw complete menu screen"""
         self.draw_menu_background(surface)
+
+        # self.title.draw(surface)
+
         gfx.draw_title(surface, "RUSH HOUR", (SCREEN_W//2, 200))
         gfx.draw_subtitle(surface, "Puzzle Game", (SCREEN_W//2, 250))
+
+        # self.button.draw(surface)
         gfx.draw_button(surface, play_button)    
 
     def draw(self, surface):        
@@ -28,6 +33,9 @@ class MenuScreen(Screen):
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.play_btn.hit(event.pos):
+
+                # bật sound nhấn nút
+
                 self.screen_manager.set_screen('level_select')
 
 # ===============================

@@ -30,19 +30,19 @@ class Map:
         """Create 2 different level configurations"""
         levels = {
             1: [
-                Vehicle('target', 'h', 2, 0, 2, self.images, 'A'),
-                Vehicle('v2', 'h', 2, 0, 0, self.images, 'B'),
-                Vehicle('v2', 'h', 2, 3, 1, self.images, 'C'),
-                Vehicle('v3', 'v', 3, 2, 0, self.images, 'D'),
-                Vehicle('v2', 'h', 2, 0, 4, self.images, 'E'),
-                Vehicle('v2', 'v', 2, 4, 3, self.images, 'F'),
+                Vehicle('target', 'h', 2, 0, 2, 'A'),
+                Vehicle('v2', 'h', 2, 0, 0, 'B'),
+                Vehicle('v2', 'h', 2, 3, 1, 'C'),
+                Vehicle('v3', 'v', 3, 2, 0, 'D'),
+                Vehicle('v2', 'h', 2, 0, 4, 'E'),
+                Vehicle('v2', 'v', 2, 4, 3, 'F'),
             ],
             2: [
-                Vehicle('target', 'h', 2, 1, 2, self.images, 'A'),
-                Vehicle('v2', 'v', 2, 0, 0, self.images, 'B'),
-                Vehicle('v3', 'h', 3, 2, 0, self.images, 'C'),
-                Vehicle('v2', 'v', 2, 3, 1, self.images, 'D'),
-                Vehicle('v2', 'h', 2, 1, 4, self.images, 'E'),
+                Vehicle('target', 'h', 2, 1, 2, 'A'),
+                Vehicle('v2', 'v', 2, 0, 0, 'B'),
+                Vehicle('v3', 'h', 3, 2, 0, 'C'),
+                Vehicle('v2', 'v', 2, 3, 1, 'D'),
+                Vehicle('v2', 'h', 2, 1, 4, 'E'),
             ],
         }
 
@@ -126,7 +126,7 @@ class Map:
 
     def is_valid_move(self, vehicle, new_x, new_y):
         # Check bounds
-        for x, y in Vehicle(vehicle.image_key, vehicle.orient, vehicle.len, new_x, new_y, vehicle.is_target, self.images).positions():
+        for x, y in Vehicle(vehicle.image_key, vehicle.orient, vehicle.len, new_x, new_y, self.images, vehicle.name).positions():
             if not (0 <= x < MAP_N and 0 <= y < MAP_N):
                 return False
         
@@ -134,7 +134,7 @@ class Map:
         grid = self.get_grid()
         vehicle_index = self.vehicles.index(vehicle)
         
-        for x, y in Vehicle(vehicle.image_key, vehicle.orient, vehicle.len, new_x, new_y, vehicle.is_target, self.images).positions():
+        for x, y in Vehicle(vehicle.image_key, vehicle.orient, vehicle.len, new_x, new_y, self.images, vehicle.name).positions():
             if grid[y][x] != 0 and grid[y][x] != vehicle_index + 1:
                 return False
         
