@@ -43,7 +43,7 @@ class Map:
                 Vehicle('v3', 'h', 3, 2, 0, False, self.images),
                 Vehicle('v2', 'v', 2, 3, 1, False, self.images),
                 Vehicle('v2', 'h', 2, 1, 4, False, self.images),
-            ]
+            ],
         }
         return levels
 

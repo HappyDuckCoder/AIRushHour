@@ -45,7 +45,7 @@ class LevelSelectScreen(Screen):
         start_x = SCREEN_W//2 - button_width - 10
         start_y = 300
         
-        for i in range(2):
+        for i in range(NUMBER_OF_MAP):
             x = start_x + i * (button_width + 20)
             y = start_y
             self.level_buttons.append(Button(f"Level {i+1}", (x, y), button_width, button_height))
