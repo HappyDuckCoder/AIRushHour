@@ -29,22 +29,87 @@ class Map:
     def create_level_data(self):
         """Create 2 different level configurations"""
         levels = {
-            1: [  # Level 1
-                Vehicle('target', 'h', 2, 0, 2, True, self.images),    
-                Vehicle('v2', 'h', 2, 0, 0, False, self.images),       
-                Vehicle('v2', 'h', 2, 3, 1, False, self.images),       
-                Vehicle('v3', 'v', 3, 2, 0, False, self.images),     
-                Vehicle('v2', 'h', 2, 0, 4, False, self.images),       
+            1: [
+                Vehicle('target', 'h', 2, 0, 2, True, self.images),
+                Vehicle('v2', 'h', 2, 0, 0, False, self.images),
+                Vehicle('v2', 'h', 2, 3, 1, False, self.images),
+                Vehicle('v3', 'v', 3, 2, 0, False, self.images),
+                Vehicle('v2', 'h', 2, 0, 4, False, self.images),
                 Vehicle('v2', 'v', 2, 4, 3, False, self.images),
             ],
-            2: [  # Level 2
+            2: [
                 Vehicle('target', 'h', 2, 1, 2, True, self.images),
                 Vehicle('v2', 'v', 2, 0, 0, False, self.images),
                 Vehicle('v3', 'h', 3, 2, 0, False, self.images),
                 Vehicle('v2', 'v', 2, 3, 1, False, self.images),
                 Vehicle('v2', 'h', 2, 1, 4, False, self.images),
             ],
+            3: [
+                Vehicle('target', 'h', 2, 2, 2, True, self.images),
+                Vehicle('v2', 'v', 2, 0, 0, False, self.images),
+                Vehicle('v2', 'h', 2, 0, 3, False, self.images),
+                Vehicle('v3', 'v', 3, 1, 5, False, self.images),
+                Vehicle('v2', 'v', 2, 4, 0, False, self.images),
+                Vehicle('v2', 'h', 2, 4, 2, False, self.images),
+            ],
+            4: [
+                Vehicle('target', 'h', 2, 2, 1, True, self.images),
+                Vehicle('v2', 'v', 2, 0, 0, False, self.images),
+                Vehicle('v3', 'v', 3, 0, 2, False, self.images),
+                Vehicle('v2', 'h', 2, 3, 3, False, self.images),
+                Vehicle('v2', 'v', 2, 3, 5, False, self.images),
+                Vehicle('v2', 'h', 2, 5, 0, False, self.images),
+            ],
+            5: [
+                Vehicle('target', 'h', 2, 2, 3, True, self.images),
+                Vehicle('v2', 'v', 2, 0, 1, False, self.images),
+                Vehicle('v2', 'v', 2, 1, 0, False, self.images),
+                Vehicle('v3', 'h', 3, 0, 2, False, self.images),
+                Vehicle('v2', 'h', 2, 4, 1, False, self.images),
+                Vehicle('v2', 'v', 2, 3, 4, False, self.images),
+            ],
+            6: [
+                Vehicle('target', 'h', 2, 2, 1, True, self.images),
+                Vehicle('v2', 'v', 2, 0, 0, False, self.images),
+                Vehicle('v2', 'h', 2, 0, 3, False, self.images),
+                Vehicle('v3', 'v', 3, 1, 5, False, self.images),
+                Vehicle('v2', 'v', 2, 3, 0, False, self.images),
+                Vehicle('v2', 'h', 2, 5, 2, False, self.images),
+            ],
+            7: [
+                Vehicle('target', 'h', 2, 2, 0, True, self.images),
+                Vehicle('v2', 'v', 2, 0, 1, False, self.images),
+                Vehicle('v3', 'v', 3, 0, 3, False, self.images),
+                Vehicle('v2', 'h', 2, 4, 1, False, self.images),
+                Vehicle('v2', 'v', 2, 3, 5, False, self.images),
+                Vehicle('v2', 'h', 2, 5, 0, False, self.images),
+            ],
+            8: [
+                Vehicle('target', 'h', 2, 2, 2, True, self.images),
+                Vehicle('v2', 'v', 2, 0, 0, False, self.images),
+                Vehicle('v2', 'v', 2, 1, 4, False, self.images),
+                Vehicle('v3', 'h', 3, 3, 1, False, self.images),
+                Vehicle('v2', 'v', 2, 4, 3, False, self.images),
+                Vehicle('v2', 'h', 2, 5, 0, False, self.images),
+            ],
+            9: [
+                Vehicle('target', 'h', 2, 2, 1, True, self.images),
+                Vehicle('v2', 'v', 2, 0, 0, False, self.images),
+                Vehicle('v3', 'h', 3, 0, 2, False, self.images),
+                Vehicle('v2', 'v', 2, 1, 5, False, self.images),
+                Vehicle('v2', 'v', 2, 4, 0, False, self.images),
+                Vehicle('v2', 'h', 2, 5, 3, False, self.images),
+            ],
+            10: [
+                Vehicle('target', 'h', 2, 2, 3, True, self.images),
+                Vehicle('v2', 'v', 2, 0, 1, False, self.images),
+                Vehicle('v3', 'v', 3, 1, 0, False, self.images),
+                Vehicle('v2', 'h', 2, 3, 2, False, self.images),
+                Vehicle('v2', 'h', 2, 4, 4, False, self.images),
+                Vehicle('v2', 'v', 2, 3, 5, False, self.images),
+            ],
         }
+
         return levels
 
     def load_level(self, level_num):

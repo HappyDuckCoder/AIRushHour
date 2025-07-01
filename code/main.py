@@ -21,17 +21,19 @@ class Program:
         self.screen_manager = ScreenManager()
         
         # Create screens
+        intro_screen = IntroScreen(self.screen_manager)
         menu_screen = MenuScreen(self.screen_manager)
         level_select_screen = LevelSelectScreen(self.screen_manager)
         game_screen = GameScreen(self.screen_manager)
         
         # Add screens to manager
+        self.screen_manager.add_screen('intro', intro_screen)
         self.screen_manager.add_screen('menu', menu_screen)
         self.screen_manager.add_screen('level_select', level_select_screen)
         self.screen_manager.add_screen('game', game_screen)
         
         # Start with menu screen
-        self.screen_manager.set_screen('menu')
+        self.screen_manager.set_screen('intro')
 
     def run(self):
         running = True

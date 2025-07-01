@@ -39,15 +39,19 @@ class LevelSelectScreen(Screen):
         self.back_btn = Button("BACK", (50, 50), 120, 50)
         self.level_buttons = []
         
-        # Create 2 level buttons
-        button_width = 120
-        button_height = 80
-        start_x = SCREEN_W//2 - button_width - 10
-        start_y = 300
-        
+        button_width = 140
+        button_height = 60
+        cols = 3
+        padding_x = 40
+        padding_y = 30
+        start_x = SCREEN_W // 2 - ((button_width + padding_x) * cols // 2) + padding_x // 2
+        start_y = 250
+
         for i in range(NUMBER_OF_MAP):
-            x = start_x + i * (button_width + 20)
-            y = start_y
+            row = i // cols
+            col = i % cols
+            x = start_x + col * (button_width + padding_x)
+            y = start_y + row * (button_height + padding_y)
             self.level_buttons.append(Button(f"Level {i+1}", (x, y), button_width, button_height))
 
     def draw_level_select_background(self, surface):
@@ -77,3 +81,36 @@ class LevelSelectScreen(Screen):
                         game_screen = self.screen_manager.screens['game']
                         game_screen.load_level(i + 1)
                         self.screen_manager.set_screen('game')
+
+# ===============================
+# Intro Screen
+# ===============================
+class IntroScreen(Screen):
+    def __init__(self, screen_manager):
+        super().__init__(screen_manager)
+        self.timer = 0
+        self.duration = 2000  # milliseconds
+        self.start_time = pygame.time.get_ticks()
+        self.title_y = SCREEN_H
+        self.target_y = SCREEN_H // 2
+
+    def draw_intro_background(self, surface):
+        surface.fill((10, 10, 30))
+        
+    def draw_intro(self, surface):
+        self.draw_intro_background(surface)
+        elapsed = pygame.time.get_ticks() - self.start_time
+
+        if elapsed < self.duration:
+            # Animate the title moving up
+            progress = elapsed / self.duration
+            current_y = self.title_y - (self.title_y - self.target_y) * progress
+            gfx.draw_title(surface, "RUSH HOUR", (SCREEN_W // 2, int(current_y)))
+        else:
+            self.screen_manager.set_screen("menu")
+
+    def draw(self, surface):
+        self.draw_intro(surface)
+
+    def handle_event(self, event):
+        pass  # No interaction
