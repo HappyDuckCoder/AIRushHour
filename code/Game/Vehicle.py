@@ -5,14 +5,14 @@ from Graphic.Graphic import *
 # Vehicle Class
 # ===============================
 class Vehicle:
-    def __init__(self, image_key, orientation, length, x, y, is_target=False, images=None):
+    def __init__(self, image_key, orientation, length, x, y, images=None, name='A'):
         self.image_key = image_key
         self.orient = orientation
         self.len = length
         self.x = x
         self.y = y
-        self.is_target = is_target
         self.images = images
+        self.name = name
         self.dragging = False
         self.drag_offset_x = 0
         self.drag_offset_y = 0
@@ -41,4 +41,9 @@ class Vehicle:
         gfx.draw_vehicle(surf, self, pos_override)
 
     def copy(self):
-        return Vehicle(self.image_key, self.orient, self.len, self.x, self.y, self.is_target, self.images)
+        return Vehicle(self.image_key, self.orient, self.len, self.x, self.y, self.images, self.name)
+    
+    def change_vehicle_data(self): 
+        a = [self.name, self.x, self.y]
+        b = [self.name, self.orient, self.len]
+        return a, b

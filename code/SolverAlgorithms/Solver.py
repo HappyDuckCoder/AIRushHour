@@ -21,7 +21,10 @@ class SolverStrategy(ABC):
 # Base Solver Class (Common functionality)
 #==============================================
 class BaseSolver:
-    """Base class containing common solver functionality"""
+
+    # state: list các tuple của các xe 
+    # table: dict các (state, parent_state (để gen path), move, g(n), f(n)) 
+
     def __init__(self, map_obj):
         self.map = map_obj
 
@@ -32,7 +35,7 @@ class BaseSolver:
     def is_solved(self, vehicles):
         """Check if the puzzle is solved"""
         for vehicle in vehicles:
-            if vehicle.is_target:
+            if vehicle.name == 'A':
                 rightmost_x = max(x for x, y in vehicle.positions())
                 return rightmost_x == MAP_N - 1
         return False
@@ -106,6 +109,28 @@ class BaseSolver:
         new_vehicles[vehicle_index].x += dx
         new_vehicles[vehicle_index].y += dy
         return new_vehicles
+
+    # def encode_state(state_tuple):
+
+    # def decode_state(state_bytes):
+
+    # def encode_table_entry():
+
+    # def decode_table_entry():
+
+    # def build_board_2d():
+
+    # def compute_blocked_map():
+
+    # precompute_helpful_moves():
+
+    # relative_helful_move():
+
+    # generate_successors():
+
+    # reconstruct_path():
+
+    # is_solved:
 
 #==============================================
 # Concrete Strategy: DFS
