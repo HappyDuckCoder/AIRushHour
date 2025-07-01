@@ -22,10 +22,9 @@ class SolverStrategy(ABC):
 #==============================================
 class BaseSolver:
     """Base class containing common solver functionality"""
-    
     def __init__(self, map_obj):
         self.map = map_obj
-        
+
     def get_state_key(self, vehicles):
         """Create a unique key for the current state"""
         return tuple((v.x, v.y) for v in vehicles)

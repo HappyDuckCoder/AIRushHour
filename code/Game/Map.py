@@ -140,7 +140,7 @@ class Map:
                 print(f"Unknown algorithm: {nameAlgo}")
                 return
             
-            self.solver = PuzzleSolver(self, strategy)
+            self.solver = PuzzleSolver(self, strategy) 
 
             solution = self.solver.solve()
 
