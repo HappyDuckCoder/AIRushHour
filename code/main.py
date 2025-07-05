@@ -1,9 +1,9 @@
 import pygame
 import sys
-from constants import *
-from Screen.BaseScreen import *
-from Screen.SupportScreen import *
-from Screen.GameScreen import *
+from constants import SCREEN_W, SCREEN_H, FPS, BLACK
+from Screen.BaseScreen import ScreenManager
+from Screen.SupportScreen import IntroScreen, MenuScreen, LevelSelectScreen
+from Screen.GameScreen import GameScreen
 # ===============================
 # Program Class
 # ===============================

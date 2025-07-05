@@ -1,6 +1,6 @@
-from Screen.BaseScreen import *
-from Game.Map import *
-from UI.Button import *
+from Screen.BaseScreen import Screen
+from Game.Map import Map
+from UI.Button import Button
 from Graphic.Graphic import *
 
 # ===============================

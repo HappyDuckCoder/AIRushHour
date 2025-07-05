@@ -1,6 +1,6 @@
 from constants import *
-from UI.Button import *
-from Screen.BaseScreen import *
+from UI.Button import Button
+from Screen.BaseScreen import Screen
 from Graphic.Graphic import *
 
 # ===============================
