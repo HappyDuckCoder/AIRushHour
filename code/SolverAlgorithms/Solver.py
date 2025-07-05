@@ -33,7 +33,7 @@ class BaseSolver:
 
     def get_state_key(self, vehicles):
         """Create a unique key for the current state"""
-        return tuple((v.x, v.y) for v in vehicles)
+        return tuple((v.name, v.x, v.y) for v in vehicles)
     
     def is_solved(self, vehicles):
         """Check if the puzzle is solved"""
@@ -49,33 +49,25 @@ class BaseSolver:
         
         for i, vehicle in enumerate(vehicles):
             if vehicle.orient == 'h':
-                #Try moving left
-                for new_x in range(vehicle.x - 1, -1, -1):
-                    if self.is_valid_move_for_state(vehicles, i, new_x, vehicle.y):
-                        moves.append((i, new_x - vehicle.x, 0))
-                    else:
-                        break
+                # Try moving left by 1 step
+                new_x = vehicle.x - 1
+                if self.is_valid_move_for_state(vehicles, i, new_x, vehicle.y):
+                    moves.append({'name': vehicle.name, 'dx': -1, 'dy': 0, 'index': i})
 
-                #Try moving right
-                for new_x in range(vehicle.x + 1, MAP_N):
-                    if self.is_valid_move_for_state(vehicles, i, new_x, vehicle.y):
-                        moves.append((i, new_x - vehicle.x, 0))
-                    else:
-                        break
+                # Try moving right by 1 step
+                new_x = vehicle.x + 1
+                if self.is_valid_move_for_state(vehicles, i, new_x, vehicle.y):
+                    moves.append({'name': vehicle.name, 'dx': 1, 'dy': 0, 'index': i})
             else:  # vertical
-                #Try moving up
-                for new_y in range(vehicle.y - 1, -1, -1):
-                    if self.is_valid_move_for_state(vehicles, i, vehicle.x, new_y):
-                        moves.append((i, 0, new_y - vehicle.y))
-                    else:
-                        break
+                # Try moving up by 1 step
+                new_y = vehicle.y - 1
+                if self.is_valid_move_for_state(vehicles, i, vehicle.x, new_y):
+                    moves.append({'name': vehicle.name, 'dx': 0, 'dy': -1, 'index': i})
 
-                #Try moving down
-                for new_y in range(vehicle.y + 1, MAP_N):
-                    if self.is_valid_move_for_state(vehicles, i, vehicle.x, new_y):
-                        moves.append((i, 0, new_y - vehicle.y))
-                    else:
-                        break
+                # Try moving down by 1 step
+                new_y = vehicle.y + 1
+                if self.is_valid_move_for_state(vehicles, i, vehicle.x, new_y):
+                    moves.append({'name': vehicle.name, 'dx': 0, 'dy': 1, 'index': i})
         
         return moves
     
@@ -108,33 +100,13 @@ class BaseSolver:
     def apply_move(self, vehicles, move):
         """Apply a move to the vehicles and return new state"""
         new_vehicles = [v.copy() for v in vehicles]
-        vehicle_index, dx, dy = move
+        vehicle_index = move['index']
+        dx = move['dx']
+        dy = move['dy']
         new_vehicles[vehicle_index].x += dx
         new_vehicles[vehicle_index].y += dy
         return new_vehicles
-
-    # def encode_state(state_tuple):
-
-    # def decode_state(state_bytes):
-
-    # def encode_table_entry():
-
-    # def decode_table_entry():
-
-    # def build_board_2d():
-
-    # def compute_blocked_map():
-
-    # precompute_helpful_moves():
-
-    # relative_helful_move():
-
-    # generate_successors():
-
-    # reconstruct_path():
-
-    # is_solved:
-
+    
 #==============================================
 # Concrete Strategy: DFS
 #==============================================
@@ -144,7 +116,7 @@ class DFSStrategy(SolverStrategy, BaseSolver):
     def __init__(self, map_obj, max_depth=50):
         super().__init__(map_obj)
         self.max_depth = max_depth
-        self.visited = set()
+        self.table = {}  # Thay thế self.visited = set() bằng table
         self.solution = []
     
     def get_name(self):
@@ -156,15 +128,37 @@ class DFSStrategy(SolverStrategy, BaseSolver):
             return False
             
         state_key = self.get_state_key(vehicles)
-        if state_key in self.visited:
+        
+        # Kiểm tra xem state đã được thăm chưa
+        if state_key in self.table:
             return False
         
-        self.visited.add(state_key)
+        # Thêm state vào table với thông tin chi tiết
+        parent_state = None
+        move = None
+        if path:
+            # Tạo parent state từ path trước đó
+            parent_vehicles = [v.copy() for v in self.map.vehicles]
+            for prev_move in path[:-1]:
+                parent_vehicles = self.apply_move(parent_vehicles, prev_move)
+            parent_state = self.get_state_key(parent_vehicles)
+            move = path[-1]
         
+        # Lưu thông tin state vào table
+        self.table[state_key] = {
+            'parent_state': parent_state,
+            'move': move,
+            'g_n': None, 
+            'f_n': None, 
+            'visited': True
+        }
+        
+        # Kiểm tra điều kiện kết thúc
         if self.is_solved(vehicles):
             self.solution = path[:]
             return True
         
+        # Lấy các nước đi có thể
         moves = self.get_possible_moves(vehicles)
         
         for move in moves:
@@ -180,10 +174,7 @@ class DFSStrategy(SolverStrategy, BaseSolver):
     
     def solve(self):
         """Solve the puzzle using DFS"""
-        
-        # self.clock.startTimer()
-
-        self.visited.clear()
+        self.table.clear()  
         self.solution.clear()
         
         initial_vehicles = [v.copy() for v in self.map.vehicles]
@@ -192,66 +183,21 @@ class DFSStrategy(SolverStrategy, BaseSolver):
             return self.solution
         else:
             return None
-
-#==============================================
-# Concrete Strategy: BFS
-#==============================================
-from collections import deque
-
-class BFSStrategy(SolverStrategy, BaseSolver):
-    """Breadth-First Search strategy"""
     
-    def __init__(self, map_obj, max_moves=1000):
-        super().__init__(map_obj)
-        self.max_moves = max_moves
-    
-    def get_name(self):
-        return f"BFS (max_moves={self.max_moves})"
-    
-    def solve(self):
-        """Solve the puzzle using BFS"""
-        initial_vehicles = [v.copy() for v in self.map.vehicles]
-        initial_state = self.get_state_key(initial_vehicles)
-        
-        if self.is_solved(initial_vehicles):
+    def get_solution_path(self):
+        """Reconstruct solution path from table (nếu cần)"""
+        if not self.solution:
             return []
         
-        queue = deque([(initial_vehicles, [])])
-        visited = {initial_state}
-        moves_count = 0
-        
-        while queue and moves_count < self.max_moves:
-            current_vehicles, path = queue.popleft()
-            moves_count += 1
-            
-            moves = self.get_possible_moves(current_vehicles)
-            
-            for move in moves:
-                new_vehicles = self.apply_move(current_vehicles, move)
-                new_state = self.get_state_key(new_vehicles)
-                
-                if new_state not in visited:
-                    visited.add(new_state)
-                    new_path = path + [move]
-                    
-                    if self.is_solved(new_vehicles):
-                        return new_path
-                    
-                    queue.append((new_vehicles, new_path))
-        
-        return None
-
-
-#==============================================
-# Concrete Strategy: UCS
-#==============================================
-class UCSStrategy(SolverStrategy, BaseSolver):
-    """Uniform Cost Search strategy"""
-    pass
-
-class AStarStrategy(SolverStrategy, BaseSolver):
-    """A* Search strategy"""
-    pass
+        # Có thể sử dụng table để tái tạo đường đi nếu cần
+        return self.solution
+    
+    def get_statistics(self):
+        """Get search statistics"""
+        return {
+            'states_explored': len(self.table),
+            'solution_length': len(self.solution) if self.solution else 0
+        }
 
 #==============================================
 # Context: Puzzle Solver
@@ -283,7 +229,4 @@ class StrategyFactory:
     @staticmethod
     def create_dfs(map_obj, max_depth=50):
         return DFSStrategy(map_obj, max_depth)
-    
-    @staticmethod
-    def create_bfs(map_obj, max_moves=1000):
-        return BFSStrategy(map_obj, max_moves)
+

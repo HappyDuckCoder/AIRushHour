@@ -97,13 +97,16 @@ class Map:
             print(f"Move: {move}")
 
     def update_solving(self):
-        """Update the solving animation"""
         if self.solving and self.solution_moves:
             current_time = time.time()
             if current_time - self.move_timer >= self.move_delay:
                 if self.current_move_index < len(self.solution_moves):
                     move = self.solution_moves[self.current_move_index]
-                    vehicle_index, dx, dy = move
+                    
+                    # Extract move information from the dictionary format
+                    vehicle_index = move['index']
+                    dx = move['dx']
+                    dy = move['dy']
                     
                     # Apply the move
                     self.vehicles[vehicle_index].x += dx
@@ -115,6 +118,10 @@ class Map:
                     # Solving complete
                     self.solving = False
                     print("Solving complete!")
+        elif self.solving and not self.solution_moves:
+            # No solution found
+            self.solving = False
+            print("No solution found!")
 
     def get_grid(self):
         grid = [[0] * MAP_N for _ in range(MAP_N)]

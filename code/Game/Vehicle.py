@@ -5,7 +5,7 @@ from Graphic.Graphic import *
 # Vehicle Class
 # ===============================
 class Vehicle:
-    def __init__(self, image_key, orientation, length, x, y, images=None, name='A'):
+    def __init__(self, image_key, orientation, length, x, y, name, images=None):
         self.image_key = image_key
         self.orient = orientation
         self.len = length
