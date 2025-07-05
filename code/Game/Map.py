@@ -1,4 +1,5 @@
 from SolverAlgorithms.Solver import *
+from SolverAlgorithms.SolverFactory import *
 from Game.Vehicle import Vehicle
 from constants import *
 import time
