@@ -9,7 +9,7 @@ class DFSStrategy(SolverStrategy, BaseSolver):
     def __init__(self, map_obj, max_depth=50):
         super().__init__(map_obj)
         self.max_depth = max_depth
-        self.table = {}  # Thay thế self.visited = set() bằng table
+        self.table = {}  
         self.solution = []
     
     def get_name(self):
@@ -84,10 +84,3 @@ class DFSStrategy(SolverStrategy, BaseSolver):
         
         # Có thể sử dụng table để tái tạo đường đi nếu cần
         return self.solution
-    
-    def get_statistics(self):
-        """Get search statistics"""
-        return {
-            'states_explored': len(self.table),
-            'solution_length': len(self.solution) if self.solution else 0
-        }
