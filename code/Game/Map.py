@@ -204,23 +204,15 @@ class Map:
         )
         pygame.draw.rect(surface, (255, 200, 200), exit_rect)
 
-    def get_vehicle_image(self, vehicle):
-        """Get appropriate image for vehicle"""
-        if vehicle.image_key.startswith('v2'):
-            return self.images.get(f'v2_{vehicle.orient}')
-        elif vehicle.image_key.startswith('v3'):
-            return self.images.get(f'v3_{vehicle.orient}')
-        return self.images.get(vehicle.image_key)
-
-    def draw_all_vehicles(self, surface, vehicles):
+    def draw_all_vehicles(self, surface):
         """Draw all vehicles"""
-        for vehicle in vehicles:
+        for vehicle in self.vehicles:
             vehicle.draw(surface)
 
     def draw(self, surf):
         self.draw_map_overlay(surf)
         self.draw_exit(surf)
-        self.draw_all_vehicles(surf, self.vehicles)
+        self.draw_all_vehicles(surf)
 
     def is_solved(self):
         for vehicle in self.vehicles:

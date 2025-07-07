@@ -17,14 +17,15 @@ class Vehicle:
         self.dragging = False
         self.drag_offset_x = 0
         self.drag_offset_y = 0
-        self.resource_manager = ResourceManager
+        self.resource_manager = ResourceManager()
 
     def get_image(self):
         if self.image_key.startswith('v2'):
             return self.resource_manager.get_image(f'v2_{self.orient}')
         elif self.image_key.startswith('v3'):
             return self.resource_manager.get_image(f'v3_{self.orient}')
-        return self.images.get(self.image_key)
+        else:
+            return self.resource_manager.get_image(self.image_key)
     
     def draw_vehicle(self, surface, pos_override=None):
         """Draw a single vehicle"""
@@ -33,7 +34,7 @@ class Vehicle:
         else:
             draw_x, draw_y = self.x, self.y
             
-        image = self.resource_manager.get_image(self.image_key)
+        image = self.get_image()
         if image:
             screen_x = BOARD_OFFSET_X + draw_x * TILE
             screen_y = BOARD_OFFSET_Y + draw_y * TILE

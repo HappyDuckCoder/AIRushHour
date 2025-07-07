@@ -58,23 +58,60 @@ class ResourceManager:
         return ResourceManager._fonts.get(name)
 
     @staticmethod
+    def get_image(name):
+        return ResourceManager._images.get(name)
+
+    @staticmethod
     def upload_all():
         """Load all necessary game resources"""
+
         # Background
-        ResourceManager.load_image("background", "assets/bg.png", size=(SCREEN_W, SCREEN_H))
-        
+        ResourceManager.load_image(
+            "background",
+            "assets/bg.png",
+            size=(SCREEN_W, SCREEN_H)
+        )
+
         # Map overlay
         map_size = MAP_N * TILE
-        ResourceManager.load_image("map", "assets/map.png", size=(map_size, map_size))
+        ResourceManager.load_image(
+            "map",
+            "assets/map.png",
+            size=(map_size, map_size)
+        )
 
-        # Vehicles
-        ResourceManager.load_image("target", "assets/target.png", size=(TILE * 2, TILE))
-        
-        ResourceManager.load_image("v2_h", "assets/vh2h.png", size=(TILE * 2, TILE))
-        ResourceManager.load_image("v2_v", "assets/vh2h.png", size=(TILE, TILE * 2), rotate=90)
-        
-        ResourceManager.load_image("v3_h", "assets/vh3h.png", size=(TILE * 3, TILE))
-        ResourceManager.load_image("v3_v", "assets/vh3h.png", size=(TILE, TILE * 3), rotate=90)
+        # Target vehicle
+        ResourceManager.load_image(
+            "target",
+            "assets/target.png",
+            size=(TILE * 2, TILE)
+        )
+
+        # Vehicle 2-tile (horizontal & vertical)
+        ResourceManager.load_image(
+            "v2_h",
+            "assets/vh2h.png",
+            size=(TILE * 2, TILE)
+        )
+        ResourceManager.load_image(
+            "v2_v",
+            "assets/vh2h.png",
+            size=(TILE, TILE * 2),
+            rotate=90
+        )
+
+        # Vehicle 3-tile (horizontal & vertical)
+        ResourceManager.load_image(
+            "v3_h",
+            "assets/vh3h.png",
+            size=(TILE * 3, TILE)
+        )
+        ResourceManager.load_image(
+            "v3_v",
+            "assets/vh3h.png",
+            size=(TILE, TILE * 3),
+            rotate=90
+        )
 
     @staticmethod
     def unload_all():
