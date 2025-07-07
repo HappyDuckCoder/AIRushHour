@@ -4,6 +4,7 @@ from constants import *
 from Screen.SupportScreen import IntroScreen, MenuScreen, LevelSelectScreen
 from Screen.GameScreen import GameScreen
 from Screen.BaseScreen import ScreenManager
+from Resource.Resource import ResourceManager
 
 # ===============================
 # Program Class - Singleton
@@ -30,6 +31,9 @@ class Program:
 
         # Initialize screen manager
         self.screen_manager = ScreenManager()
+
+        # Upload all resources
+        ResourceManager().upload_all()
 
         # Create screens
         intro_screen = IntroScreen(self.screen_manager)

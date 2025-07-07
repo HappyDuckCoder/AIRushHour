@@ -7,40 +7,6 @@ class Graphics:
         self.SCREEN_H = screen_height
         self.MAP_N = map_size
         self.TILE = tile_size
-        
-        # Load images
-        self.images = {}
-        self.load_images()
-    
-    def load_images(self):
-        """Load all necessary images"""
-        try:
-            # Background
-            self.images['background'] = pygame.image.load("bg.png")
-            self.images['background'] = pygame.transform.scale(self.images['background'], (self.SCREEN_W, self.SCREEN_H))
-            
-            # Map overlay
-            self.images['map'] = pygame.image.load("map.png")
-            self.images['map'] = pygame.transform.scale(self.images['map'], (self.MAP_N * self.TILE, self.MAP_N * self.TILE))
-            
-            # Vehicle images
-            target_img = pygame.image.load("target.png")
-            self.images['target'] = pygame.transform.scale(target_img, (self.TILE * 2, self.TILE))
-            
-            v2_img = pygame.image.load("vh2h.png")
-            self.images['v2_h'] = pygame.transform.scale(v2_img, (self.TILE * 2, self.TILE))
-            v2_rotated = pygame.transform.rotate(v2_img, 90)
-            self.images['v2_v'] = pygame.transform.scale(v2_rotated, (self.TILE, self.TILE * 2))
-            
-            v3_img = pygame.image.load("vh3h.png")
-            self.images['v3_h'] = pygame.transform.scale(v3_img, (self.TILE * 3, self.TILE))
-            v3_rotated = pygame.transform.rotate(v3_img, 90)
-            self.images['v3_v'] = pygame.transform.scale(v3_rotated, (self.TILE, self.TILE * 3))
-            
-            print("All images loaded successfully!")
-        except pygame.error as e:
-            print(f"Could not load images: {e}")
-            self.images = {}
     
     def draw_button(self, surface, button):
         """Draw a button"""

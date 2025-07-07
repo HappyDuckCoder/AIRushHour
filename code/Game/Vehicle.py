@@ -1,5 +1,6 @@
 from constants import *
 from Graphic.Graphic import *
+from Resource.Resource import ResourceManager
 
 # ===============================
 # Vehicle Class
@@ -16,15 +17,27 @@ class Vehicle:
         self.dragging = False
         self.drag_offset_x = 0
         self.drag_offset_y = 0
+        self.resource_manager = ResourceManager
 
     def get_image(self):
-        if self.images:
-            if self.image_key.startswith('v2'):
-                return self.images.get(f'v2_{self.orient}')
-            elif self.image_key.startswith('v3'):
-                return self.images.get(f'v3_{self.orient}')
-            return self.images.get(self.image_key)
-        return None
+        if self.image_key.startswith('v2'):
+            return self.resource_manager.get_image(f'v2_{self.orient}')
+        elif self.image_key.startswith('v3'):
+            return self.resource_manager.get_image(f'v3_{self.orient}')
+        return self.images.get(self.image_key)
+    
+    def draw_vehicle(self, surface, pos_override=None):
+        """Draw a single vehicle"""
+        if pos_override:
+            draw_x, draw_y = pos_override
+        else:
+            draw_x, draw_y = self.x, self.y
+            
+        image = self.resource_manager.get_image(self.image_key)
+        if image:
+            screen_x = BOARD_OFFSET_X + draw_x * TILE
+            screen_y = BOARD_OFFSET_Y + draw_y * TILE
+            surface.blit(image, (screen_x, screen_y))
 
     def positions(self):
         if self.orient == 'h':
@@ -38,7 +51,7 @@ class Vehicle:
         return (board_x, board_y) in self.positions()
 
     def draw(self, surf, pos_override=None):
-        gfx.draw_vehicle(surf, self, pos_override)
+        self.draw_vehicle(surf, pos_override)
 
     def copy(self):
         return Vehicle(self.image_key, self.orient, self.len, self.x, self.y, self.images, self.name)

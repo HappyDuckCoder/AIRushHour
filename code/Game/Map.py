@@ -3,14 +3,14 @@ from SolverAlgorithms.SolverFactory import StrategyFactory
 from Game.Vehicle import Vehicle
 from constants import *
 import time
-from Graphic.Graphic import *
+from Graphic.Graphic import gfx, pygame
+from Resource.Resource import ResourceManager
 
 # ===============================
 # Map Class
 # ===============================
 class Map:
-    def __init__(self, images):
-        self.images = images
+    def __init__(self):
         self.initial_vehicles = []
         self.vehicles = []
         self.current_level = 1
@@ -134,7 +134,7 @@ class Map:
 
     def is_valid_move(self, vehicle, new_x, new_y):
         # Check bounds
-        for x, y in Vehicle(vehicle.image_key, vehicle.orient, vehicle.len, new_x, new_y, self.images, vehicle.name).positions():
+        for x, y in Vehicle(vehicle.image_key, vehicle.orient, vehicle.len, new_x, new_y, vehicle.name).positions():
             if not (0 <= x < MAP_N and 0 <= y < MAP_N):
                 return False
         
@@ -142,7 +142,7 @@ class Map:
         grid = self.get_grid()
         vehicle_index = self.vehicles.index(vehicle)
         
-        for x, y in Vehicle(vehicle.image_key, vehicle.orient, vehicle.len, new_x, new_y, self.images, vehicle.name).positions():
+        for x, y in Vehicle(vehicle.image_key, vehicle.orient, vehicle.len, new_x, new_y, vehicle.name).positions():
             if grid[y][x] != 0 and grid[y][x] != vehicle_index + 1:
                 return False
         
@@ -190,8 +190,9 @@ class Map:
 
     def draw_map_overlay(self, surface):
         """Draw map overlay"""
-        if 'map' in self.images and self.images['map']:
-            surface.blit(self.images['map'], (BOARD_OFFSET_X, BOARD_OFFSET_Y))
+        map_image = ResourceManager().get_image('map')
+        if map_image:
+            surface.blit(map_image, (BOARD_OFFSET_X, BOARD_OFFSET_Y))
 
     def draw_exit(self, surface):
         """Draw exit area"""
@@ -202,19 +203,6 @@ class Map:
             TILE
         )
         pygame.draw.rect(surface, (255, 200, 200), exit_rect)
-
-    def draw_vehicle(self, surface, vehicle, pos_override=None):
-        """Draw a single vehicle"""
-        if pos_override:
-            draw_x, draw_y = pos_override
-        else:
-            draw_x, draw_y = vehicle.x, vehicle.y
-            
-        image = self.get_vehicle_image(vehicle)
-        if image:
-            screen_x = BOARD_OFFSET_X + draw_x * TILE
-            screen_y = BOARD_OFFSET_Y + draw_y * TILE
-            surface.blit(image, (screen_x, screen_y))
 
     def get_vehicle_image(self, vehicle):
         """Get appropriate image for vehicle"""
@@ -227,7 +215,7 @@ class Map:
     def draw_all_vehicles(self, surface, vehicles):
         """Draw all vehicles"""
         for vehicle in vehicles:
-            self.draw_vehicle(surface, vehicle)
+            vehicle.draw(surface)
 
     def draw(self, surf):
         self.draw_map_overlay(surf)

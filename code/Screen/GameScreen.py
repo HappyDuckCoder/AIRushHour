@@ -2,6 +2,7 @@ from Screen.BaseScreen import Screen
 from Game.Map import Map
 from UI.Button import Button
 from Graphic.Graphic import *
+from Resource.Resource import ResourceManager
 
 # ===============================
 # Game Screen
@@ -10,22 +11,13 @@ class GameScreen(Screen):
     def __init__(self, screen_manager):
         super().__init__(screen_manager)
         
-        self.load_images()
-        self.map = Map(self.images)
+        self.map = Map()
         
         # Buttons
         self.reset_btn = Button("Reset", (50, SCREEN_H - 100), 120, 40)
         self.back_btn = Button("Menu", (50, 50), 120, 40)
         self.solve_dfs = Button("Solve With DFS", (50, SCREEN_H - 150), 120, 40, ORANGE)
         self.solve_bfs = Button("Solve With BFS", (50, SCREEN_H - 200), 120, 40, BLUE)
-
-        self.images = {}
-
-        # load luôn
-        self.load_images()
-
-    def load_images(self):
-        self.images = gfx.images
         
     def load_level(self, level_num):
         self.map.load_level(level_num)
@@ -36,10 +28,12 @@ class GameScreen(Screen):
     
     def draw_game_background(self, surface):
         """Draw game screen background"""
-        if 'background' in self.images:
-            surface.blit(self.images['background'], (0, 0))
+        background = ResourceManager().get_image('background')
+        if background:
+            surface.blit(background, (0, 0))
         else:
             surface.fill((40, 40, 80))
+
 
     def draw_game_screen(self, surface, buttons):
         """Draw complete game screen"""

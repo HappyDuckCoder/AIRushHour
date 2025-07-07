@@ -1,7 +1,7 @@
 from constants import *
 from UI.Button import Button
 from Screen.BaseScreen import Screen
-from Graphic.Graphic import *
+from Graphic.Graphic import gfx, pygame
 
 # ===============================
 # Menu Screen
