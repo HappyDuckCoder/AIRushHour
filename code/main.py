@@ -17,24 +17,13 @@ class Program:
             cls._instance = super(Program, cls).__new__(cls)
         return cls._instance
 
-    def __init__(self):
-        # Chỉ init lần đầu
-        if hasattr(self, '_initialized') and self._initialized:
-            return
-
-        pygame.init()
-
+    def create_window(self):
         self.screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
         pygame.display.set_caption("Rush Hour Puzzle")
         self.clock = pygame.time.Clock()
         self.buffer = pygame.Surface((SCREEN_W, SCREEN_H))
 
-        # Initialize screen manager
-        self.screen_manager = ScreenManager()
-
-        # Upload all resources
-        ResourceManager().upload_all()
-
+    def create_all_screens(self):
         # Create screens
         intro_screen = IntroScreen(self.screen_manager)
         menu_screen = MenuScreen(self.screen_manager)
@@ -46,6 +35,26 @@ class Program:
         self.screen_manager.add_screen('menu', menu_screen)
         self.screen_manager.add_screen('level_select', level_select_screen)
         self.screen_manager.add_screen('game', game_screen)
+
+
+    def __init__(self):
+        # Chỉ init lần đầu
+        if hasattr(self, '_initialized') and self._initialized:
+            return
+
+        pygame.init()
+
+        # Create window
+        self.create_window()        
+
+        # Upload all resources
+        ResourceManager().upload_all()
+        
+        # Initialize screen manager
+        self.screen_manager = ScreenManager()
+
+        # Create all screens
+        self.create_all_screens()
 
         # Start with intro screen
         self.screen_manager.set_screen('intro')
