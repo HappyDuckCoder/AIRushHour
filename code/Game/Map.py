@@ -7,7 +7,7 @@ from Graphic.Graphic import gfx, pygame
 from Resource.Resource import ResourceManager
 
 # ===============================
-# Map Class
+# Enhanced Map Class
 # ===============================
 class Map:
     def __init__(self):
@@ -19,13 +19,16 @@ class Map:
         self.selected_vehicle = None
         
         self.solver = None
-
         self.solving = False
         self.solution_moves = []
         self.current_move_index = 0
         self.move_timer = 0
         self.move_delay = 0.5  # seconds between moves
         self.list_solver = []
+        
+        # Victory animation
+        self.game_won = False
+        self.victory_animation_started = False
 
     def create_level_data(self):
         """Create 2 different level configurations"""
@@ -46,7 +49,6 @@ class Map:
                 Vehicle('v2', 'h', 2, 1, 4, 'E'),
             ],
         }
-
         return levels
 
     def load_level(self, level_num):
@@ -57,14 +59,46 @@ class Map:
             self.reset()
 
     def reset(self):
+        """Reset game state"""
         self.vehicles = [v.copy() for v in self.initial_vehicles]
         self.selected_vehicle = None
         self.solving = False
         self.solution_moves = []
         self.current_move_index = 0
         self.move_timer = 0
+        self.game_won = False
+        self.victory_animation_started = False
+
+    def update(self):
+        """Update game state"""
+        # Cập nhật solving animation
+        if self.solving:
+            self.update_solving()
+        
+        # Cập nhật tất cả vehicles
+        for vehicle in self.vehicles:
+            vehicle.update()
+        
+        # Kiểm tra chiến thắng
+        if not self.game_won and self.is_solved():
+            self.game_won = True
+            self.start_victory_animation()
+
+    def start_victory_animation(self):
+        """Bắt đầu animation chiến thắng"""
+        if not self.victory_animation_started:
+            self.victory_animation_started = True
+            
+            # Tìm target vehicle và phát animation chiến thắng
+            for vehicle in self.vehicles:
+                if vehicle.is_target:
+                    vehicle.play_victory_animation()
+                    break
+            
+            print("Victory! All characters are celebrating!")
 
     def start_solving(self, nameAlgo: str):
+        """Bắt đầu giải puzzle"""
         if not self.solving:
             print(f"Starting {nameAlgo} solver...")
 
@@ -78,7 +112,6 @@ class Map:
                 return
             
             self.solver = PuzzleSolver(self, strategy) 
-
             solution = self.solver.solve()
 
             if solution:
@@ -94,10 +127,12 @@ class Map:
                 print("No solution found!")
 
     def print_solution(self, solution):
-        for move in solution:
-            print(f"Move: {move}")
+        """In ra các bước giải"""
+        for i, move in enumerate(solution):
+            print(f"Move {i+1}: {move}")
 
     def update_solving(self):
+        """Cập nhật quá trình giải puzzle tự động"""
         if self.solving and self.solution_moves:
             current_time = time.time()
             if current_time - self.move_timer >= self.move_delay:
@@ -125,6 +160,7 @@ class Map:
             print("No solution found!")
 
     def get_grid(self):
+        """Lấy grid hiện tại"""
         grid = [[0] * MAP_N for _ in range(MAP_N)]
         for i, vehicle in enumerate(self.vehicles):
             for x, y in vehicle.positions():
@@ -133,6 +169,7 @@ class Map:
         return grid
 
     def is_valid_move(self, vehicle, new_x, new_y):
+        """Kiểm tra xem nước đi có hợp lệ không"""
         # Check bounds
         for x, y in Vehicle(vehicle.image_key, vehicle.orient, vehicle.len, new_x, new_y, vehicle.name).positions():
             if not (0 <= x < MAP_N and 0 <= y < MAP_N):
@@ -149,6 +186,7 @@ class Map:
         return True
 
     def handle_mouse_down(self, pos):
+        """Xử lý click chuột"""
         if self.solving:
             return  # Don't allow manual moves while solving
             
@@ -163,11 +201,13 @@ class Map:
                 break
 
     def handle_mouse_up(self, pos):
+        """Xử lý thả chuột"""
         if self.selected_vehicle:
             self.selected_vehicle.dragging = False
             self.selected_vehicle = None
 
     def handle_mouse_motion(self, pos):
+        """Xử lý di chuyển chuột"""
         if self.solving:
             return  # Don't allow manual moves while solving
             
@@ -189,13 +229,13 @@ class Map:
                 self.selected_vehicle.y = new_y
 
     def draw_map_overlay(self, surface):
-        """Draw map overlay"""
+        """Vẽ overlay của map"""
         map_image = ResourceManager().get_image('map')
         if map_image:
             surface.blit(map_image, (BOARD_OFFSET_X, BOARD_OFFSET_Y))
 
     def draw_exit(self, surface):
-        """Draw exit area"""
+        """Vẽ vùng exit"""
         exit_rect = pygame.Rect(
             BOARD_OFFSET_X + MAP_N * TILE, 
             BOARD_OFFSET_Y + 2 * TILE, 
@@ -205,16 +245,34 @@ class Map:
         pygame.draw.rect(surface, (255, 200, 200), exit_rect)
 
     def draw_all_vehicles(self, surface):
-        """Draw all vehicles"""
+        """Vẽ tất cả vehicles"""
         for vehicle in self.vehicles:
             vehicle.draw(surface)
 
+    def draw_victory_message(self, surface):
+        """Vẽ thông báo chiến thắng"""
+        if self.game_won:
+            # Tạo surface cho text
+            font = pygame.font.Font(None, 48)
+            text = font.render("VICTORY!", True, (255, 215, 0))  # Gold color
+            text_rect = text.get_rect(center=(surface.get_width()//2, 100))
+            
+            # Vẽ background cho text
+            background_rect = text_rect.inflate(20, 10)
+            pygame.draw.rect(surface, (0, 0, 0, 128), background_rect)
+            
+            # Vẽ text
+            surface.blit(text, text_rect)
+
     def draw(self, surf):
+        """Vẽ toàn bộ map"""
         self.draw_map_overlay(surf)
         self.draw_exit(surf)
         self.draw_all_vehicles(surf)
+        self.draw_victory_message(surf)
 
     def is_solved(self):
+        """Kiểm tra xem puzzle đã được giải chưa"""
         for vehicle in self.vehicles:
             if vehicle.is_target:
                 rightmost_x = max(x for x, y in vehicle.positions())

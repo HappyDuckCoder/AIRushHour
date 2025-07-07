@@ -23,6 +23,7 @@ class GameScreen(Screen):
         self.map.load_level(level_num)
 
     def update(self):
+        self.map.update()
         self.map.update_solving()
         return True
     

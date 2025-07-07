@@ -19,3 +19,10 @@ ORANGE = (255, 165, 0)
 # Offset để căn giữa game board trong màn hình
 BOARD_OFFSET_X = (SCREEN_W - MAP_N * TILE) // 2
 BOARD_OFFSET_Y = (SCREEN_H - MAP_N * TILE) // 2
+
+# Font size
+FONT_SIZE = 20
+
+# Animation Size 
+FRAME_WIDTH = 192     # All frames same width
+FRAME_HEIGHT = 192
