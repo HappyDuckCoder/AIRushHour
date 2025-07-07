@@ -33,7 +33,7 @@ class AudioManager:
         self.sound_effects = {
             'button_click': 'assets/audio/button_click.wav',
             'button_hover': 'assets/audio/button_hover.wav',
-            'level_select': 'assets/audio/level_select.wav',
+            #'level_select': 'assets/audio/level_select.wav',
             #'solve_start': 'assets/audio/solve_start.wav',
             #'victory': 'assets/audio/victory.wav',
             #'car_move': 'assets/audio/car_move.wav',

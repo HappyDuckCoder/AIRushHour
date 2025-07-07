@@ -4,8 +4,9 @@
     "\\assets",
     "\\code",
     "\\code\\Audio",
-    "\\code\\Screen"
+    "\\code\\Game",
+    "\\code\\SolverAlgorithms"
   ],
-  "SelectedNode": "\\code\\Audio\\audio.py",
+  "SelectedNode": "\\code\\main.py",
   "PreviewInSolutionExplorer": false
 }
