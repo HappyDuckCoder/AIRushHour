@@ -2,6 +2,7 @@ from constants import *
 from UI.Button import Button
 from Screen.BaseScreen import Screen
 from Graphic.Graphic import gfx, pygame
+from Audio.audio import play_background_music, play_button_sound, play_level_select_sound
 
 # ===============================
 # Menu Screen
@@ -29,12 +30,15 @@ class MenuScreen(Screen):
 
     def draw(self, surface):        
         self.draw_menu_screen(surface, self.play_btn)
+
+    #def on_enter(self):
+        play_background_music('menu')
         
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.play_btn.hit(event.pos):
 
-                # bật sound nhấn nút
+                play_button_sound()
 
                 self.screen_manager.set_screen('level_select')
 
@@ -80,8 +84,10 @@ class LevelSelectScreen(Screen):
         self.draw_level_select_screen(surface, self.level_buttons, self.back_btn)
         
     def handle_event(self, event):
+        play_background_music('level_select')  # Play level select music
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.back_btn.hit(event.pos):
+                play_button_sound() # Play button sound
                 self.screen_manager.set_screen('menu')
             else:
                 for i, btn in enumerate(self.level_buttons):
@@ -121,4 +127,5 @@ class IntroScreen(Screen):
         self.draw_intro(surface)
 
     def handle_event(self, event):
+        play_background_music('intro')  # Play intro music
         pass  # No interaction

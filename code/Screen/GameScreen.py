@@ -3,6 +3,7 @@ from Game.Map import Map
 from UI.Button import Button
 from Graphic.Graphic import *
 from Resource.Resource import ResourceManager
+from Audio.audio import play_background_music #, play_solve_sound, play_car_move_sound
 
 # ===============================
 # Game Screen
@@ -50,6 +51,7 @@ class GameScreen(Screen):
         self.draw_game_screen(surface, [self.reset_btn, self.back_btn, self.solve_dfs, self.solve_bfs])
 
     def handle_event(self, event):
+        play_background_music('game', fade_in=False)
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.reset_btn.hit(event.pos):
                 self.map.reset()
