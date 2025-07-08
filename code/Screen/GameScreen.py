@@ -15,9 +15,11 @@ class GameScreen(Screen):
         
         # Buttons
         self.reset_btn = Button("Reset", (50, SCREEN_H - 100), 120, 40)
-        self.back_btn = Button("Menu", (50, 50), 120, 40)
         self.solve_dfs = Button("Solve With DFS", (50, SCREEN_H - 150), 120, 40, ORANGE)
         self.solve_bfs = Button("Solve With BFS", (50, SCREEN_H - 200), 120, 40, BLUE)
+        self.back_btn = Button("Back", (50, 50), 120, 40)
+        self.next_level_btn = Button("Next Level", (SCREEN_W - 170, 50), 120, 40, GREEN)
+        self.menu_btn = Button("Main Menu", (SCREEN_W - 170, 100), 120, 40, GRAY)
         
     def load_level(self, level_num):
         self.map.load_level(level_num)
@@ -47,21 +49,37 @@ class GameScreen(Screen):
             gfx.draw_button(surface, button)
 
     def draw(self, surface):
-        self.draw_game_screen(surface, [self.reset_btn, self.back_btn, self.solve_dfs, self.solve_bfs])
+        self.draw_game_screen(
+            surface, 
+            [self.reset_btn, self.back_btn, self.solve_dfs, self.solve_bfs, self.next_level_btn, self.menu_btn]
+        )
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.reset_btn.hit(event.pos):
                 self.map.reset()
             elif self.back_btn.hit(event.pos):
-                self.screen_manager.set_screen('menu')
+                self.screen_manager.set_screen('level_select')
             elif self.solve_dfs.hit(event.pos):
                 self.map.start_solving("DFS")
             elif self.solve_bfs.hit(event.pos):
                 self.map.start_solving("BFS")
+            elif self.next_level_btn.hit(event.pos):
+                self.next_level()
+            elif self.menu_btn.hit(event.pos):
+                self.screen_manager.set_screen('menu')
             else:
                 self.map.handle_mouse_down(event.pos)
         elif event.type == pygame.MOUSEBUTTONUP:
             self.map.handle_mouse_up(event.pos)
         elif event.type == pygame.MOUSEMOTION:
             self.map.handle_mouse_motion(event.pos)
+
+    def next_level(self):
+        """Load next level"""
+        next_level_num = self.map.current_level + 1
+        try:
+            self.load_level(next_level_num)
+        except:
+            print(f"Level {next_level_num} not found, staying at current level")
+            pass

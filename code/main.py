@@ -36,7 +36,6 @@ class Program:
         self.screen_manager.add_screen('level_select', level_select_screen)
         self.screen_manager.add_screen('game', game_screen)
 
-
     def __init__(self):
         # Chỉ init lần đầu
         if hasattr(self, '_initialized') and self._initialized:
@@ -60,9 +59,9 @@ class Program:
         self.screen_manager.set_screen('intro')
 
         # quick test in game
-        game_screen = self.screen_manager.screens['game']
-        game_screen.load_level(1)
-        self.screen_manager.set_screen('game')
+        # game_screen = self.screen_manager.screens['game']
+        # game_screen.load_level(1)
+        # self.screen_manager.set_screen('game')
 
         # Đánh dấu đã init rồi
         self._initialized = True
