@@ -176,20 +176,4 @@ class ResourceManager:
             "assets/Units/Black Units/Warrior/Warrior_Guard.png", 
             FRAME_WIDTH, FRAME_HEIGHT, 6
         )
-        
-        # Monk animations
-        ResourceManager.load_frames(
-            "monk_idle", 
-            "assets/Units/Black Units/Monk/Monk_Idle.png", 
-            FRAME_WIDTH, FRAME_HEIGHT, 6
-        )
-        ResourceManager.load_frames(
-            "monk_run", 
-            "assets/Units/Black Units/Monk/Monk_Run.png", 
-            FRAME_WIDTH, FRAME_HEIGHT, 4
-        )
-        ResourceManager.load_frames(
-            "monk_heal", 
-            "assets/Units/Black Units/Monk/Monk_Heal.png", 
-            FRAME_WIDTH, FRAME_HEIGHT, 11
-        )
+    

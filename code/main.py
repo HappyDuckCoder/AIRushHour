@@ -57,7 +57,13 @@ class Program:
         self.create_all_screens()
 
         # Start with intro screen
-        self.screen_manager.set_screen('intro')
+        # self.screen_manager.set_screen('intro')
+
+        # quick test in game screen
+        self.screen_manager.set_screen('game')
+        game_screen = self.screen_manager.screens['game']
+        game_screen.load_level(1)
+
 
         # Đánh dấu đã init rồi
         self._initialized = True

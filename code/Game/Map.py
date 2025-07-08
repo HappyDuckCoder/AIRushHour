@@ -70,32 +70,15 @@ class Map:
         self.victory_animation_started = False
 
     def update(self):
-        """Update game state"""
-        # Cập nhật solving animation
+        """Update game state - OPTIMIZED"""
+        # Chỉ cập nhật solving animation khi đang solving
         if self.solving:
             self.update_solving()
         
-        # Cập nhật tất cả vehicles
+        # Chỉ cập nhật vehicles khi cần thiết
         for vehicle in self.vehicles:
-            vehicle.update()
-        
-        # Kiểm tra chiến thắng
-        if not self.game_won and self.is_solved():
-            self.game_won = True
-            self.start_victory_animation()
-
-    def start_victory_animation(self):
-        """Bắt đầu animation chiến thắng"""
-        if not self.victory_animation_started:
-            self.victory_animation_started = True
-            
-            # Tìm target vehicle và phát animation chiến thắng
-            for vehicle in self.vehicles:
-                if vehicle.is_target:
-                    vehicle.play_victory_animation()
-                    break
-            
-            print("Victory! All characters are celebrating!")
+            if vehicle.is_target or vehicle.dragging:
+                vehicle.update()
 
     def start_solving(self, nameAlgo: str):
         """Bắt đầu giải puzzle"""
@@ -249,27 +232,11 @@ class Map:
         for vehicle in self.vehicles:
             vehicle.draw(surface)
 
-    def draw_victory_message(self, surface):
-        """Vẽ thông báo chiến thắng"""
-        if self.game_won:
-            # Tạo surface cho text
-            font = pygame.font.Font(None, 48)
-            text = font.render("VICTORY!", True, (255, 215, 0))  # Gold color
-            text_rect = text.get_rect(center=(surface.get_width()//2, 100))
-            
-            # Vẽ background cho text
-            background_rect = text_rect.inflate(20, 10)
-            pygame.draw.rect(surface, (0, 0, 0, 128), background_rect)
-            
-            # Vẽ text
-            surface.blit(text, text_rect)
-
     def draw(self, surf):
         """Vẽ toàn bộ map"""
         self.draw_map_overlay(surf)
         self.draw_exit(surf)
         self.draw_all_vehicles(surf)
-        self.draw_victory_message(surf)
 
     def is_solved(self):
         """Kiểm tra xem puzzle đã được giải chưa"""
