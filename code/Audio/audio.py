@@ -78,12 +78,14 @@ class AudioManager:
     
     def toggle_music(self):
         """Bật/tắt nhạc nền"""
+        print(self.music_enabled)
         self.music_enabled = not self.music_enabled
         if self.music_enabled:
             if self.current_screen:
                 self.play_background_music(self.current_screen)
         else:
-            pygame.mixer.music.stop()
+            #pygame.mixer.music.stop()
+            self.music_enabled = False
     
     def toggle_sfx(self):
         """Bật/tắt hiệu ứng âm thanh"""

@@ -5,8 +5,9 @@
     "\\code",
     "\\code\\Audio",
     "\\code\\Game",
+    "\\code\\Screen",
     "\\code\\SolverAlgorithms"
   ],
-  "SelectedNode": "\\code\\main.py",
+  "SelectedNode": "\\code\\Screen\\GameScreen.py",
   "PreviewInSolutionExplorer": false
 }

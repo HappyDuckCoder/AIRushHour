@@ -3,7 +3,7 @@ from Game.Map import Map
 from UI.Button import Button
 from Graphic.Graphic import *
 from Resource.Resource import ResourceManager
-from Audio.audio import play_background_music #, play_solve_sound, play_car_move_sound
+from Audio.audio import play_background_music, AudioManager
 
 # ===============================
 # Game Screen
@@ -19,6 +19,7 @@ class GameScreen(Screen):
         self.back_btn = Button("Menu", (50, 50), 120, 40)
         self.solve_dfs = Button("Solve With DFS", (50, SCREEN_H - 150), 120, 40, ORANGE)
         self.solve_bfs = Button("Solve With BFS", (50, SCREEN_H - 200), 120, 40, BLUE)
+        self.switch_audio = Button("On/Off", (50, 100), 120, 40, GREEN)
         
     def load_level(self, level_num):
         self.map.load_level(level_num)
@@ -48,7 +49,7 @@ class GameScreen(Screen):
             gfx.draw_button(surface, button)
 
     def draw(self, surface):
-        self.draw_game_screen(surface, [self.reset_btn, self.back_btn, self.solve_dfs, self.solve_bfs])
+        self.draw_game_screen(surface, [self.reset_btn, self.back_btn, self.solve_dfs, self.solve_bfs, self.switch_audio])
 
     def handle_event(self, event):
         play_background_music('game', fade_in=False)
@@ -61,6 +62,8 @@ class GameScreen(Screen):
                 self.map.start_solving("DFS")
             elif self.solve_bfs.hit(event.pos):
                 self.map.start_solving("BFS")
+            elif self.switch_audio.hit(event.pos):
+                AudioManager().toggle_music()
             else:
                 self.map.handle_mouse_down(event.pos)
         elif event.type == pygame.MOUSEBUTTONUP:
