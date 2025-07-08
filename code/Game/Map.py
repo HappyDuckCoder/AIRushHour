@@ -187,6 +187,7 @@ class Map:
         """Xử lý thả chuột"""
         if self.selected_vehicle:
             self.selected_vehicle.dragging = False
+            self.selected_vehicle.reset_movement_state()
             self.selected_vehicle = None
 
     def handle_mouse_motion(self, pos):
@@ -210,7 +211,7 @@ class Map:
             if self.is_valid_move(self.selected_vehicle, new_x, new_y):
                 self.selected_vehicle.x = new_x
                 self.selected_vehicle.y = new_y
-
+        
     def draw_map_overlay(self, surface):
         """Vẽ overlay của map"""
         map_image = ResourceManager().get_image('map')

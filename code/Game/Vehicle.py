@@ -2,7 +2,6 @@ from Animation.CharacterAnimation import Warrior, Archer
 from Resource.Resource import ResourceManager
 from constants import *
 
-
 # ===============================
 # Vehicle Class - Optimized
 # ===============================
@@ -62,10 +61,6 @@ class Vehicle:
         
         self._characters_initialized = False
 
-        # *** KHỞI TẠO NGAY LẬP TỨC ĐỂ HIỂN THỊ KHI VỪA CHẠY GAME ***
-        self._characters_initialized = False
-        self._ensure_characters_ready()  # Gọi ngay để khởi tạo animations
-
     def _ensure_characters_ready(self):
         """Đảm bảo characters được khởi tạo đúng cách - LAZY LOADING"""
         if not self._characters_initialized and self.characters:
@@ -120,14 +115,31 @@ class Vehicle:
         
         self._update_character_positions()
 
-    def check_movement_state(self):
-        """Kiểm tra trạng thái di chuyển và cập nhật animation - OPTIMIZED"""
+    def reset_movement_state(self):
+        """Reset trạng thái di chuyển về idle - dùng khi solving complete"""
         if not self.is_target or not self.characters:
             return
             
-        # Chỉ kiểm tra khi có thay đổi vị trí
-        current_moving = (self.x != self.previous_x or self.y != self.previous_y)
+        self.is_moving = False
+        self.dragging = False
+        self._ensure_characters_ready()
         
+        for character in self.characters:
+            try:
+                character.set_state("idle")
+            except Exception as e:
+                print(f"Error resetting character to idle: {e}")
+
+    def check_movement_state(self):
+        """Kiểm tra trạng thái di chuyển và cập nhật animation"""
+        if not self.is_target or not self.characters:
+            return
+            
+        # Kiểm tra xem có đang di chuyển không (dựa vào dragging state hoặc position change)
+        position_changed = (self.x != self.previous_x or self.y != self.previous_y)
+        current_moving = self.dragging or position_changed
+        
+        # Chỉ cập nhật khi trạng thái thay đổi
         if current_moving != self.is_moving:
             self.is_moving = current_moving
             
@@ -174,13 +186,6 @@ class Vehicle:
             
             # Đảm bảo characters đã sẵn sàng trước khi update
             self._ensure_characters_ready()
-            
-            # Cập nhật từng character
-            for character in self.characters:
-                try:
-                    character.update()
-                except Exception as e:
-                    print(f"Error updating character: {e}")
 
     def get_image(self):
         """Lấy image cho vehicle thông thường (không phải target)"""
@@ -216,6 +221,7 @@ class Vehicle:
 
     def draw_target_vehicle(self, surface, pos_override=None):
         """Vẽ target vehicle bằng characters xếp hàng ngang"""
+
         if not self.characters:
             return
             
@@ -224,6 +230,8 @@ class Vehicle:
             
         # Nếu có pos_override, tạm thời cập nhật vị trí characters
         if pos_override:
+            # self.update_characters_position()
+
             temp_x, temp_y = pos_override
             base_x = BOARD_OFFSET_X + temp_x * TILE
             base_y = BOARD_OFFSET_Y + temp_y * TILE
@@ -234,11 +242,15 @@ class Vehicle:
             char_width = int(original_size * character_size)
             total_width = self.len * TILE
             spacing = total_width / 3
-            center_y = base_y + (TILE - char_width) // 2 - 10
+
+            # Tính vị trí y căn giữa tile
+            center_y = base_y + (TILE - char_width) // 2 - 50
+            pos1_x = base_x + spacing - char_width // 2 - 50 
+            pos2_x = base_x + spacing * 2 - char_width // 2 - 50
             
             positions = [
-                (base_x + spacing - char_width // 2, center_y),
-                (base_x + spacing * 2 - char_width // 2, center_y)
+                (pos1_x, center_y),
+                (pos2_x, center_y)
             ]
             
             # Vẽ characters tại vị trí tạm thời

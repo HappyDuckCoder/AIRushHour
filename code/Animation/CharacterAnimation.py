@@ -15,11 +15,19 @@ class Character:
         self.is_moving = False
         self.is_performing_skill = False
         self.direction = 1  # 1 for right, -1 for left
-        self.speed = 0.1
+        self.speed = 10
+
+        self.is_loaded = False
+        
+        # Cache cho scaled frames để tối ưu hiệu suất
+        self.scaled_frames_cache = {}
         
         # Load animations cho nhân vật
-        self._load_animations()
-        self.set_state("idle")
+        if not self.is_loaded:
+            self._load_animations()
+            self.is_loaded = True
+        else: 
+            self.set_state("idle")
     
     def _load_animations(self):
         """Load animations cho nhân vật - sẽ được override trong class con"""
@@ -34,6 +42,9 @@ class Character:
                 self.current_animation.index = 0
                 self.current_animation.done_once = False
                 self.current_animation.current_frames = self.current_animation.frames
+                
+                # Clear cache khi đổi animation
+                self.scaled_frames_cache.clear()
     
     def update(self):
         """Cập nhật nhân vật"""
@@ -59,55 +70,55 @@ class Character:
     
     def draw(self, surface):
         """Vẽ nhân vật với scale"""
-        if self.current_animation:
-            # Nếu có size khác 1.0, scale animation frames
-            if self.size != 1.0:
-                self._draw_scaled(surface)
+        if not self.current_animation:
+            # Thử khôi phục animation
+            if "idle" in self.animations and self.animations["idle"]:
+                self.current_animation = self.animations["idle"]
+                self.current_animation.index = 0
+                self.current_animation.done_once = False
             else:
-                self.current_animation.update(surface, self.x, self.y)
+                print("ERROR: No valid animations available!")
+                return
+        
+        self._draw_scaled(surface)
+
     
     def _draw_scaled(self, surface):
-        """Vẽ nhân vật với scale"""
-        if not self.current_animation:
+        """Vẽ nhân vật với scale - version được tối ưu"""
+        if not self.current_animation or not self.current_animation.current_frames:
             return
             
         # Lấy frame hiện tại
-        current_frame = self.current_animation.current_frames[self.current_animation.index]
-        if current_frame:
-            # Scale frame
+        current_frames = self.current_animation.current_frames
+        if self.current_animation.index >= len(current_frames):
+            return
+            
+        current_frame = current_frames[self.current_animation.index]
+        if not current_frame:
+            return
+        
+        # Tạo cache key để tránh scale lại frame đã được scale
+        cache_key = (
+            id(current_frame),  # ID của frame
+            self.size,          # Scale factor
+            self.direction      # Direction để phân biệt flipped frames
+        )
+        
+        # Kiểm tra cache
+        if cache_key not in self.scaled_frames_cache:
             original_size = current_frame.get_size()
             new_size = (int(original_size[0] * self.size), int(original_size[1] * self.size))
-            scaled_frame = pygame.transform.scale(current_frame, new_size)
-            
-            # Vẽ scaled frame
-            surface.blit(scaled_frame, (self.x, self.y))
-            
-            # Cập nhật animation index
-            self.current_animation.index += 1
-            if self.current_animation.index >= len(self.current_animation.frames):
-                self.current_animation.done_once = True
-                self.current_animation.index = 0
-    
-    def move(self, dx, dy):
-        """Di chuyển nhân vật"""
-        self.x += dx * self.speed
-        self.y += dy * self.speed
+            self.scaled_frames_cache[cache_key] = pygame.transform.scale(current_frame, new_size)
         
-        # Cập nhật hướng
-        if dx > 0:
-            self.direction = 1
-        elif dx < 0:
-            self.direction = -1
+        # Vẽ scaled frame từ cache
+        scaled_frame = self.scaled_frames_cache[cache_key]
+        surface.blit(scaled_frame, (self.x, self.y))
         
-        # Cập nhật trạng thái animation
-        if dx != 0 or dy != 0:
-            if not self.is_moving and not self.is_performing_skill:
-                self.set_state("run")
-                self.is_moving = True
-        else:
-            if self.is_moving and not self.is_performing_skill:
-                self.set_state("idle")
-                self.is_moving = False
+        # Cập nhật animation index (sử dụng current_frames thay vì frames)
+        self.current_animation.index += 1
+        if self.current_animation.index >= len(current_frames):
+            self.current_animation.done_once = True
+            self.current_animation.index = 0
     
     def perform_skill(self):
         """Thực hiện kỹ năng đặc biệt - sẽ được override"""
@@ -115,9 +126,23 @@ class Character:
     
     def get_rect(self):
         """Lấy rectangle cho collision detection với scale"""
+        if self.current_animation and self.current_animation.current_frames:
+            current_frame = self.current_animation.current_frames[self.current_animation.index]
+            if current_frame:
+                # Sử dụng kích thước thật của frame đã scale
+                original_size = current_frame.get_size()
+                scaled_width = int(original_size[0] * self.size)
+                scaled_height = int(original_size[1] * self.size)
+                return pygame.Rect(self.x, self.y, scaled_width, scaled_height)
+        
+        # Fallback nếu không có frame
         base_size = 32
         scaled_size = int(base_size * self.size)
         return pygame.Rect(self.x, self.y, scaled_size, scaled_size)
+    
+    def cleanup(self):
+        """Cleanup cache khi không cần thiết"""
+        self.scaled_frames_cache.clear()
 
 
 class Warrior(Character):
