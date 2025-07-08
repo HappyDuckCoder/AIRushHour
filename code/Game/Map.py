@@ -23,7 +23,7 @@ class Map:
         self.solution_moves = []
         self.current_move_index = 0
         self.move_timer = 0
-        self.move_delay = 0.5  # seconds between moves
+        self.move_delay = 0.5  
         self.list_solver = []
         
         # Victory animation
@@ -183,6 +183,10 @@ class Map:
                 return False
         
         return True
+
+    def handle_pause(self):
+        self.solving = not self.solving
+        return False  
 
     def handle_mouse_down(self, pos):
         """Xử lý click chuột"""

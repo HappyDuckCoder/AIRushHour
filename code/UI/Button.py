@@ -15,6 +15,9 @@ class Button:
         self.font = pygame.font.SysFont(None, 24)
         self.rect = pygame.Rect(pos[0], pos[1], width, height)
 
+    def set_text(self, text):
+        self.text = text
+
     def draw(self, surf):
         gfx.draw_button(surf, self)
 
