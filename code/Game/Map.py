@@ -7,7 +7,7 @@ from Graphic.Graphic import gfx, pygame
 from Resource.Resource import ResourceManager
 
 # ===============================
-# Enhanced Map Class
+# Map Class
 # ===============================
 class Map:
     def __init__(self):
@@ -80,6 +80,14 @@ class Map:
             if vehicle.is_target or vehicle.dragging:
                 vehicle.update()
 
+    def reset_victory_animation(self):
+        # reset victory animation
+        for vehicle in self.vehicles:
+            if vehicle.is_target:
+                vehicle.victory_animation_played = False
+                for character in vehicle.characters:
+                    character.is_performing_skill = False
+
     def start_solving(self, nameAlgo: str):
         """Bắt đầu giải puzzle"""
         if not self.solving:
@@ -94,6 +102,8 @@ class Map:
                 print(f"Unknown algorithm: {nameAlgo}")
                 return
             
+            self.reset_victory_animation()
+
             self.solver = PuzzleSolver(self, strategy) 
             solution = self.solver.solve()
 
@@ -112,7 +122,7 @@ class Map:
     def print_solution(self, solution):
         """In ra các bước giải"""
         for i, move in enumerate(solution):
-            print(f"Move {i+1}: {move}")
+            print(f"Move {i+1}: ({move['name']}, {move['dx']}, {move['dy']})")
 
     def update_solving(self):
         """Cập nhật quá trình giải puzzle tự động"""
@@ -136,10 +146,16 @@ class Map:
                 else:
                     # Solving complete
                     self.solving = False
+
+                    for vehicle in self.vehicles:
+                        if vehicle.is_target:
+                            vehicle.play_victory_animation()
+
                     print("Solving complete!")
         elif self.solving and not self.solution_moves:
             # No solution found
             self.solving = False
+            
             print("No solution found!")
 
     def get_grid(self):
@@ -238,11 +254,3 @@ class Map:
         self.draw_map_overlay(surf)
         self.draw_exit(surf)
         self.draw_all_vehicles(surf)
-
-    def is_solved(self):
-        """Kiểm tra xem puzzle đã được giải chưa"""
-        for vehicle in self.vehicles:
-            if vehicle.is_target:
-                rightmost_x = max(x for x, y in vehicle.positions())
-                return rightmost_x == MAP_N - 1
-        return False

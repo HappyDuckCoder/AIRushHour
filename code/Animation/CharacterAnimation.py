@@ -148,8 +148,6 @@ class Character:
 class Warrior(Character):
     def __init__(self, x, y, size=1.0):
         super().__init__(x, y, "Warrior", size)
-        self.is_guarding = False
-        self.defense_boost = 0
     
     def _load_animations(self):
         """Load animations cho Warrior"""
@@ -173,15 +171,6 @@ class Warrior(Character):
         if not self.is_performing_skill:
             self.set_state("guard")
             self.is_performing_skill = True
-            self.is_guarding = True
-            self.defense_boost = 50  # Increase defense by 50%
-    
-    def update(self):
-        super().update()
-        # Tắt guard khi animation kết thúc
-        if self.is_guarding and self.current_animation and self.current_animation.done_once:
-            self.is_guarding = False
-            self.defense_boost = 0
 
 class Archer(Character):
     def __init__(self, x, y, size=1.0):

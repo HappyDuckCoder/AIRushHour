@@ -161,10 +161,11 @@ class Vehicle:
         self.previous_y = self.y
 
     def play_victory_animation(self):
+
         """Phát animation chiến thắng"""
         if not self.is_target or not self.characters or self.victory_animation_played:
             return
-            
+                    
         self.victory_animation_played = True
         
         # Đảm bảo characters đã sẵn sàng
