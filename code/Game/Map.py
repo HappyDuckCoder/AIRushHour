@@ -10,11 +10,12 @@ from Resource.Resource import ResourceManager
 # Map Class
 # ===============================
 class Map:
-    def __init__(self):
+    def __init__(self, map_file_path="map.txt"):
+        self.map_file_path = map_file_path
         self.initial_vehicles = []
         self.vehicles = []
         self.current_level = 1
-        self.level_data = self.create_level_data()
+        self.level_data = self.load_level_data_from_file()
         self.load_level(1)
         self.selected_vehicle = None
         
@@ -30,8 +31,86 @@ class Map:
         self.game_won = False
         self.victory_animation_started = False
 
-    def create_level_data(self):
-        """Create 2 different level configurations"""
+    def load_level_data_from_file(self):
+        """Load level data from map.txt file"""
+        levels = {}
+        
+        try:
+            with open(self.map_file_path, 'r', encoding='utf-8') as file:
+                lines = file.readlines()
+                
+            current_level = None
+            vehicle_data = []
+            
+            for line in lines:
+                line = line.strip()
+                
+                # Skip empty lines
+                if not line:
+                    continue
+                
+                # Check if line is a level number
+                if line.isdigit():
+                    # Save previous level if exists
+                    if current_level is not None and vehicle_data:
+                        levels[current_level] = vehicle_data
+                    
+                    # Start new level
+                    current_level = int(line)
+                    vehicle_data = []
+                else:
+                    # Parse vehicle data
+                    vehicle = self.parse_vehicle_line(line)
+                    if vehicle:
+                        vehicle_data.append(vehicle)
+            
+            # Save last level
+            if current_level is not None and vehicle_data:
+                levels[current_level] = vehicle_data
+                
+        except FileNotFoundError:
+            print(f"Map file '{self.map_file_path}' not found. Using default levels.")
+            return self.create_default_level_data()
+        except Exception as e:
+            print(f"Error loading map file: {e}. Using default levels.")
+            return self.create_default_level_data()
+        
+        return levels
+
+    def parse_vehicle_line(self, line):
+        """Parse a single vehicle line from the map file"""
+        try:
+            # Split by comma and strip whitespace
+            parts = [part.strip() for part in line.split(',')]
+            
+            if len(parts) != 6:
+                print(f"Invalid vehicle line format: {line}")
+                return None
+            
+            name = parts[0]
+            orient = parts[1]
+            length = int(parts[2])
+            x = int(parts[3])
+            y = int(parts[4])
+            image_key = parts[5]
+            
+            # Validate orientation
+            if orient not in ['h', 'v']:
+                print(f"Invalid orientation '{orient}' for vehicle {name}")
+                return None
+            
+            # Create and return vehicle
+            return Vehicle(name, orient, length, x, y, image_key)
+            
+        except ValueError as e:
+            print(f"Error parsing vehicle line '{line}': {e}")
+            return None
+        except Exception as e:
+            print(f"Unexpected error parsing vehicle line '{line}': {e}")
+            return None
+
+    def create_default_level_data(self):
+        """Create default level configurations (fallback)"""
         levels = {
             1: [
                 Vehicle('target', 'h', 2, 0, 2, 'A'),
@@ -51,12 +130,31 @@ class Map:
         }
         return levels
 
+    def reload_map_file(self):
+        """Reload the map file and update levels"""
+        self.level_data = self.load_level_data_from_file()
+        if self.current_level in self.level_data:
+            self.load_level(self.current_level)
+        else:
+            # If current level doesn't exist, load level 1
+            if 1 in self.level_data:
+                self.load_level(1)
+            else:
+                print("No valid levels found in map file!")
+
+    def get_available_levels(self):
+        """Get list of available levels"""
+        return sorted(self.level_data.keys())
+
     def load_level(self, level_num):
         """Load a specific level"""
         if level_num in self.level_data:
             self.current_level = level_num
             self.initial_vehicles = self.level_data[level_num]
             self.reset()
+            print(f"Level {level_num} loaded successfully!")
+        else:
+            print(f"Level {level_num} not found!")
 
     def reset(self):
         """Reset game state"""
@@ -98,6 +196,8 @@ class Map:
                 strategy = StrategyFactory.create_dfs(self)
             elif nameAlgo.lower() == "bfs":
                 strategy = StrategyFactory.create_bfs(self)
+            elif nameAlgo.lower() == "ucs":
+                strategy = StrategyFactory.create_ucs(self)
             else:
                 print(f"Unknown algorithm: {nameAlgo}")
                 return
@@ -254,3 +354,21 @@ class Map:
         self.draw_map_overlay(surf)
         self.draw_exit(surf)
         self.draw_all_vehicles(surf)
+
+    def print_current_level_info(self):
+        """In thông tin về level hiện tại"""
+        print(f"Current Level: {self.current_level}")
+        print(f"Number of vehicles: {len(self.vehicles)}")
+        for i, vehicle in enumerate(self.vehicles):
+            print(f"  Vehicle {i+1}: {vehicle.name} ({vehicle.orient}, {vehicle.len}) at ({vehicle.x}, {vehicle.y}) - Image: {vehicle.image_key}")
+
+    def save_current_level_to_file(self, filename):
+        """Lưu level hiện tại ra file"""
+        try:
+            with open(filename, 'w', encoding='utf-8') as file:
+                file.write(f"{self.current_level}\n")
+                for vehicle in self.vehicles:
+                    file.write(f"{vehicle.name}, {vehicle.orient}, {vehicle.len}, {vehicle.x}, {vehicle.y}, {vehicle.image_key}\n")
+            print(f"Level {self.current_level} saved to {filename}")
+        except Exception as e:
+            print(f"Error saving level to file: {e}")
