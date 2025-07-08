@@ -3,7 +3,7 @@ from Resource.Resource import ResourceManager
 from constants import *
 
 # ===============================
-# Vehicle Class - Optimized
+# Vehicle Class 
 # ===============================
 class Vehicle:
     def __init__(self, image_key, orientation, length, x, y, name, images=None):

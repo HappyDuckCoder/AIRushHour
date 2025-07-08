@@ -35,7 +35,6 @@ class GameScreen(Screen):
         else:
             surface.fill((40, 40, 80))
 
-
     def draw_game_screen(self, surface, buttons):
         """Draw complete game screen"""
         self.draw_game_background(surface)
