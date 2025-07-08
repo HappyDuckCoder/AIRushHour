@@ -1,4 +1,4 @@
-from Animation.CharacterAnimation import Warrior, Archer
+from Animation.CharacterAnimation import Warrior, Archer, Monk
 from Resource.Resource import ResourceManager
 from constants import *
 
@@ -52,11 +52,13 @@ class Vehicle:
         # Vị trí cho 2 characters
         pos1_x = base_x + spacing - char_width // 2 - 50 
         pos2_x = base_x + spacing * 2 - char_width // 2 - 50
+        pos3_x = base_x + spacing * 3 - char_width // 2 - 50
          
         # Tạo characters với vị trí đã tính toán
         self.characters = [
             Warrior(pos1_x, center_y, character_size),
-            Archer(pos2_x, center_y, character_size)
+            Archer(pos2_x, center_y, character_size),
+            Monk(pos3_x, center_y, character_size)
         ]
         
         self._characters_initialized = False
@@ -95,11 +97,13 @@ class Vehicle:
         
         pos1_x = base_x + spacing - char_width // 2 - 50 
         pos2_x = base_x + spacing * 2 - char_width // 2 - 50
+        pos3_x = base_x + spacing * 3 - char_width // 2 - 50
 
         # Vị trí cho 2 characters
         positions = [
             (pos1_x, center_y),
-            (pos2_x, center_y)
+            (pos2_x, center_y),
+            (pos3_x, center_y)
         ]
         
         # Cập nhật vị trí cho từng character
@@ -231,8 +235,6 @@ class Vehicle:
             
         # Nếu có pos_override, tạm thời cập nhật vị trí characters
         if pos_override:
-            # self.update_characters_position()
-
             temp_x, temp_y = pos_override
             base_x = BOARD_OFFSET_X + temp_x * TILE
             base_y = BOARD_OFFSET_Y + temp_y * TILE
@@ -246,12 +248,16 @@ class Vehicle:
 
             # Tính vị trí y căn giữa tile
             center_y = base_y + (TILE - char_width) // 2 - 50
+            
+            # Vị trí cho 2 characters
             pos1_x = base_x + spacing - char_width // 2 - 50 
             pos2_x = base_x + spacing * 2 - char_width // 2 - 50
+            pos3_x = base_x + spacing * 3 - char_width // 2 - 50
             
             positions = [
                 (pos1_x, center_y),
-                (pos2_x, center_y)
+                (pos2_x, center_y),
+                (pos3_x, center_y)
             ]
             
             # Vẽ characters tại vị trí tạm thời

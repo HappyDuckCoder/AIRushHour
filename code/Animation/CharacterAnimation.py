@@ -198,3 +198,30 @@ class Archer(Character):
         if not self.is_performing_skill:
             self.set_state("shoot")
             self.is_performing_skill = True
+
+class Monk(Character):
+    def __init__(self, x, y, size=1.0):
+        super().__init__(x, y, "Monk", size)
+    
+    def _load_animations(self):
+        """Load animations cho Monk"""
+        # Idle animation
+        idle_frames = ResourceManager.get_image("monk_idle")
+        if idle_frames:
+            self.animations["idle"] = AnimationStrategy(idle_frames)
+        
+        # Run animation
+        run_frames = ResourceManager.get_image("monk_run")
+        if run_frames:
+            self.animations["run"] = AnimationStrategy(run_frames)
+        
+        # heal animation (skill đặc biệt)
+        shoot_frames = ResourceManager.get_image("monk_heal")
+        if shoot_frames:
+            self.animations["heal"] = AnimationStrategy(shoot_frames)
+    
+    def perform_skill(self):
+        """Kỹ năng Shoot - bắn mũi tên"""
+        if not self.is_performing_skill:
+            self.set_state("heal")
+            self.is_performing_skill = True
