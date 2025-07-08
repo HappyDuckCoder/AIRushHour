@@ -32,13 +32,12 @@ class Vehicle:
             self._init_characters()
 
     def _init_characters(self):
-        """Khởi tạo characters cho target vehicle - OPTIMIZED"""
         # Tính toán vị trí trước khi tạo characters
         base_x = BOARD_OFFSET_X + self.x * TILE
         base_y = BOARD_OFFSET_Y + self.y * TILE
         
         # Kích thước character
-        character_size = 0.6
+        character_size = CHARACTER_SIZE_SCALE
         original_size = TILE // 2
         char_width = int(original_size * character_size)
         
@@ -47,18 +46,18 @@ class Vehicle:
         spacing = total_width / 3
         
         # Vị trí y căn giữa tile
-        center_y = base_y + (TILE - char_width) // 2 - 50
+        center_y = base_y + (TILE - char_width) // 2 - SUPPORT_CHARACTER_ALLIANCE
         
         # Vị trí cho 2 characters
-        pos1_x = base_x + spacing - char_width // 2 - 50 
-        pos2_x = base_x + spacing * 2 - char_width // 2 - 50
-        pos3_x = base_x + spacing * 3 - char_width // 2 - 50
+        pos1_x = base_x + spacing - char_width // 2 - SUPPORT_CHARACTER_ALLIANCE 
+        pos2_x = base_x + spacing * 2 - char_width // 2 - SUPPORT_CHARACTER_ALLIANCE
+        pos3_x = base_x + spacing * 3 - char_width // 2 - SUPPORT_CHARACTER_ALLIANCE
          
         # Tạo characters với vị trí đã tính toán
         self.characters = [
-            Warrior(pos1_x, center_y, character_size),
-            Archer(pos2_x, center_y, character_size),
-            Monk(pos3_x, center_y, character_size)
+            Archer(pos1_x, center_y, character_size),
+            Monk(pos2_x, center_y, character_size),
+            Warrior(pos3_x, center_y, character_size),
         ]
         
         self._characters_initialized = False
@@ -86,18 +85,18 @@ class Vehicle:
         base_x = BOARD_OFFSET_X + self.x * TILE
         base_y = BOARD_OFFSET_Y + self.y * TILE
         
-        character_size = 0.6  # Sử dụng cùng size với init
+        character_size = CHARACTER_SIZE_SCALE  
         original_size = TILE // 2
         char_width = int(original_size * character_size)
         
         total_width = self.len * TILE
         spacing = total_width / 3
 
-        center_y = base_y + (TILE - char_width) // 2 - 50
+        center_y = base_y + (TILE - char_width) // 2 - SUPPORT_CHARACTER_ALLIANCE
         
-        pos1_x = base_x + spacing - char_width // 2 - 50 
-        pos2_x = base_x + spacing * 2 - char_width // 2 - 50
-        pos3_x = base_x + spacing * 3 - char_width // 2 - 50
+        pos1_x = base_x + spacing - char_width // 2 - SUPPORT_CHARACTER_ALLIANCE
+        pos2_x = base_x + spacing * 2 - char_width // 2 - SUPPORT_CHARACTER_ALLIANCE
+        pos3_x = base_x + spacing * 3 - char_width // 2 - SUPPORT_CHARACTER_ALLIANCE
 
         # Vị trí cho 2 characters
         positions = [
@@ -183,8 +182,11 @@ class Vehicle:
                 print(f"Error performing character skill: {e}")
 
     def update(self):
+        # Chỉ cập nhật khi có thay đổi vị trí
         if self.is_target and self.characters:
-            # Chỉ cập nhật khi có thay đổi vị trí
+            for character in self.characters:
+                character.update()
+            
             if self.x != self.previous_x or self.y != self.previous_y:
                 self.update_characters_position()
                 self.check_movement_state()
@@ -240,19 +242,19 @@ class Vehicle:
             base_y = BOARD_OFFSET_Y + temp_y * TILE
             
             # Tính kích thước và vị trí tạm thời
-            character_size = 0.6
+            character_size = CHARACTER_SIZE_SCALE
             original_size = TILE // 2
             char_width = int(original_size * character_size)
             total_width = self.len * TILE
             spacing = total_width / 3
 
             # Tính vị trí y căn giữa tile
-            center_y = base_y + (TILE - char_width) // 2 - 50
+            center_y = base_y + (TILE - char_width) // 2 - SUPPORT_CHARACTER_ALLIANCE
             
             # Vị trí cho 2 characters
-            pos1_x = base_x + spacing - char_width // 2 - 50 
-            pos2_x = base_x + spacing * 2 - char_width // 2 - 50
-            pos3_x = base_x + spacing * 3 - char_width // 2 - 50
+            pos1_x = base_x + spacing - char_width // 2 - SUPPORT_CHARACTER_ALLIANCE 
+            pos2_x = base_x + spacing * 2 - char_width // 2 - SUPPORT_CHARACTER_ALLIANCE
+            pos3_x = base_x + spacing * 3 - char_width // 2 - SUPPORT_CHARACTER_ALLIANCE
             
             positions = [
                 (pos1_x, center_y),

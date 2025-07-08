@@ -1,10 +1,10 @@
 import pygame
 
 class AnimationStrategy:
-    def __init__(self, frames):
+    def __init__(self, frames, frame_rate=26):
         self.frames = frames
         self.index = 0
-        self.frame_rate = 100000
+        self.framerate = frame_rate
         self.last_update = pygame.time.get_ticks()
         self.current_frames = frames
         self.done_once = False

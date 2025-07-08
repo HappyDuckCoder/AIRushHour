@@ -16,6 +16,7 @@ class Character:
         self.is_performing_skill = False
         self.direction = 1  # 1 for right, -1 for left
         self.speed = 10
+        self.last_frame_update_time = pygame.time.get_ticks()
 
         self.is_loaded = False
         
@@ -52,14 +53,15 @@ class Character:
         if self.is_performing_skill and self.current_animation and self.current_animation.done_once:
             self.is_performing_skill = False
             self.set_state("idle")
-        
+
         # Cập nhật animation nếu có
         if self.current_animation:
-            # Lật sprite theo hướng nếu cần
+            # Kiểm tra có frames
             if hasattr(self.current_animation, 'frames') and self.current_animation.frames:
                 frames = self.current_animation.frames
+
+                # Lật sprite theo hướng nếu cần
                 if self.direction == -1:
-                    # Tạo frames đã lật nếu chưa có
                     if not hasattr(self.current_animation, 'flipped_frames'):
                         self.current_animation.flipped_frames = [
                             pygame.transform.flip(frame, True, False) for frame in frames
@@ -67,7 +69,20 @@ class Character:
                     self.current_animation.current_frames = self.current_animation.flipped_frames
                 else:
                     self.current_animation.current_frames = frames
-    
+
+                # Kiểm soát tốc độ animation bằng framerate
+                now = pygame.time.get_ticks()
+                delay = 1000 // self.current_animation.framerate  # ms mỗi frame
+
+                if now - self.last_frame_update_time >= delay:
+                    self.current_animation.index += 1
+                    self.last_frame_update_time = now
+
+                    # Nếu đã hết frames
+                    if self.current_animation.index >= len(self.current_animation.current_frames):
+                        self.current_animation.index = 0
+                        self.current_animation.done_once = True
+
     def draw(self, surface):
         """Vẽ nhân vật với scale"""
         if not self.current_animation:
@@ -113,12 +128,7 @@ class Character:
         # Vẽ scaled frame từ cache
         scaled_frame = self.scaled_frames_cache[cache_key]
         surface.blit(scaled_frame, (self.x, self.y))
-        
-        # Cập nhật animation index (sử dụng current_frames thay vì frames)
-        self.current_animation.index += 1
-        if self.current_animation.index >= len(current_frames):
-            self.current_animation.done_once = True
-            self.current_animation.index = 0
+    
     
     def perform_skill(self):
         """Thực hiện kỹ năng đặc biệt - sẽ được override"""
@@ -154,23 +164,22 @@ class Warrior(Character):
         # Idle animation
         idle_frames = ResourceManager.get_image("warrior_idle")
         if idle_frames:
-            self.animations["idle"] = AnimationStrategy(idle_frames)
+            self.animations["idle"] = AnimationStrategy(idle_frames, frame_rate=ANIMATION_DEFAULT_SPEED)
         
         # Run animation
         run_frames = ResourceManager.get_image("warrior_run")
         if run_frames:
-            self.animations["run"] = AnimationStrategy(run_frames)
+            self.animations["run"] = AnimationStrategy(run_frames, frame_rate=ANIMATION_DEFAULT_SPEED)
         
         # Guard animation (skill đặc biệt)
         guard_frames = ResourceManager.get_image("warrior_guard")
         if guard_frames:
-            self.animations["guard"] = AnimationStrategy(guard_frames)
+            self.animations["guard"] = AnimationStrategy(guard_frames, frame_rate=ANIMATION_DEFAULT_SPEED)
     
     def perform_skill(self):
         """Kỹ năng Shield"""
         if not self.is_performing_skill:
             self.set_state("guard")
-            self.is_performing_skill = True
 
 class Archer(Character):
     def __init__(self, x, y, size=1.0):
@@ -181,23 +190,22 @@ class Archer(Character):
         # Idle animation
         idle_frames = ResourceManager.get_image("archer_idle")
         if idle_frames:
-            self.animations["idle"] = AnimationStrategy(idle_frames)
+            self.animations["idle"] = AnimationStrategy(idle_frames, frame_rate=ANIMATION_DEFAULT_SPEED)
         
         # Run animation
         run_frames = ResourceManager.get_image("archer_run")
         if run_frames:
-            self.animations["run"] = AnimationStrategy(run_frames)
+            self.animations["run"] = AnimationStrategy(run_frames, frame_rate=ANIMATION_DEFAULT_SPEED)
         
         # Shoot animation (skill đặc biệt)
         shoot_frames = ResourceManager.get_image("archer_shoot")
         if shoot_frames:
-            self.animations["shoot"] = AnimationStrategy(shoot_frames)
+            self.animations["shoot"] = AnimationStrategy(shoot_frames, frame_rate=ANIMATION_DEFAULT_SPEED)
     
     def perform_skill(self):
         """Kỹ năng Shoot - bắn mũi tên"""
         if not self.is_performing_skill:
             self.set_state("shoot")
-            self.is_performing_skill = True
 
 class Monk(Character):
     def __init__(self, x, y, size=1.0):
@@ -208,20 +216,19 @@ class Monk(Character):
         # Idle animation
         idle_frames = ResourceManager.get_image("monk_idle")
         if idle_frames:
-            self.animations["idle"] = AnimationStrategy(idle_frames)
+            self.animations["idle"] = AnimationStrategy(idle_frames, frame_rate=ANIMATION_DEFAULT_SPEED)
         
         # Run animation
         run_frames = ResourceManager.get_image("monk_run")
         if run_frames:
-            self.animations["run"] = AnimationStrategy(run_frames)
+            self.animations["run"] = AnimationStrategy(run_frames, frame_rate=ANIMATION_DEFAULT_SPEED)
         
         # heal animation (skill đặc biệt)
         shoot_frames = ResourceManager.get_image("monk_heal")
         if shoot_frames:
-            self.animations["heal"] = AnimationStrategy(shoot_frames)
+            self.animations["heal"] = AnimationStrategy(shoot_frames, frame_rate=ANIMATION_DEFAULT_SPEED)
     
     def perform_skill(self):
         """Kỹ năng Shoot - bắn mũi tên"""
         if not self.is_performing_skill:
             self.set_state("heal")
-            self.is_performing_skill = True

@@ -26,3 +26,10 @@ FONT_SIZE = 20
 # Animation Size 
 FRAME_WIDTH = 192     # All frames same width
 FRAME_HEIGHT = 192
+
+# Animation Speed
+ANIMATION_DEFAULT_SPEED = 30
+
+# Character Size
+CHARACTER_SIZE_SCALE = 0.45
+SUPPORT_CHARACTER_ALLIANCE = 45
