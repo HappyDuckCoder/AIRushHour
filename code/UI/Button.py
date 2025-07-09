@@ -1,8 +1,31 @@
-# button_states.py
 import pygame
-import math
 import time
 from constants import *
+
+class RippleEffect:
+    def __init__(self, x, y, max_radius=60):
+        self.x = x
+        self.y = y
+        self.radius = 0
+        self.max_radius = max_radius
+        self.alpha = 255
+        self.active = True
+        self.speed = 4
+        
+    def update(self):
+        if self.active:
+            self.radius += self.speed
+            self.alpha = max(0, 255 - (self.radius / self.max_radius) * 255)
+            
+            if self.radius >= self.max_radius:
+                self.active = False
+                
+    def draw(self, surf):
+        if self.active and self.alpha > 0:
+            ripple_surf = pygame.Surface((self.max_radius * 2, self.max_radius * 2), pygame.SRCALPHA)
+            color = (255, 255, 255, int(self.alpha * 0.6))
+            pygame.draw.circle(ripple_surf, color, (self.max_radius, self.max_radius), int(self.radius))
+            surf.blit(ripple_surf, (self.x - self.max_radius, self.y - self.max_radius))
 
 class ButtonState:
     def apply_style(self, button, surf):
@@ -10,113 +33,101 @@ class ButtonState:
 
 class DefaultState(ButtonState):
     def apply_style(self, button, surf):
-        # Gradient background
-        self.draw_gradient_rect(surf, button.base_color, button.rect)
+        # Tính toán vị trí với offset
+        current_rect = button.rect.copy()
+        current_rect.y += int(button.current_offset_y)
         
-        # Border glow effect
-        glow_color = tuple(min(c + 60, 255) for c in button.base_color)
-        pygame.draw.rect(surf, glow_color, button.rect, width=2, border_radius=12)
+        # Vẽ shadow cho hiệu ứng nổi
+        shadow_rect = current_rect.copy()
+        shadow_rect.move_ip(4, 4)
+        shadow_surf = pygame.Surface((shadow_rect.width, shadow_rect.height), pygame.SRCALPHA)
+        pygame.draw.rect(shadow_surf, (0, 0, 0, 100), shadow_surf.get_rect(), border_radius=12)
+        surf.blit(shadow_surf, shadow_rect)
         
-        button.draw_text(surf)
-
-    def draw_gradient_rect(self, surf, color, rect):
-        # Create gradient effect
-        for i in range(rect.height):
-            alpha = 1 - (i / rect.height) * 0.3
-            gradient_color = tuple(int(c * alpha) for c in color)
-            pygame.draw.rect(surf, gradient_color, 
-                           (rect.x, rect.y + i, rect.width, 1))
+        # Vẽ nút với gradient
+        current_color = button.get_current_color()
+        gradient_end = tuple(max(c - 20, 0) for c in current_color)
+        gradient_surf = button.create_gradient_surface(current_color, gradient_end, current_rect.width, current_rect.height)
+        
+        button_surf = pygame.Surface((current_rect.width, current_rect.height), pygame.SRCALPHA)
+        pygame.draw.rect(button_surf, current_color, button_surf.get_rect(), border_radius=12)
+        button_surf.blit(gradient_surf, (0, 0), special_flags=pygame.BLEND_MULT)
+        surf.blit(button_surf, current_rect)
+        
+        # Highlight cho hiệu ứng nổi
+        highlight_rect = pygame.Rect(current_rect.x, current_rect.y, current_rect.width, current_rect.height // 3)
+        highlight_surf = pygame.Surface((highlight_rect.width, highlight_rect.height), pygame.SRCALPHA)
+        pygame.draw.rect(highlight_surf, (255, 255, 255, 60), highlight_surf.get_rect(), border_radius=12)
+        surf.blit(highlight_surf, highlight_rect)
+        
+        button.draw_text(surf, current_rect)
 
 class HoverState(ButtonState):
     def apply_style(self, button, surf):
-        # Animated pulsing glow
-        pulse = math.sin(time.time() * 8) * 0.3 + 0.7
+        # Tính toán vị trí với offset
+        current_rect = button.rect.copy()
+        current_rect.y += int(button.current_offset_y)
         
-        # Expanded rect for glow effect
-        glow_rect = button.rect.inflate(8, 8)
+        # Shadow lớn hơn khi hover
+        shadow_rect = current_rect.copy()
+        shadow_rect.move_ip(6, 6)
+        shadow_surf = pygame.Surface((shadow_rect.width, shadow_rect.height), pygame.SRCALPHA)
+        pygame.draw.rect(shadow_surf, (0, 0, 0, 120), shadow_surf.get_rect(), border_radius=12)
+        surf.blit(shadow_surf, shadow_rect)
         
-        # Multiple glow layers
-        for i in range(3):
-            glow_alpha = (3 - i) * 30 * pulse
-            glow_color = (*button.base_color, int(glow_alpha))
-            glow_surf = pygame.Surface((glow_rect.width, glow_rect.height))
-            glow_surf.set_alpha(int(glow_alpha))
-            glow_surf.fill(button.base_color)
-            surf.blit(glow_surf, (glow_rect.x, glow_rect.y))
+        # Vẽ nút với gradient
+        current_color = button.get_current_color()
+        gradient_end = tuple(max(c - 20, 0) for c in current_color)
+        gradient_surf = button.create_gradient_surface(current_color, gradient_end, current_rect.width, current_rect.height)
         
-        # Elevated button effect
-        elevated_rect = button.rect.move(0, -2)
+        button_surf = pygame.Surface((current_rect.width, current_rect.height), pygame.SRCALPHA)
+        pygame.draw.rect(button_surf, current_color, button_surf.get_rect(), border_radius=12)
+        button_surf.blit(gradient_surf, (0, 0), special_flags=pygame.BLEND_MULT)
+        surf.blit(button_surf, current_rect)
         
-        # Enhanced gradient
-        hover_color = tuple(min(c + 50, 255) for c in button.base_color)
-        self.draw_enhanced_gradient(surf, hover_color, elevated_rect)
+        # Highlight khi hover
+        highlight_rect = pygame.Rect(current_rect.x, current_rect.y, current_rect.width, current_rect.height // 3)
+        highlight_surf = pygame.Surface((highlight_rect.width, highlight_rect.height), pygame.SRCALPHA)
+        pygame.draw.rect(highlight_surf, (255, 255, 255, 80), highlight_surf.get_rect(), border_radius=12)
+        surf.blit(highlight_surf, highlight_rect)
         
-        # Animated border
-        border_intensity = int(pulse * 255)
-        border_color = (255, 255, 255, border_intensity)
-        pygame.draw.rect(surf, border_color[:3], elevated_rect, width=3, border_radius=12)
-        
-        # Shine effect
-        self.draw_shine_effect(surf, elevated_rect, pulse)
-        
-        button.draw_enhanced_text(surf, elevated_rect)
-
-    def draw_enhanced_gradient(self, surf, color, rect):
-        # More complex gradient with multiple colors
-        for i in range(rect.height):
-            ratio = i / rect.height
-            if ratio < 0.5:
-                # Top half - lighter
-                alpha = 1 + ratio * 0.4
-            else:
-                # Bottom half - darker
-                alpha = 1.4 - (ratio - 0.5) * 0.6
-            
-            gradient_color = tuple(min(int(c * alpha), 255) for c in color)
-            pygame.draw.rect(surf, gradient_color, 
-                           (rect.x, rect.y + i, rect.width, 1))
-
-    def draw_shine_effect(self, surf, rect, pulse):
-        # Animated diagonal shine
-        shine_pos = int(pulse * rect.width)
-        shine_points = [
-            (rect.x + shine_pos - 20, rect.y),
-            (rect.x + shine_pos, rect.y),
-            (rect.x + shine_pos - 10, rect.y + rect.height),
-            (rect.x + shine_pos - 30, rect.y + rect.height)
-        ]
-        
-        shine_surf = pygame.Surface((40, rect.height))
-        shine_surf.set_alpha(int(pulse * 60))
-        shine_surf.fill((255, 255, 255))
-        
-        if 0 <= shine_pos <= rect.width:
-            surf.blit(shine_surf, (rect.x + shine_pos - 20, rect.y))
+        button.draw_text(surf, current_rect)
 
 class ClickedState(ButtonState):
     def apply_style(self, button, surf):
-        # Pressed down effect
-        pressed_rect = button.rect.move(2, 2)
+        # Tính toán vị trí với offset
+        current_rect = button.rect.copy()
+        current_rect.y += int(button.current_offset_y)
         
-        # Darker color
-        click_color = tuple(max(c - 60, 0) for c in button.base_color)
+        # Shadow nhỏ hơn khi click (hiệu ứng ấn xuống)
+        shadow_rect = current_rect.copy()
+        shadow_rect.move_ip(2, 2)
+        shadow_surf = pygame.Surface((shadow_rect.width, shadow_rect.height), pygame.SRCALPHA)
+        pygame.draw.rect(shadow_surf, (0, 0, 0, 80), shadow_surf.get_rect(), border_radius=12)
+        surf.blit(shadow_surf, shadow_rect)
         
-        # Inset shadow effect
-        shadow_rect = pressed_rect.inflate(-4, -4)
-        pygame.draw.rect(surf, (0, 0, 0), shadow_rect, border_radius=10)
+        # Màu tối hơn khi click với animation
+        current_color = button.get_current_click_color()
+        gradient_end = tuple(max(c - 20, 0) for c in current_color)
+        gradient_surf = button.create_gradient_surface(current_color, gradient_end, current_rect.width, current_rect.height)
         
-        # Main button
-        pygame.draw.rect(surf, click_color, pressed_rect, border_radius=12)
+        button_surf = pygame.Surface((current_rect.width, current_rect.height), pygame.SRCALPHA)
+        pygame.draw.rect(button_surf, current_color, button_surf.get_rect(), border_radius=12)
+        button_surf.blit(gradient_surf, (0, 0), special_flags=pygame.BLEND_MULT)
+        surf.blit(button_surf, current_rect)
         
-        # Inner glow
-        inner_glow = tuple(min(c + 30, 255) for c in click_color)
-        pygame.draw.rect(surf, inner_glow, pressed_rect, width=2, border_radius=12)
+        # Highlight nhẹ hơn khi click
+        highlight_rect = pygame.Rect(current_rect.x, current_rect.y, current_rect.width, current_rect.height // 4)
+        highlight_surf = pygame.Surface((highlight_rect.width, highlight_rect.height), pygame.SRCALPHA)
+        pygame.draw.rect(highlight_surf, (255, 255, 255, 30), highlight_surf.get_rect(), border_radius=12)
+        surf.blit(highlight_surf, highlight_rect)
         
-        button.draw_text(surf, pressed_rect)
+        button.draw_text(surf, current_rect)
 
 class Button:
     def __init__(self, text, pos, width=140, height=50, color=(0, 160, 80)):
         self.text = text
+        self.original_text = text
         self.pos = pos
         self.width = width
         self.height = height
@@ -130,110 +141,152 @@ class Button:
         self.clicked_state = ClickedState()
         self.current_state = self.default_state
 
+        # Animation properties
         self.is_clicked = False
-        self.hover_start_time = 0
-        self.was_hovering = False
+        self.click_start_time = 0
+        self.click_duration = 0.2  # 0.2 giây
+        self.click_base_color = tuple(max(c - 60, 0) for c in self.base_color)
+        
+        # Web-style animation properties
+        self.current_offset_y = 0
+        self.target_offset_y = 0
+        self.is_hovered = False
+        self.text_change_time = 0
+        self.text_change_duration = 0.3
+        
+        # Colors
+        self.hover_color = tuple(min(c + 30, 255) for c in self.base_color)
+        
+        # Ripple effects
+        self.ripples = []
+        
+    def create_gradient_surface(self, color1, color2, width, height):
+        """Tạo surface với gradient"""
+        surf = pygame.Surface((width, height))
+        for y in range(height):
+            progress = y / height
+            r = int(color1[0] + (color2[0] - color1[0]) * progress)
+            g = int(color1[1] + (color2[1] - color1[1]) * progress)
+            b = int(color1[2] + (color2[2] - color1[2]) * progress)
+            pygame.draw.line(surf, (r, g, b), (0, y), (width, y))
+        return surf
+        
+    def get_current_color(self):
+        """Tính toán màu hiện tại dựa trên trạng thái"""
+        if self.is_clicked:
+            return self.get_current_click_color()
+        elif self.is_hovered:
+            return self.hover_color
+        else:
+            return self.base_color
+        
+    def get_current_click_color(self):
+        """Tính toán màu hiện tại dựa trên thời gian animation"""
+        if not self.is_clicked:
+            return self.base_color
+            
+        current_time = time.time()
+        elapsed = current_time - self.click_start_time
+        
+        if elapsed >= self.click_duration:
+            # Animation hoàn thành
+            return self.click_base_color
+        
+        # Interpolation tuyến tính từ màu gốc đến màu tối
+        progress = elapsed / self.click_duration
+        current_color = tuple(
+            int(self.base_color[i] + (self.click_base_color[i] - self.base_color[i]) * progress)
+            for i in range(3)
+        )
+        return current_color
 
     def handle_event(self, event):
         mouse_pos = pygame.mouse.get_pos()
-        is_hovering = self.rect.collidepoint(mouse_pos)
+        clicked = False
 
-        # Track hover timing for animations
-        if is_hovering and not self.was_hovering:
-            self.hover_start_time = time.time()
-        self.was_hovering = is_hovering
-
-        if is_hovering:
+        if self.rect.collidepoint(mouse_pos):
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 self.is_clicked = True
+                self.click_start_time = time.time()
+                self.text_change_time = time.time()
+                self.text = "Đã nhấn!"
                 self.current_state = self.clicked_state
+                self.target_offset_y = 2
+                
+                # Tạo ripple effect
+                local_x = mouse_pos[0] - self.rect.x
+                local_y = mouse_pos[1] - self.rect.y
+                self.ripples.append(RippleEffect(self.rect.x + local_x, self.rect.y + local_y))
+                
+                clicked = True
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                self.is_clicked = False
-                self.current_state = self.hover_state
+                self.target_offset_y = 0
+                # Kiểm tra nếu animation chưa hoàn thành
+                if time.time() - self.click_start_time < self.click_duration:
+                    # Giữ trạng thái clicked cho đến khi animation hoàn thành
+                    pass
+                else:
+                    self.is_clicked = False
+                    self.current_state = self.hover_state
             else:
-                self.current_state = self.hover_state
+                if not self.is_clicked:
+                    self.is_hovered = True
+                    self.current_state = self.hover_state
+                    self.target_offset_y = -2
         else:
-            self.current_state = self.default_state
+            if not self.is_clicked:
+                self.is_hovered = False
+                self.current_state = self.default_state
+                self.target_offset_y = 0
+                
+        return clicked
+
+    def update(self):
+        try:
+            current_time = time.time()
+            
+            if self.is_clicked:
+                if current_time - self.click_start_time >= self.click_duration:
+                    self.is_clicked = False
+                    mouse_pos = pygame.mouse.get_pos()
+                    if self.rect.collidepoint(mouse_pos):
+                        self.is_hovered = True
+                        self.current_state = self.hover_state
+                        self.target_offset_y = -2
+                    else:
+                        self.is_hovered = False
+                        self.current_state = self.default_state
+                        self.target_offset_y = 0
+                        
+            # Update text change
+            if self.text != self.original_text and current_time - self.text_change_time >= self.text_change_duration:
+                self.text = self.original_text
+                
+            # Smooth animation cho offset
+            self.current_offset_y += (self.target_offset_y - self.current_offset_y) * 0.3
+            
+            # Update ripples
+            self.ripples = [r for r in self.ripples if r.active]
+            for ripple in self.ripples:
+                ripple.update()
+                
+        except Exception as e:
+            print(f"[ERROR] update() failed on button '{self.text}': {e}")
 
     def draw_text(self, surf, rect=None):
         if rect is None:
             rect = self.rect
-            
-        text_surface = self.font.render(self.text, True, (255, 255, 255))
-        text_rect = text_surface.get_rect(center=rect.center)
-        surf.blit(text_surface, text_rect)
-
-    def draw_enhanced_text(self, surf, rect):
-        # Text with subtle shadow and glow
-        shadow_surface = self.font.render(self.text, True, (0, 0, 0))
-        shadow_rect = shadow_surface.get_rect(center=(rect.centerx + 1, rect.centery + 1))
-        surf.blit(shadow_surface, shadow_rect)
-        
-        # Main text with slight glow
         text_surface = self.font.render(self.text, True, (255, 255, 255))
         text_rect = text_surface.get_rect(center=rect.center)
         surf.blit(text_surface, text_rect)
 
     def draw(self, surf):
-        # Enhanced shadow with multiple layers
-        for i in range(3):
-            shadow_offset = (i + 1) * 2
-            shadow_alpha = 100 - (i * 30)
-            shadow_rect = self.rect.move(shadow_offset, shadow_offset)
+        # Vẽ ripple effects trước
+        for ripple in self.ripples:
+            ripple.draw(surf)
             
-            shadow_surf = pygame.Surface((shadow_rect.width, shadow_rect.height))
-            shadow_surf.set_alpha(shadow_alpha)
-            shadow_surf.fill((0, 0, 0))
-            surf.blit(shadow_surf, shadow_rect)
-
-        # Apply current state
+        # Vẽ nút
         self.current_state.apply_style(self, surf)
 
     def hit(self, mpos):
         return self.rect.collidepoint(mpos)
-
-    def get_hover_animation_progress(self):
-        """Get animation progress for hover effects (0-1)"""
-        if self.current_state == self.hover_state:
-            return min((time.time() - self.hover_start_time) / 0.3, 1.0)
-        return 0.0
-
-# Example usage with different button styles
-class GlowButton(Button):
-    def __init__(self, text, pos, width=140, height=50, color=(255, 80, 80)):
-        super().__init__(text, pos, width, height, color)
-        
-    def draw(self, surf):
-        # Particle-like glow effect
-        if self.current_state == self.hover_state:
-            for i in range(8):
-                angle = (time.time() * 2 + i * 0.8) % (2 * math.pi)
-                radius = 40 + math.sin(time.time() * 3) * 10
-                x = self.rect.centerx + math.cos(angle) * radius
-                y = self.rect.centery + math.sin(angle) * radius
-                
-                glow_surf = pygame.Surface((20, 20))
-                glow_surf.set_alpha(100)
-                glow_surf.fill(self.base_color)
-                surf.blit(glow_surf, (x - 10, y - 10))
-        
-        super().draw(surf)
-
-class RainbowButton(Button):
-    def __init__(self, text, pos, width=140, height=50):
-        # Start with a base color that will be overridden
-        super().__init__(text, pos, width, height, (255, 0, 0))
-        
-    def update_rainbow_color(self):
-        # HSV to RGB conversion for rainbow effect
-        hue = (time.time() * 100) % 360
-        saturation = 1.0
-        value = 0.8
-        
-        import colorsys
-        r, g, b = colorsys.hsv_to_rgb(hue/360, saturation, value)
-        self.base_color = (int(r*255), int(g*255), int(b*255))
-        
-    def draw(self, surf):
-        self.update_rainbow_color()
-        super().draw(surf)

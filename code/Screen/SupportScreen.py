@@ -10,7 +10,7 @@ from Audio.Audio import AudioManager
 class MenuScreen(Screen):
     def __init__(self, screen_manager):
         super().__init__(screen_manager)
-        self.play_btn = Button("PLAY", (SCREEN_W//2 - 100, SCREEN_H//2 - 50), 200, 60)
+        self.play_btn = Button("PLAY", (SCREEN_W//2 - 100, SCREEN_H//2 - 50), 200, 60, BLUE)
         
     def draw_menu_background(self, surface):
         """Draw menu screen background"""
@@ -20,16 +20,18 @@ class MenuScreen(Screen):
         """Draw complete menu screen"""
         self.draw_menu_background(surface)
 
-        # self.title.draw(surface)
-
         gfx.draw_title(surface, "RUSH HOUR", (SCREEN_W//2, 200))
         gfx.draw_subtitle(surface, "Puzzle Game", (SCREEN_W//2, 250))
 
-        # self.button.draw(surface)
         play_button.draw(surface)    
 
     def draw(self, surface):        
         self.draw_menu_screen(surface, self.play_btn)
+
+    def update(self):
+        """Update animations"""
+        self.play_btn.update()
+        return True
 
     def on_enter(self):
         """Called when entering menu screen"""
@@ -41,7 +43,7 @@ class MenuScreen(Screen):
         # QUAN TRỌNG: Gọi handle_event của button để xử lý hover/click
         self.play_btn.handle_event(event)
         
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self.play_btn.hit(event.pos):
                 # Sử dụng AudioManager singleton để phát hiệu ứng âm thanh
                 audio_manager = AudioManager.get_instance()
@@ -90,6 +92,13 @@ class LevelSelectScreen(Screen):
     def draw(self, surface):
         self.draw_level_select_screen(surface, self.level_buttons, self.back_btn)
 
+    def update(self):
+        """Update animations"""
+        self.back_btn.update()
+        for btn in self.level_buttons:
+            btn.update()
+        return True
+
     def on_enter(self):
         """Called when entering level select screen"""
         # Sử dụng AudioManager singleton để phát nhạc nền
@@ -97,12 +106,11 @@ class LevelSelectScreen(Screen):
         audio_manager.play_background_music('level_select')
         
     def handle_event(self, event):
-        # QUAN TRỌNG: Gọi handle_event cho tất cả buttons
         self.back_btn.handle_event(event)
         for btn in self.level_buttons:
             btn.handle_event(event)
         
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             # Lấy instance của AudioManager
             audio_manager = AudioManager.get_instance()
             
@@ -121,23 +129,6 @@ class LevelSelectScreen(Screen):
                         game_screen.load_level(i + 1)
                         self.screen_manager.set_screen('game')
                         break
-
-    def handle_mouse_motion(self, event):
-        """Handle mouse hover effects"""
-        # Gọi handle_event với event MOUSEMOTION cho tất cả buttons
-        self.back_btn.handle_event(event)
-        for btn in self.level_buttons:
-            btn.handle_event(event)
-            
-        # Audio hover effects
-        audio_manager = AudioManager.get_instance()
-        for btn in self.level_buttons + [self.back_btn]:
-            if btn.hit(event.pos):
-                if not hasattr(btn, 'was_hovered') or not btn.was_hovered:
-                    audio_manager.play_sound_effect('button_hover')
-                    btn.was_hovered = True
-            else:
-                btn.was_hovered = False
 
 # ===============================
 # Intro Screen
@@ -168,6 +159,10 @@ class IntroScreen(Screen):
 
     def draw(self, surface):
         self.draw_intro(surface)
+
+    def update(self):
+        """Update intro animation"""
+        return True
 
     def on_enter(self):
         """Called when entering intro screen"""
