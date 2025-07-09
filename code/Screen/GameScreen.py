@@ -44,7 +44,7 @@ class GameScreen(Screen):
         self.solve_bfs = Button("BFS", (left_margin, algo_start_y - (button_height + button_spacing) * 3), button_width, button_height, BLUE)
         self.solve_dfs = Button("DFS", (left_margin, algo_start_y - (button_height + button_spacing) * 2), button_width, button_height, ORANGE)
         self.solve_astar = Button("A*", (left_margin, algo_start_y - (button_height + button_spacing) * 1), button_width, button_height, PURPLE)
-        self.solve_ucs = Button("UCS", (left_margin, algo_start_y), button_width, button_height, YELLOW)
+        self.solve_ucs = Button("UCS", (left_margin, algo_start_y), button_width, button_height, PINK)
         
         # Solving control buttons (positioned in bottom-left)
         self.reset_btn = Button("Reset", (left_margin, algo_start_y - (button_height + button_spacing) * 1), button_width, button_height, RED)
