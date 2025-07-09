@@ -4,7 +4,7 @@ from win32com.client import Dispatch
 
 def create_shortcut():
     desktop = winshell.desktop()
-    shortcut_path = os.path.join(desktop, "Rush Hour Puzzle.lnk")
+    shortcut_path = os.path.join(desktop, "RushRelic.lnk")
     target = os.path.join(os.getcwd(), "main.exe")
     working_dir = os.getcwd()
     icon_path = target  # Hoặc thay bằng file .ico riêng nếu có

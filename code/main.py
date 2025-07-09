@@ -19,7 +19,7 @@ class Program:
 
     def create_window(self):
         self.screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
-        pygame.display.set_caption("Rush Hour Puzzle")
+        pygame.display.set_caption("RushRelic")
         self.clock = pygame.time.Clock()
         self.buffer = pygame.Surface((SCREEN_W, SCREEN_H))
 
