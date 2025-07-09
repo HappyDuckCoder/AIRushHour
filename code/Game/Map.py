@@ -123,12 +123,13 @@ class Map:
             solution = self.solver.solve()
 
             if solution:
-                print(f"Solution found with {len(solution)} moves!")
                 self.solution_moves = solution
                 self.current_move_index = 0
                 self.solving = True
                 self.move_timer = time.time()
                 
+                print(f"Solution found with {len(solution)} moves!")
+
                 self.list_solver = solution
                 self.print_solution(solution)
             else:

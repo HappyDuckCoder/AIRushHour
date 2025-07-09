@@ -5,6 +5,7 @@ from Screen.IntroScreen import IntroScreen
 from Screen.MenuScreen import MenuScreen
 from Screen.LevelSelectScreen import LevelSelectScreen
 from Screen.GameScreen import GameScreen
+from Screen.WinningScreen import WinningScreen
 from Screen.SettingScreen import SettingScreen
 from Screen.BaseScreen import ScreenManager
 from Resource.Resource import ResourceManager
@@ -35,6 +36,7 @@ class Program:
         level_select_screen = LevelSelectScreen(self.screen_manager)
         game_screen = GameScreen(self.screen_manager)
         setting_screen = SettingScreen(self.screen_manager)
+        winning_screen = WinningScreen(self.screen_manager)
 
         # Add screens to manager
         self.screen_manager.add_screen('intro', intro_screen)
@@ -42,6 +44,7 @@ class Program:
         self.screen_manager.add_screen('level_select', level_select_screen)
         self.screen_manager.add_screen('game', game_screen)
         self.screen_manager.add_screen('setting', setting_screen)
+        self.screen_manager.add_screen('winning', winning_screen)
 
     def __init__(self):
         # Chỉ init lần đầu

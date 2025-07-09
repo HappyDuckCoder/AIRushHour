@@ -158,6 +158,10 @@ class GameScreen(Screen):
         for button in visible_buttons:
             button.handle_event(event)
 
+        for v in self.map.vehicles:
+            if v.is_target and v.is_offscreen:
+                self.screen_manager.set_screen('winning')
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.ui_state == "start":
                 if self.start_btn.hit(event.pos):

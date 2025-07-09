@@ -27,6 +27,15 @@ class Vehicle:
         self.previous_y = y
         self.victory_animation_played = False
         
+        # Victory movement properties
+        self.victory_movement_active = False
+        self.victory_target_x = None
+        self.victory_speed = 0.08  # Tốc độ di chuyển (tiles per frame)
+        self.victory_current_x = float(x)
+        self.victory_current_y = float(y)
+
+        self.is_offscreen = False
+        
         # Khởi tạo characters nếu là target vehicle
         if self.is_target:
             self._init_characters()
@@ -48,7 +57,7 @@ class Vehicle:
         # Vị trí y căn giữa tile
         center_y = base_y + (TILE - char_width) // 2 - SUPPORT_CHARACTER_ALLIANCE
         
-        # Vị trí cho 2 characters
+        # Vị trí cho 3 characters
         pos1_x = base_x + spacing - char_width // 2 - SUPPORT_CHARACTER_ALLIANCE 
         pos2_x = base_x + spacing * 2 - char_width // 2 - SUPPORT_CHARACTER_ALLIANCE
         pos3_x = base_x + spacing * 3 - char_width // 2 - SUPPORT_CHARACTER_ALLIANCE
@@ -81,9 +90,13 @@ class Vehicle:
         if not self.characters:
             return
             
-        # Tính toán vị trí cho characters xếp thành hàng ngang
-        base_x = BOARD_OFFSET_X + self.x * TILE
-        base_y = BOARD_OFFSET_Y + self.y * TILE
+        # Sử dụng vị trí victory nếu đang trong victory movement
+        if self.victory_movement_active:
+            base_x = BOARD_OFFSET_X + self.victory_current_x * TILE
+            base_y = BOARD_OFFSET_Y + self.victory_current_y * TILE
+        else:
+            base_x = BOARD_OFFSET_X + self.x * TILE
+            base_y = BOARD_OFFSET_Y + self.y * TILE
         
         character_size = CHARACTER_SIZE_SCALE  
         original_size = TILE // 2
@@ -98,7 +111,7 @@ class Vehicle:
         pos2_x = base_x + spacing * 2 - char_width // 2 - SUPPORT_CHARACTER_ALLIANCE
         pos3_x = base_x + spacing * 3 - char_width // 2 - SUPPORT_CHARACTER_ALLIANCE
 
-        # Vị trí cho 2 characters
+        # Vị trí cho 3 characters
         positions = [
             (pos1_x, center_y),
             (pos2_x, center_y),
@@ -125,6 +138,7 @@ class Vehicle:
             
         self.is_moving = False
         self.dragging = False
+        self.victory_movement_active = False
         self._ensure_characters_ready()
         
         for character in self.characters:
@@ -138,9 +152,9 @@ class Vehicle:
         if not self.is_target or not self.characters:
             return
             
-        # Kiểm tra xem có đang di chuyển không (dựa vào dragging state hoặc position change)
+        # Kiểm tra xem có đang di chuyển không
         position_changed = (self.x != self.previous_x or self.y != self.previous_y)
-        current_moving = self.dragging or position_changed
+        current_moving = self.dragging or position_changed or self.victory_movement_active
         
         # Chỉ cập nhật khi trạng thái thay đổi
         if current_moving != self.is_moving:
@@ -163,9 +177,52 @@ class Vehicle:
         self.previous_x = self.x
         self.previous_y = self.y
 
-    def play_victory_animation(self):
+    def start_victory_movement(self, board_width=6):
+        """Bắt đầu di chuyển chiến thắng - target sẽ di chuyển ra khỏi map"""
+        if not self.is_target or self.victory_movement_active:
+            return
+            
+        self.victory_movement_active = True
+        self.victory_current_x = float(self.x)
+        self.victory_current_y = float(self.y)
+        
+        # Tính toán điểm đích dựa trên hướng
+        if self.orient == 'h':  # Horizontal - di chuyển sang phải
+            self.victory_target_x = board_width + self.len + 5  # Ra khỏi map
+        else:  # Vertical - di chuyển xuống dưới
+            self.victory_target_x = board_width + self.len + 5  # Ra khỏi map
+        
+        # Đảm bảo characters ở trạng thái run
+        self._ensure_characters_ready()
+        for character in self.characters:
+            try:
+                character.set_state("run")
+            except Exception as e:
+                print(f"Error setting character to run: {e}")
 
-        """Phát animation chiến thắng"""
+    def update_victory_movement(self):
+        """Cập nhật di chuyển chiến thắng"""
+        if not self.victory_movement_active:
+            return
+            
+        # Di chuyển theo hướng horizontal (sang phải)
+        if self.orient == 'h':
+            self.victory_current_x += self.victory_speed
+            if self.victory_current_x >= self.victory_target_x:
+                self.is_offscreen = True
+                self.victory_movement_active = False
+        else:
+            # Nếu là vertical, cũng di chuyển sang phải
+            self.victory_current_x += self.victory_speed
+            if self.victory_current_x >= self.victory_target_x:
+                self.is_offscreen = True
+                self.victory_movement_active = False
+        
+        # Cập nhật vị trí characters
+        self._update_character_positions()
+
+    def play_victory_animation(self):
+        """Phát animation chiến thắng và bắt đầu di chuyển"""
         if not self.is_target or not self.characters or self.victory_animation_played:
             return
                     
@@ -180,14 +237,35 @@ class Vehicle:
                 character.perform_skill()
             except Exception as e:
                 print(f"Error performing character skill: {e}")
+        
+        # Bắt đầu di chuyển victory sau một khoảng thời gian ngắn
+        self.start_victory_movement()
+
+    def is_off_screen(self):
+        """Kiểm tra xem vehicle đã ra khỏi màn hình chưa"""
+        if not self.victory_movement_active:
+            return False
+        
+        # Kiểm tra xem có còn thấy character nào không
+        screen_width = BOARD_OFFSET_X + (6 * TILE)  # Giả sử board rộng 6 tiles
+        
+        if self.victory_current_x * TILE > screen_width:
+            return True
+        
+        return False
 
     def update(self):
+        # Cập nhật victory movement trước
+        if self.victory_movement_active:
+            self.update_victory_movement()
+        
         # Chỉ cập nhật khi có thay đổi vị trí
         if self.is_target and self.characters:
             for character in self.characters:
                 character.update()
             
-            if self.x != self.previous_x or self.y != self.previous_y:
+            if (self.x != self.previous_x or self.y != self.previous_y or 
+                self.victory_movement_active):
                 self.update_characters_position()
                 self.check_movement_state()
             
@@ -228,13 +306,12 @@ class Vehicle:
 
     def draw_target_vehicle(self, surface, pos_override=None):
         """Vẽ target vehicle bằng characters xếp hàng ngang"""
-
         if not self.characters:
             return
             
         # Đảm bảo characters đã sẵn sàng
         self._ensure_characters_ready()
-            
+        
         # Nếu có pos_override, tạm thời cập nhật vị trí characters
         if pos_override:
             temp_x, temp_y = pos_override
@@ -251,7 +328,7 @@ class Vehicle:
             # Tính vị trí y căn giữa tile
             center_y = base_y + (TILE - char_width) // 2 - SUPPORT_CHARACTER_ALLIANCE
             
-            # Vị trí cho 2 characters
+            # Vị trí cho 3 characters
             pos1_x = base_x + spacing - char_width // 2 - SUPPORT_CHARACTER_ALLIANCE 
             pos2_x = base_x + spacing * 2 - char_width // 2 - SUPPORT_CHARACTER_ALLIANCE
             pos3_x = base_x + spacing * 3 - char_width // 2 - SUPPORT_CHARACTER_ALLIANCE
@@ -285,13 +362,25 @@ class Vehicle:
 
     def positions(self):
         """Lấy các vị trí mà vehicle chiếm trên grid"""
-        if self.orient == 'h':
-            return [(self.x + i, self.y) for i in range(self.len)]
+        if self.victory_movement_active:
+            # Sử dụng vị trí victory khi đang di chuyển
+            base_x = int(self.victory_current_x)
+            base_y = int(self.victory_current_y)
         else:
-            return [(self.x, self.y + i) for i in range(self.len)]
+            base_x = self.x
+            base_y = self.y
+            
+        if self.orient == 'h':
+            return [(base_x + i, base_y) for i in range(self.len)]
+        else:
+            return [(base_x, base_y + i) for i in range(self.len)]
 
     def contains_point(self, mouse_x, mouse_y):
         """Kiểm tra xem điểm chuột có nằm trong vehicle không"""
+        # Không cho phép tương tác khi đang victory movement
+        if self.victory_movement_active:
+            return False
+            
         board_x = (mouse_x - BOARD_OFFSET_X) // TILE
         board_y = (mouse_y - BOARD_OFFSET_Y) // TILE
         return (board_x, board_y) in self.positions()

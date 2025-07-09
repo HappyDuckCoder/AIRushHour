@@ -17,6 +17,7 @@ GRAY = (128, 128, 128)
 ORANGE = (255, 165, 0)
 PURPLE = (128, 0, 128)
 PINK = (199, 21, 133)
+GOLD = (212, 175, 55)
 
 # Offset để căn giữa game board trong màn hình
 BOARD_OFFSET_X = (SCREEN_W - MAP_N * TILE) // 2
