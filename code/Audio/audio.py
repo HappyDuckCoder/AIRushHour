@@ -1,6 +1,7 @@
 import pygame
 import threading
 import os
+from typing import Dict, Optional
 from constants import *
 
 class AudioManager:
