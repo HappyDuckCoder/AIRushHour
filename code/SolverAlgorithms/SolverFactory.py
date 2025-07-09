@@ -22,20 +22,26 @@ class StrategyFactory:
         return UCSStrategy(map_obj, max_depth)
 
     @staticmethod
-    def create_astar(map_obj, max_depth=50):   
-        return AStarStrategy(map_obj, max_depth)
+    def create_astar(map_obj, max_time=30):   
+        return AStarStrategy(map_obj, max_time)
 
     @staticmethod
     def get_strategy_names():
-        return ['DFS', 'BFS']
+        return ['DFS', 'BFS', 'UCS', 'A*']
 
     @staticmethod
     def create_strategy_from_name(strategy_name, map_obj, max_depth=50):
         return StrategyFactory.create_strategy(strategy_name, map_obj, max_depth)
     
     @staticmethod
-    def create_strategy(strategy_name, map_obj, max_depth=50):
+    def create_strategy(strategy_name, map_obj, max_depth=50, max_time=30):
         if strategy_name == 'DFS':
             return DFSStrategy(map_obj, max_depth)
         elif strategy_name == 'BFS':
             return BFSStrategy(map_obj, max_depth)
+        elif strategy_name == 'UCS':
+            return UCSStrategy(map_obj, max_depth)
+        elif strategy_name == 'A*':
+            return AStarStrategy(map_obj, max_time)
+        else:
+            raise ValueError(f"Invalid strategy name: {strategy_name}")

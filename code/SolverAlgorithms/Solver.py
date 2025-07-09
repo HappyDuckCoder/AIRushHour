@@ -113,7 +113,7 @@ class BaseSolver:
 class PuzzleSolver:
     def __init__(self, map_obj, strategy: SolverStrategy = None):
         self.map = map_obj
-        self.strategy = strategy or DFSStrategy(map_obj)
+        self.strategy = strategy
     
     def set_strategy(self, strategy: SolverStrategy):
         """Change the solving strategy"""
