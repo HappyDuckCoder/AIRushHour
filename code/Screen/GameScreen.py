@@ -3,7 +3,7 @@ from Game.Map import Map
 from UI.Button import Button
 from UI.Text import Text, Font
 from Graphic.Graphic import *
-from Audio.Audio import AudioManager
+from Audio.AudioManager import AudioManager
 
 # ===============================
 # Game Screen

@@ -3,7 +3,7 @@ from UI.Button import Button
 from UI.Text import Text, Font
 from Screen.BaseScreen import Screen
 from Graphic.Graphic import gfx, pygame
-from Audio.Audio import AudioManager
+from Audio.AudioManager import AudioManager
 
 
 
