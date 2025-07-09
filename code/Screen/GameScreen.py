@@ -3,7 +3,6 @@ from Game.Map import Map
 from UI.Button import Button
 from UI.Text import Text, Font
 from Graphic.Graphic import *
-from Resource.Resource import ResourceManager
 from Audio.Audio import AudioManager
 
 # ===============================
@@ -32,7 +31,6 @@ class GameScreen(Screen):
         # Top-right corner buttons
         right_margin = 20
         self.next_level_btn = Button("Next Level", (SCREEN_W - button_width - right_margin, top_margin), button_width, button_height, GREEN)
-        self.switch_audio = Button("Audio On/Off", (SCREEN_W - button_width - right_margin, top_margin + button_height + 15), button_width, button_height, GREEN)
         
         # Bottom-left corner buttons
         bottom_margin = 20
@@ -54,7 +52,7 @@ class GameScreen(Screen):
         
         # Store all buttons for easy access
         self.all_buttons = [
-            self.back_btn, self.menu_btn, self.next_level_btn, self.switch_audio,
+            self.back_btn, self.menu_btn, self.next_level_btn,
             self.start_btn, self.solve_bfs, self.solve_dfs, self.solve_astar,
             self.solve_ucs, self.reset_btn, self.pause_btn
         ]
@@ -109,7 +107,7 @@ class GameScreen(Screen):
     def get_visible_buttons(self):
         """Return list of buttons that should be visible based on current UI state"""
         # Always visible buttons
-        visible_buttons = [self.back_btn, self.next_level_btn, self.menu_btn, self.switch_audio]
+        visible_buttons = [self.back_btn, self.next_level_btn, self.menu_btn]
         
         if self.ui_state == "start":
             visible_buttons.append(self.start_btn)
@@ -208,8 +206,6 @@ class GameScreen(Screen):
                 self.next_level()
             elif self.menu_btn.hit(event.pos):
                 self.screen_manager.set_screen('menu')
-            elif self.switch_audio.hit(event.pos):
-                AudioManager().toggle_music()
             else:
                 # Only handle map interactions in start state
                 if self.ui_state == "start":
