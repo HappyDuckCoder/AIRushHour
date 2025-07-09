@@ -11,3 +11,5 @@ class Statistic:
 
     # update 
 
+class Instruction: 
+    pass
