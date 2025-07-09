@@ -1,7 +1,7 @@
 from SolverAlgorithms.DFS import DFSStrategy
 from SolverAlgorithms.BFS import BFSStrategy
 from SolverAlgorithms.UCS import UCSStrategy
-from SolverAlgorithms.AStar import AStarStrategy
+from SolverAlgorithms.AStarr import AStarStrategy
 
 #==============================================
 # Strategy Factory (Optional - for easy creation)
