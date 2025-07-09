@@ -382,13 +382,13 @@ class WinningScreen(Screen):
             elif self.animation_phase == 2 and elapsed > sum(self.phase_duration[:2]) + 1000:
                 audio_manager = AudioManager.get_instance()
                 audio_manager.play_sound_effect('button_click')
-                self.screen_manager.set_screen("menu")  # Return to main menu
+                self.screen_manager.set_screen("level_select")  # Return to main menu
             
             # If in exit phase, immediately go to menu
             elif self.animation_phase == 3:
                 audio_manager = AudioManager.get_instance()
                 audio_manager.play_sound_effect('button_click')
-                self.screen_manager.set_screen("menu")
+                self.screen_manager.set_screen("level_select")
 
     def on_exit(self):
         """Called when exiting victory screen"""

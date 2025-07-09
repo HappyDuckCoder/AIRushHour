@@ -26,10 +26,13 @@ class Map:
         self.move_timer = 0
         self.move_delay = 0.5  
         self.list_solver = []
+        self.current_algorithm = ""
         
         # Victory animation
         self.game_won = False
         self.victory_animation_started = False
+
+        self.solving_failed = False
 
     def create_level_data(self): # for testing
         """Create 2 different level for testing"""
@@ -90,6 +93,7 @@ class Map:
         self.move_timer = 0
         self.game_won = False
         self.victory_animation_started = False
+        self.current_algorithm = ""
 
     def update(self):
         """Update game state"""
@@ -114,12 +118,18 @@ class Map:
         """Bắt đầu giải puzzle"""
         if not self.solving:
             print(f"Starting {nameAlgo} solver...")
+            self.current_algorithm = nameAlgo
 
             strategy = StrategyFactory.create_strategy(nameAlgo, self)
             
             self.reset_victory_animation()
 
             self.solver = PuzzleSolver(self, strategy) 
+            
+            # Initialize expanded_nodes list in solver for tracking
+            if not hasattr(self.solver, 'expanded_nodes'):
+                self.solver.expanded_nodes = []
+            
             solution = self.solver.solve()
 
             if solution:
@@ -170,8 +180,8 @@ class Map:
                     print("Solving complete!")
         elif self.solving and not self.solution_moves:
             # No solution found
+            self.solving_failed = True
             self.solving = False
-            
             print("No solution found!")
 
     def get_grid(self):
