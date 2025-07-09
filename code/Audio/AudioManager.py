@@ -53,8 +53,8 @@ class AudioManager:
             'button_hover': 'assets/audio/button_hover.wav',
             # 'level_select': 'assets/audio/level_select.wav',
             # 'solve_start': 'assets/audio/solve_start.wav',
-            # 'victory': 'assets/audio/victory.wav',
-            # 'car_move': 'assets/audio/car_move.wav',
+            'victory': 'assets/audio/victory.wav',
+            'car_move': 'assets/audio/car_move.wav',
             # 'car_place': 'assets/audio/car_place.wav'
         }
         
@@ -97,6 +97,16 @@ class AudioManager:
         """Đặt âm lượng nhạc nền (0.0 - 1.0)"""
         self.music_volume = max(0.0, min(1.0, volume))
         pygame.mixer.music.set_volume(self.music_volume)
+
+    def increase_volume(self, amount):
+        """Tăng âm lượng nhạc nền"""
+        self.music_volume = min(1.0, self.music_volume + amount)
+        pygame.mixer.music.set_volume(self.music_volume)
+
+    def decrease_volume(self, amount):
+        """Giảm âm lượng nhạc nền"""
+        self.music_volume = max(0.0, self.music_volume - amount)
+        pygame.mixer.music.set_volume(self.music_volume)
     
     def set_sfx_volume(self, volume):
         """Đặt âm lượng hiệu ứng âm thanh (0.0 - 1.0)"""
@@ -106,13 +116,15 @@ class AudioManager:
     
     def toggle_music(self):
         """Bật/tắt nhạc nền"""
-        print(self.music_enabled)
-        self.music_enabled = not self.music_enabled
         if self.music_enabled:
-            if self.current_screen:
-                self.play_background_music(self.current_screen)
-        else:
             self.music_enabled = False
+            pygame.mixer.music.stop()
+        else:
+            self.music_enabled = True
+            if self.current_screen:
+                # Phát lại nhạc nền
+                self.play_background_music(self.current_screen, fade_in=True)
+                pygame.mixer.music.set_volume(self.music_volume)
     
     def toggle_sfx(self):
         """Bật/tắt hiệu ứng âm thanh"""
@@ -197,13 +209,13 @@ class AudioManager:
         """Phát âm thanh khi bắt đầu giải puzzle"""
         self.play_sound_effect('solve_start')
     
-    #def play_victory(self):
-    #    """Phát âm thanh khi thắng"""
-    #    self.play_sound_effect('victory')
+    def play_victory(self):
+        """Phát âm thanh khi thắng"""
+        self.play_sound_effect('victory')
     
-    #def play_car_move(self):
-    #    """Phát âm thanh khi di chuyển xe"""
-    #    self.play_sound_effect('car_move', 0.5)
+    def play_car_move(self):
+        """Phát âm thanh khi di chuyển xe"""
+        self.play_sound_effect('car_move', 0.5)
     
     #def play_car_place(self):
     #    """Phát âm thanh khi đặt xe"""

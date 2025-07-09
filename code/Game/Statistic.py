@@ -1,5 +1,7 @@
 import pygame
 import time
+import json
+import os
 from constants import *
 
 class Statistic:
@@ -15,28 +17,36 @@ class Statistic:
         self.init_fonts()
         
         # Display properties
-        self.panel_width = 300
-        self.panel_height = 200
-        self.panel_x = SCREEN_W - self.panel_width - 20  
+        self.panel_width = 320
+        self.panel_height = 240
+        self.panel_x = SCREEN_W - self.panel_width - 20
         self.panel_y = 20
-        self.background_color = (240, 240, 240)
-        self.border_color = (100, 100, 100)
-        self.text_color = (50, 50, 50)
-        self.header_color = (30, 30, 30)
+        self.background_color = (245, 245, 250)
+        self.border_color = (70, 130, 180)
+        self.text_color = (40, 40, 40)
+        self.header_color = (20, 20, 20)
+        self.accent_color = (70, 130, 180)
         
         # Animation properties
         self.visible = True
         self.alpha = 255
         self.fade_speed = 5
         
+        # Enhanced visual effects
+        self.glow_alpha = 0
+        self.glow_direction = 1
+        self.panel_shadow_offset = 3
+        
     def init_fonts(self):
         """Khởi tạo fonts"""
         try:
-            self.font = pygame.font.Font(None, 24)
-            self.small_font = pygame.font.Font(None, 20)
+            self.font = pygame.font.Font(None, 26)
+            self.small_font = pygame.font.Font(None, 22)
+            self.header_font = pygame.font.Font(None, 28)
         except:
-            self.font = pygame.font.SysFont('Arial', 24)
-            self.small_font = pygame.font.SysFont('Arial', 20)
+            self.font = pygame.font.SysFont('Arial', 26)
+            self.small_font = pygame.font.SysFont('Arial', 22)
+            self.header_font = pygame.font.SysFont('Arial', 28)
     
     def set_time_executed(self, time_value):
         """Cập nhật thời gian thực hiện"""
@@ -68,10 +78,12 @@ class Statistic:
     
     def format_time(self, seconds):
         """Format thời gian thành string dễ đọc"""
-        if seconds < 1:
+        if seconds < 0.001:
+            return f"{seconds*1000000:.0f}μs"
+        elif seconds < 1:
             return f"{seconds*1000:.1f}ms"
         elif seconds < 60:
-            return f"{seconds:.2f}s"
+            return f"{seconds:.3f}s"
         else:
             minutes = int(seconds // 60)
             secs = seconds % 60
@@ -93,6 +105,17 @@ class Statistic:
             return 0
         return (self.total_cost / self.total_node) if self.total_node > 0 else 0
     
+    def get_performance_rating(self):
+        """Đánh giá hiệu suất"""
+        if self.time_executed < 0.01 and len(self.node_expand) < 50:
+            return "★★★ EXCELLENT", (255, 215, 0)
+        elif self.time_executed < 0.1 and len(self.node_expand) < 200:
+            return "★★☆ GOOD", (70, 130, 180)
+        elif self.time_executed < 1.0 and len(self.node_expand) < 1000:
+            return "★☆☆ AVERAGE", (255, 165, 0)
+        else:
+            return "☆☆☆ SLOW", (220, 20, 60)
+    
     def toggle_visibility(self):
         """Bật/tắt hiển thị panel"""
         self.visible = not self.visible
@@ -103,55 +126,104 @@ class Statistic:
             self.alpha = min(255, self.alpha + self.fade_speed * dt * 100)
         elif not self.visible and self.alpha > 0:
             self.alpha = max(0, self.alpha - self.fade_speed * dt * 100)
+        
+        # Glow effect animation
+        self.glow_alpha += self.glow_direction * 2
+        if self.glow_alpha >= 30:
+            self.glow_direction = -1
+        elif self.glow_alpha <= 0:
+            self.glow_direction = 1
     
     def draw_panel_background(self, surface):
-        """Vẽ background của panel"""
-        # Tạo surface với alpha
+        """Vẽ background của panel với hiệu ứng đẹp"""
+        if self.alpha <= 0:
+            return
+        
+        # Shadow effect
+        shadow_surface = pygame.Surface((self.panel_width, self.panel_height))
+        shadow_surface.fill((0, 0, 0))
+        shadow_surface.set_alpha(int(self.alpha * 0.3))
+        surface.blit(shadow_surface, (self.panel_x + self.panel_shadow_offset, 
+                                     self.panel_y + self.panel_shadow_offset))
+        
+        # Main panel surface
         panel_surface = pygame.Surface((self.panel_width, self.panel_height))
         panel_surface.set_alpha(self.alpha)
         
-        # Vẽ background
-        panel_surface.fill(self.background_color)
+        # Gradient background
+        for i in range(self.panel_height):
+            color_intensity = 245 - int(i * 0.1)
+            color = (color_intensity, color_intensity, color_intensity + 5)
+            pygame.draw.line(panel_surface, color, (0, i), (self.panel_width, i))
         
-        # Vẽ border
-        pygame.draw.rect(panel_surface, self.border_color, 
-                        (0, 0, self.panel_width, self.panel_height), 2)
+        # Glow border effect
+        glow_color = (*self.accent_color, int(self.glow_alpha))
+        pygame.draw.rect(panel_surface, self.accent_color, 
+                        (0, 0, self.panel_width, self.panel_height), 3)
+        pygame.draw.rect(panel_surface, (200, 200, 200), 
+                        (3, 3, self.panel_width-6, self.panel_height-6), 1)
+        
+        # Header background
+        header_rect = pygame.Rect(5, 5, self.panel_width-10, 35)
+        pygame.draw.rect(panel_surface, self.accent_color, header_rect)
+        pygame.draw.rect(panel_surface, (255, 255, 255), header_rect, 1)
         
         surface.blit(panel_surface, (self.panel_x, self.panel_y))
     
     def draw_statistics_text(self, surface):
-        """Vẽ text thống kê"""
+        """Vẽ text thống kê với styling đẹp"""
         if self.alpha <= 0:
             return
             
-        y_offset = self.panel_y + 10
-        x_offset = self.panel_x + 10
-        line_height = 25
+        y_offset = self.panel_y + 12
+        x_offset = self.panel_x + 15
+        line_height = 24
         
         # Header
-        header_text = self.font.render("Algorithm Statistics", True, self.header_color)
+        header_text = self.header_font.render("ALGORITHM STATS", True, (255, 255, 255))
         header_surface = pygame.Surface(header_text.get_size())
         header_surface.set_alpha(self.alpha)
         header_surface.blit(header_text, (0, 0))
         surface.blit(header_surface, (x_offset, y_offset))
-        y_offset += line_height + 5
+        y_offset += 35
         
-        # Statistics data
+        # Statistics data with icons/symbols
         stats_data = [
-            f"Time: {self.format_time(self.time_executed)}",
-            f"Nodes Expanded: {len(self.node_expand)}",
-            f"Total Nodes: {self.total_node}",
-            f"Solution Cost: {self.total_cost}",
-            f"Efficiency: {self.calculate_efficiency():.2f}"
+            ("⏱️ Time:", self.format_time(self.time_executed), (70, 130, 180)),
+            ("🔍 Nodes:", f"{len(self.node_expand)}", (60, 179, 113)),
+            ("📊 Total:", f"{self.total_node}", (255, 140, 0)),
+            ("💰 Cost:", f"{self.total_cost}", (238, 130, 238)),
+            ("⚡ Efficiency:", f"{self.calculate_efficiency():.2f}", (220, 20, 60))
         ]
         
-        for stat in stats_data:
-            text_surface = self.small_font.render(stat, True, self.text_color)
-            alpha_surface = pygame.Surface(text_surface.get_size())
-            alpha_surface.set_alpha(self.alpha)
-            alpha_surface.blit(text_surface, (0, 0))
-            surface.blit(alpha_surface, (x_offset, y_offset))
-            y_offset += line_height - 5
+        for label, value, color in stats_data:
+            # Label
+            label_text = self.small_font.render(label, True, self.text_color)
+            label_surface = pygame.Surface(label_text.get_size())
+            label_surface.set_alpha(self.alpha)
+            label_surface.blit(label_text, (0, 0))
+            surface.blit(label_surface, (x_offset, y_offset))
+            
+            # Value with color
+            value_text = self.small_font.render(value, True, color)
+            value_surface = pygame.Surface(value_text.get_size())
+            value_surface.set_alpha(self.alpha)
+            value_surface.blit(value_text, (0, 0))
+            surface.blit(value_surface, (x_offset + 120, y_offset))
+            
+            y_offset += line_height
+        
+        # Performance rating
+        if self.total_node > 0:
+            rating_text, rating_color = self.get_performance_rating()
+            rating_surface = self.small_font.render(rating_text, True, rating_color)
+            rating_alpha_surface = pygame.Surface(rating_surface.get_size())
+            rating_alpha_surface.set_alpha(self.alpha)
+            rating_alpha_surface.blit(rating_surface, (0, 0))
+            
+            # Center the rating
+            rating_x = self.panel_x + (self.panel_width - rating_surface.get_width()) // 2
+            surface.blit(rating_alpha_surface, (rating_x, y_offset + 5))
     
     def draw(self, surface):
         """Vẽ panel thống kê"""
@@ -173,36 +245,44 @@ class Instruction:
         self.font = None
         self.init_fonts()
         
-        # UI properties
-        self.panel_width = 400
-        self.panel_height = 300
+        # UI properties - Enhanced styling
+        self.panel_width = 420
+        self.panel_height = 320
         self.panel_x = 20
-        self.panel_y = SCREEN_H - self.panel_height - 20  # Sử dụng SCREEN_H thay vì SCREEN_HEIGHT
-        self.background_color = (250, 250, 250)
-        self.border_color = (80, 80, 80)
+        self.panel_y = SCREEN_H - self.panel_height - 20
+        self.background_color = (245, 245, 250)
+        self.border_color = (70, 130, 180)
         self.text_color = (40, 40, 40)
-        self.header_color = (20, 20, 20)
+        self.header_color = (255, 255, 255)
+        self.accent_color = (70, 130, 180)
         
-        # Visibility
+        # Visibility and animation
         self.visible = True
         self.alpha = 255
+        self.glow_alpha = 0
+        self.glow_direction = 1
+        self.panel_shadow_offset = 3
         
-        # Instructions content
+        # Enhanced instructions content
         self.instructions = [
-            "Game Controls:",
-            "• Click and drag vehicles to move them",
-            "• Target vehicle (with characters) must reach exit",
-            "• Press SPACE to auto-solve with current algorithm",
-            "• Press P to pause/resume auto-solving",
-            "• Press R to reset current level",
-            "• Press N for next level",
-            "• Press B for previous level",
+            "🎮 GAME CONTROLS:",
+            "• 🖱️ Click and drag vehicles to move them",
+            "• 🎯 Get target vehicle (with characters) to exit",
+            "• ⏯️ SPACE: Auto-solve with current algorithm",
+            "• ⏸️ P: Pause/resume auto-solving",
+            "• 🔄 R: Reset current level",
+            "• ➡️ N: Next level • ⬅️ B: Previous level",
             "",
-            "Algorithm Selection:",
-            "• Press 1 for BFS",
-            "• Press 2 for DFS", 
-            "• Press 3 for A*",
-            "• Press 4 for Greedy Best-First"
+            "🧠 ALGORITHM SELECTION:",
+            "• 1️⃣ BFS (Breadth-First Search)",
+            "• 2️⃣ DFS (Depth-First Search)", 
+            "• 3️⃣ A* (A-Star Search)",
+            "• 4️⃣ Greedy Best-First Search",
+            "",
+            "💡 TIPS:",
+            "• Watch algorithm statistics in real-time",
+            "• Different algorithms have different strengths",
+            "• Try all algorithms to compare performance!"
         ]
     
     def init_fonts(self):
@@ -210,47 +290,89 @@ class Instruction:
         try:
             self.font = pygame.font.Font(None, 20)
             self.header_font = pygame.font.Font(None, 24)
+            self.small_font = pygame.font.Font(None, 18)
         except:
             self.font = pygame.font.SysFont('Arial', 20)
             self.header_font = pygame.font.SysFont('Arial', 24)
+            self.small_font = pygame.font.SysFont('Arial', 18)
     
     def toggle_visibility(self):
         """Bật/tắt hiển thị"""
         self.visible = not self.visible
     
+    def update(self, dt):
+        """Cập nhật animation effects"""
+        # Glow effect animation
+        self.glow_alpha += self.glow_direction * 2
+        if self.glow_alpha >= 30:
+            self.glow_direction = -1
+        elif self.glow_alpha <= 0:
+            self.glow_direction = 1
+    
     def draw(self, surface):
-        """Vẽ panel hướng dẫn"""
+        """Vẽ panel hướng dẫn với styling đẹp"""
         if not self.visible or self.alpha <= 0:
             return
-            
-        # Vẽ background
+        
+        # Shadow effect
+        shadow_surface = pygame.Surface((self.panel_width, self.panel_height))
+        shadow_surface.fill((0, 0, 0))
+        shadow_surface.set_alpha(int(self.alpha * 0.3))
+        surface.blit(shadow_surface, (self.panel_x + self.panel_shadow_offset, 
+                                     self.panel_y + self.panel_shadow_offset))
+        
+        # Main panel surface
         panel_surface = pygame.Surface((self.panel_width, self.panel_height))
         panel_surface.set_alpha(self.alpha)
-        panel_surface.fill(self.background_color)
         
-        # Vẽ border
+        # Gradient background
+        for i in range(self.panel_height):
+            color_intensity = 245 - int(i * 0.1)
+            color = (color_intensity, color_intensity, color_intensity + 5)
+            pygame.draw.line(panel_surface, color, (0, i), (self.panel_width, i))
+        
+        # Border with glow effect
         pygame.draw.rect(panel_surface, self.border_color,
-                        (0, 0, self.panel_width, self.panel_height), 2)
+                        (0, 0, self.panel_width, self.panel_height), 3)
+        pygame.draw.rect(panel_surface, (200, 200, 200),
+                        (3, 3, self.panel_width-6, self.panel_height-6), 1)
         
         surface.blit(panel_surface, (self.panel_x, self.panel_y))
         
-        # Vẽ instructions
-        y_offset = self.panel_y + 10
-        x_offset = self.panel_x + 10
+        # Draw instructions
+        y_offset = self.panel_y + 15
+        x_offset = self.panel_x + 15
         line_height = 18
         
         for instruction in self.instructions:
             if instruction == "":
                 y_offset += line_height // 2
                 continue
-                
-            if instruction.endswith(":"):
-                # Header
-                text_surface = self.header_font.render(instruction, True, self.header_color)
-            else:
-                # Regular instruction
-                text_surface = self.font.render(instruction, True, self.text_color)
             
+            # Color coding for different types
+            color = self.text_color
+            font = self.font
+            
+            if instruction.startswith("🎮") or instruction.startswith("🧠"):
+                # Section headers
+                color = self.accent_color
+                font = self.header_font
+                # Draw header background
+                header_rect = pygame.Rect(self.panel_x + 5, y_offset - 2, 
+                                        self.panel_width - 10, 22)
+                header_surface = pygame.Surface((header_rect.width, header_rect.height))
+                header_surface.set_alpha(50)
+                header_surface.fill(self.accent_color)
+                surface.blit(header_surface, (header_rect.x, header_rect.y))
+                
+            elif instruction.startswith("💡"):
+                color = (255, 140, 0)  # Orange for tips
+                font = self.header_font
+            elif instruction.startswith("•"):
+                color = (60, 60, 60)  # Darker for bullet points
+                font = self.font
+            
+            text_surface = font.render(instruction, True, color)
             alpha_surface = pygame.Surface(text_surface.get_size())
             alpha_surface.set_alpha(self.alpha)
             alpha_surface.blit(text_surface, (0, 0))
@@ -269,40 +391,58 @@ class Notification:
         self.message_duration = 3.0  # seconds
         self.fade_duration = 0.5    # seconds
         
-        # UI properties
-        self.panel_width = 350
-        self.panel_x = (SCREEN_W - self.panel_width) // 2  
-        self.panel_y = 50
-        self.background_color = (240, 240, 240)
-        self.border_color = (100, 100, 100)
-        self.text_color = (50, 50, 50)
+        # UI properties - Enhanced styling
+        self.panel_width = 380
+        self.panel_x = (SCREEN_W - self.panel_width) // 2
+        self.panel_y = 60
+        self.background_color = (245, 245, 250)
+        self.border_color = (70, 130, 180)
+        self.text_color = (40, 40, 40)
+        self.shadow_offset = 2
         
-        # Message types and colors
+        # Message types and colors - Enhanced
         self.message_colors = {
             'info': (70, 130, 180),
             'success': (60, 179, 113),
             'warning': (255, 165, 0),
-            'error': (220, 20, 60)
+            'error': (220, 20, 60),
+            'algorithm': (138, 43, 226)  # New type for algorithm info
+        }
+        
+        # Message icons
+        self.message_icons = {
+            'info': 'ℹ️',
+            'success': '✅',
+            'warning': '⚠️',
+            'error': '❌',
+            'algorithm': '🧠'
         }
     
     def init_fonts(self):
         """Khởi tạo fonts"""
         try:
             self.font = pygame.font.Font(None, 22)
+            self.header_font = pygame.font.Font(None, 24)
         except:
             self.font = pygame.font.SysFont('Arial', 22)
+            self.header_font = pygame.font.SysFont('Arial', 24)
     
     def add_message(self, text, msg_type='info', duration=None):
-        """Thêm thông báo mới"""
+        """Thêm thông báo mới với styling đẹp"""
         if duration is None:
             duration = self.message_duration
-            
+        
+        # Add icon to message
+        icon = self.message_icons.get(msg_type, '')
+        display_text = f"{icon} {text}" if icon else text
+        
         message = {
-            'text': text,
+            'text': display_text,
             'type': msg_type,
             'start_time': time.time(),
             'duration': duration,
-            'alpha': 255
+            'alpha': 255,
+            'slide_offset': -50  # For slide-in animation
         }
         
         self.messages.append(message)
@@ -312,12 +452,16 @@ class Notification:
             self.messages.pop(0)
     
     def update(self, dt):
-        """Cập nhật thông báo"""
+        """Cập nhật thông báo với animation"""
         current_time = time.time()
         messages_to_remove = []
         
         for message in self.messages:
             elapsed = current_time - message['start_time']
+            
+            # Slide-in animation
+            if message['slide_offset'] < 0:
+                message['slide_offset'] = min(0, message['slide_offset'] + 300 * dt)
             
             if elapsed > message['duration']:
                 messages_to_remove.append(message)
@@ -332,7 +476,7 @@ class Notification:
                 self.messages.remove(message)
     
     def draw(self, surface):
-        """Vẽ thông báo"""
+        """Vẽ thông báo với styling đẹp"""
         if not self.messages:
             return
             
@@ -341,37 +485,52 @@ class Notification:
         for message in self.messages:
             if message['alpha'] <= 0:
                 continue
-                
-            # Tính kích thước message
-            text_surface = self.font.render(message['text'], True, self.text_color)
-            msg_width = text_surface.get_width() + 20
-            msg_height = text_surface.get_height() + 10
             
-            # Vẽ background
+            # Calculate message dimensions
+            text_surface = self.font.render(message['text'], True, self.text_color)
+            msg_width = text_surface.get_width() + 30
+            msg_height = text_surface.get_height() + 16
+            
+            # Message position with slide animation
+            msg_x = (SCREEN_W - msg_width) // 2 + message['slide_offset']
+            
+            # Shadow effect
+            shadow_surface = pygame.Surface((msg_width, msg_height))
+            shadow_surface.fill((0, 0, 0))
+            shadow_surface.set_alpha(int(message['alpha'] * 0.3))
+            surface.blit(shadow_surface, (msg_x + self.shadow_offset, y_offset + self.shadow_offset))
+            
+            # Message background
             bg_surface = pygame.Surface((msg_width, msg_height))
             bg_surface.set_alpha(message['alpha'])
-            bg_surface.fill(self.background_color)
             
-            # Vẽ border với màu theo type
+            # Gradient background
+            for i in range(msg_height):
+                color_intensity = 245 - int(i * 0.2)
+                color = (color_intensity, color_intensity, color_intensity + 5)
+                pygame.draw.line(bg_surface, color, (0, i), (msg_width, i))
+            
+            # Border with type color
             border_color = self.message_colors.get(message['type'], self.border_color)
             pygame.draw.rect(bg_surface, border_color, (0, 0, msg_width, msg_height), 2)
             
-            # Vẽ message
-            msg_x = (SCREEN_W - msg_width) // 2  # Sử dụng SCREEN_W thay vì SCREEN_WIDTH
             surface.blit(bg_surface, (msg_x, y_offset))
             
-            # Vẽ text
+            # Message text
             text_alpha_surface = pygame.Surface(text_surface.get_size())
             text_alpha_surface.set_alpha(message['alpha'])
             text_alpha_surface.blit(text_surface, (0, 0))
-            surface.blit(text_alpha_surface, (msg_x + 10, y_offset + 5))
+            surface.blit(text_alpha_surface, (msg_x + 15, y_offset + 8))
             
-            y_offset += msg_height + 5
+            y_offset += msg_height + 8
     
     def show_algorithm_info(self, algorithm_name, time_taken, nodes_expanded, solution_length):
-        """Hiển thị thông tin thuật toán"""
-        info_text = f"{algorithm_name}: {time_taken:.2f}s, {nodes_expanded} nodes, {solution_length} moves"
-        self.add_message(info_text, 'info', 4.0)
+        """Hiển thị thông tin thuật toán với styling đẹp"""
+        if solution_length > 0:
+            info_text = f"{algorithm_name}: {time_taken:.3f}s | {nodes_expanded} nodes | {solution_length} moves"
+            self.add_message(info_text, 'algorithm', 5.0)
+        else:
+            self.add_message(f"{algorithm_name}: No solution found", 'error', 4.0)
     
     def show_level_complete(self, level_num):
         """Hiển thị hoàn thành level"""
@@ -383,4 +542,20 @@ class Notification:
     
     def show_algorithm_selected(self, algorithm_name):
         """Hiển thị thuật toán được chọn"""
-        self.add_message(f"Algorithm: {algorithm_name}", 'info', 2.0)
+        self.add_message(f"Algorithm selected: {algorithm_name}", 'algorithm', 2.5)
+    
+    def show_solving_started(self, algorithm_name):
+        """Hiển thị bắt đầu giải"""
+        self.add_message(f"Solving with {algorithm_name}...", 'info', 2.0)
+    
+    def show_solving_paused(self):
+        """Hiển thị tạm dừng"""
+        self.add_message("Solving paused", 'warning', 2.0)
+    
+    def show_solving_resumed(self):
+        """Hiển thị tiếp tục"""
+        self.add_message("Solving resumed", 'info', 2.0)
+    
+    def show_level_reset(self):
+        """Hiển thị reset level"""
+        self.add_message("Level reset", 'info', 2.0)
