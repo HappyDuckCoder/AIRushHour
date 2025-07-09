@@ -86,7 +86,7 @@ class ResourceManager:
         ResourceManager.load_image(
             "map",
             "assets/map.png",
-            size=(map_size, map_size)
+            size=(map_size, map_size + TILE)
         )
 
         # Target vehicle
@@ -101,6 +101,13 @@ class ResourceManager:
             "mouse",
             "assets/Mouse.png",
             size=(MOUSE_SIZE, MOUSE_SIZE)
+        )
+
+        # Bridge
+        ResourceManager.load_image(
+            "exit",
+            "assets/Bridge.png",
+            size=(TILE * 2, TILE)
         )
         
         ResourceManager.load_all_vehicle_image()
@@ -160,27 +167,25 @@ class ResourceManager:
         # Vehicle 2-tile (horizontal & vertical)
         ResourceManager.load_image(
             "v2_h",
-            "assets/vh2h.png",
+            "assets/vh/vh2h.png",
             size=(TILE * 2, TILE)
         )
         ResourceManager.load_image(
             "v2_v",
-            "assets/vh2h.png",
+            "assets/vh/vh2v.png",
             size=(TILE, TILE * 2),
-            rotate=90
         )
 
         # Vehicle 3-tile (horizontal & vertical)
         ResourceManager.load_image(
             "v3_h",
-            "assets/vh3h.png",
+            "assets/vh/vh3h.png",
             size=(TILE * 3, TILE)
         )
         ResourceManager.load_image(
             "v3_v",
-            "assets/vh3h.png",
-            size=(TILE, TILE * 3),
-            rotate=90
+            "assets/vh/vh3v.png",
+            size=(TILE, TILE * 3 + 25),
         )
 
     def load_all_character_animations():
@@ -188,34 +193,34 @@ class ResourceManager:
         
         ResourceManager.load_frames(
             "archer_idle", 
-            "assets/Units/Black Units/Archer/Archer_Idle.png", 
+            "assets/Units/Blue Units/Archer/Archer_Idle.png", 
             FRAME_WIDTH, FRAME_HEIGHT, 6
         )
         ResourceManager.load_frames(
             "archer_run", 
-            "assets/Units/Black Units/Archer/Archer_Run.png", 
+            "assets/Units/Blue Units/Archer/Archer_Run.png", 
             FRAME_WIDTH, FRAME_HEIGHT, 4
         )
         ResourceManager.load_frames(
             "archer_shoot", 
-            "assets/Units/Black Units/Archer/Archer_Shoot.png", 
+            "assets/Units/Blue Units/Archer/Archer_Shoot.png", 
             FRAME_WIDTH, FRAME_HEIGHT, 8
         )
         
         # Warrior animations
         ResourceManager.load_frames(
             "warrior_idle", 
-            "assets/Units/Black Units/Warrior/Warrior_Idle.png", 
+            "assets/Units/Red Units/Warrior/Warrior_Idle.png", 
             FRAME_WIDTH, FRAME_HEIGHT, 8
         )
         ResourceManager.load_frames(
             "warrior_run", 
-            "assets/Units/Black Units/Warrior/Warrior_Run.png", 
+            "assets/Units/Red Units/Warrior/Warrior_Run.png", 
             FRAME_WIDTH, FRAME_HEIGHT, 6
         )
         ResourceManager.load_frames(
             "warrior_guard", 
-            "assets/Units/Black Units/Warrior/Warrior_Guard.png", 
+            "assets/Units/Red Units/Warrior/Warrior_Guard.png", 
             FRAME_WIDTH, FRAME_HEIGHT, 6
         )
     

@@ -256,13 +256,12 @@ class Map:
 
     def draw_exit(self, surface):
         """Vẽ vùng exit"""
-        exit_rect = pygame.Rect(
-            BOARD_OFFSET_X + MAP_N * TILE, 
-            BOARD_OFFSET_Y + 2 * TILE, 
-            20, 
-            TILE
-        )
-        pygame.draw.rect(surface, (255, 200, 200), exit_rect)
+        exit_image = ResourceManager().get_image('exit')
+        if exit_image:
+            for i in range(5):  # vẽ 5 lần
+                x = BOARD_OFFSET_X + (MAP_N + i) * TILE  # MAP_N là cột bắt đầu
+                y = BOARD_OFFSET_Y + 2 * TILE  # hàng cố định (hàng 2)
+                surface.blit(exit_image, (x, y))
 
     def draw_all_vehicles(self, surface):
         """Vẽ tất cả vehicles"""
