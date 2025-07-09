@@ -65,11 +65,7 @@ class GameScreen(Screen):
     
     def draw_game_background(self, surface):
         """Draw game screen background"""
-        background = ResourceManager().get_image('background')
-        if background:
-            surface.blit(background, (0, 0))
-        else:
-            surface.fill((40, 40, 80))
+        self.draw_background(surface)
 
     def get_visible_buttons(self):
         """Return list of buttons that should be visible based on current UI state"""

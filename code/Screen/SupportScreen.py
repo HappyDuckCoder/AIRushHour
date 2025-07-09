@@ -13,8 +13,7 @@ class MenuScreen(Screen):
         self.play_btn = Button("PLAY", (SCREEN_W//2 - 100, SCREEN_H//2 - 50), 200, 60, BLUE)
         
     def draw_menu_background(self, surface):
-        """Draw menu screen background"""
-        surface.fill((30, 30, 60))
+        self.draw_background(surface)
 
     def draw_menu_screen(self, surface, play_button):
         """Draw complete menu screen"""
@@ -76,7 +75,7 @@ class LevelSelectScreen(Screen):
 
     def draw_level_select_background(self, surface):
         """Draw level select screen background"""
-        surface.fill((25, 35, 50))
+        self.draw_background(surface)
 
     def draw_level_select_screen(self, surface, level_buttons, back_button):
         """Draw complete level select screen"""
@@ -142,7 +141,7 @@ class IntroScreen(Screen):
         self.target_y = SCREEN_H // 2
 
     def draw_intro_background(self, surface):
-        surface.fill((10, 10, 30))
+        self.draw_background(surface)
         
     def draw_intro(self, surface):
         self.draw_intro_background(surface)

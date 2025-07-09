@@ -79,11 +79,7 @@ class ResourceManager:
         """Load all necessary game resources"""
 
         # Background
-        ResourceManager.load_image(
-            "background",
-            "assets/bg.png",
-            size=(SCREEN_W, SCREEN_H)
-        )
+        ResourceManager.load_background()
 
         # Map overlay
         map_size = MAP_N * TILE
@@ -117,6 +113,28 @@ class ResourceManager:
         ResourceManager._images.clear()
         ResourceManager._sounds.clear()
         ResourceManager._fonts.clear()
+
+    def load_background():
+        ResourceManager.load_image(
+            "background",
+            "assets/bgRes/bg2/background.png",
+            size=(SCREEN_W, SCREEN_H)
+        )
+        ResourceManager.load_image(
+            "background2",
+            "assets/bgRes/bg2/background2.png",
+            size=(SCREEN_W, SCREEN_H)
+        )
+        ResourceManager.load_image(
+            "background3",
+            "assets/bgRes/bg2/background3.png",
+            size=(SCREEN_W, SCREEN_H)
+        )
+        ResourceManager.load_image(
+            "background4",
+            "assets/bgRes/bg2/background4.png",
+            size=(SCREEN_W, SCREEN_H)
+        )
 
     def load_all_vehicle_image():
         """Load tất cả ảnh cho vehicles"""

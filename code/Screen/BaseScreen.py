@@ -1,4 +1,5 @@
 from constants import *
+from Resource.Resource import ResourceManager
 
 # ===============================
 # Screen Management
@@ -32,7 +33,15 @@ class ScreenManager:
 class Screen:
     def __init__(self, screen_manager):
         self.screen_manager = screen_manager
-        
+
+        self.layer_backgrouds = ["background", "background2", "background3", "background4"]
+
+    def draw_background(self, surface):
+        for layer in self.layer_backgrouds:
+            layer = ResourceManager().get_image(layer)
+            if layer:
+                surface.blit(layer, (0, 0))
+
     def update(self):
         return True
         
