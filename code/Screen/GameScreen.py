@@ -56,6 +56,9 @@ class GameScreen(Screen):
         self.ui_state = "start"  # Reset UI state when loading new level
 
     def update(self):
+        for button in self.get_visible_buttons():
+            button.update()
+
         self.map.update()
         self.map.update_solving()
         return True
@@ -99,6 +102,7 @@ class GameScreen(Screen):
 
     def handle_event(self, event):
         AudioManager().play_background_music('game', fade_in=False)
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.ui_state == "start":
                 if self.start_btn.hit(event.pos):
