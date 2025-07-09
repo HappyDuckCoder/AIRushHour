@@ -18,8 +18,8 @@ class StrategyFactory:
         return BFSStrategy(map_obj, max_depth)
     
     @staticmethod
-    def create_ucs(map_obj, max_depth=50):
-        return UCSStrategy(map_obj, max_depth)
+    def create_ucs(map_obj):
+        return UCSStrategy(map_obj)
 
     @staticmethod
     def create_astar(map_obj, max_time=30):   
@@ -40,7 +40,7 @@ class StrategyFactory:
         elif strategy_name == 'BFS':
             return BFSStrategy(map_obj, max_depth)
         elif strategy_name == 'UCS':
-            return UCSStrategy(map_obj, max_depth)
+            return UCSStrategy(map_obj)
         elif strategy_name == 'A*':
             return AStarStrategy(map_obj, max_time)
         else:
