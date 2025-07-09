@@ -20,8 +20,7 @@ class MenuScreen(Screen):
         """Draw complete menu screen"""
         self.draw_menu_background(surface)
 
-        gfx.draw_title(surface, "RUSH HOUR", (SCREEN_W//2, 200))
-        gfx.draw_subtitle(surface, "Puzzle Game", (SCREEN_W//2, 250))
+        gfx.draw_title(surface, "RUSHRELIC", (SCREEN_W//2, 200))
 
         play_button.draw(surface)    
 
@@ -153,7 +152,7 @@ class IntroScreen(Screen):
             # Animate the title moving up
             progress = elapsed / self.duration
             current_y = self.title_y - (self.title_y - self.target_y) * progress
-            gfx.draw_title(surface, "RUSH HOUR", (SCREEN_W // 2, int(current_y)))
+            gfx.draw_title(surface, "RUSHRELIC", (SCREEN_W // 2, int(current_y)))
         else:
             self.screen_manager.set_screen("menu")
 

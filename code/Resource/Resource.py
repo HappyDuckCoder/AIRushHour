@@ -100,6 +100,12 @@ class ResourceManager:
             size=(TILE * 2, TILE)
         )
 
+        # Mouse 
+        ResourceManager.load_image(
+            "mouse",
+            "assets/Mouse.png",
+            size=(MOUSE_SIZE, MOUSE_SIZE)
+        )
         
         ResourceManager.load_all_vehicle_image()
 

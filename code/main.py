@@ -5,6 +5,7 @@ from Screen.SupportScreen import IntroScreen, MenuScreen, LevelSelectScreen
 from Screen.GameScreen import GameScreen
 from Screen.BaseScreen import ScreenManager
 from Resource.Resource import ResourceManager
+from UI.Mouse import Mouse
 
 # ===============================
 # Program Class - Singleton
@@ -42,12 +43,15 @@ class Program:
             return
 
         pygame.init()
+        pygame.mouse.set_visible(False)
 
         # Create window
         self.create_window()        
 
         # Upload all resources
         ResourceManager().upload_all()
+
+        self.mouse = Mouse()
         
         # Initialize screen manager
         self.screen_manager = ScreenManager()
@@ -81,6 +85,9 @@ class Program:
 
             self.buffer.fill(BLACK)
             self.screen_manager.draw(self.buffer)
+
+            self.mouse.draw(self.buffer)
+
             self.screen.blit(self.buffer, (0, 0))
             pygame.display.flip()
             self.clock.tick(FPS)

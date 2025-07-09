@@ -13,3 +13,6 @@ class Statistic:
 
 class Instruction: 
     pass
+
+class Notification: 
+    pass
