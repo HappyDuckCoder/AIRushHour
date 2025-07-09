@@ -52,6 +52,13 @@ class GameScreen(Screen):
         self.reset_btn = Button("Reset", (left_margin, algo_start_y - (button_height + button_spacing) * 1), button_width, button_height, RED)
         self.pause_btn = Button("Pause", (left_margin, algo_start_y), button_width, button_height, RED)
         
+        # Store all buttons for easy access
+        self.all_buttons = [
+            self.back_btn, self.menu_btn, self.next_level_btn, self.switch_audio,
+            self.start_btn, self.solve_bfs, self.solve_dfs, self.solve_astar,
+            self.solve_ucs, self.reset_btn, self.pause_btn
+        ]
+        
         # Text elements for game information
         self.level_text = Text("Level: 1", WHITE, (SCREEN_W//2, 30), font=Font(32))
         self.algorithm_text = Text("", WHITE, (SCREEN_W//2, 70), font=Font(24))
@@ -68,7 +75,9 @@ class GameScreen(Screen):
         self.status_text.set_text("Click Start to begin")
 
     def update(self):
-        for button in self.get_visible_buttons():
+        # Update visible buttons (including hover state)
+        visible_buttons = self.get_visible_buttons()
+        for button in visible_buttons:
             button.update()
 
         self.map.update()
@@ -146,6 +155,11 @@ class GameScreen(Screen):
     def handle_event(self, event):
         AudioManager().play_background_music('game', fade_in=False)
 
+        # Handle hover effects for all buttons
+        visible_buttons = self.get_visible_buttons()
+        for button in visible_buttons:
+            button.handle_event(event)
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.ui_state == "start":
                 if self.start_btn.hit(event.pos):
@@ -205,6 +219,11 @@ class GameScreen(Screen):
             if self.ui_state == "start":
                 self.map.handle_mouse_up(event.pos)
         elif event.type == pygame.MOUSEMOTION:
+            # Handle hover effects for mouse motion
+            visible_buttons = self.get_visible_buttons()
+            for button in visible_buttons:
+                button.handle_event(event)
+                
             if self.ui_state == "start":
                 self.map.handle_mouse_motion(event.pos)
 
