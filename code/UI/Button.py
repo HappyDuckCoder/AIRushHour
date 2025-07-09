@@ -282,7 +282,7 @@ class Button:
 
         text_surface = self.font.render(self.text, (255, 255, 255))
         text_rect = text_surface.get_rect(center=rect.center)
-        
+
         surf.blit(text_surface, text_rect)
 
     def draw(self, surf):
@@ -295,3 +295,6 @@ class Button:
 
     def hit(self, mpos):
         return self.rect.collidepoint(mpos)
+    
+    def set_text(self, text):
+        self.text = text
