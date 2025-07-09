@@ -2,10 +2,10 @@ from SolverAlgorithms.Solver import SolverStrategy, BaseSolver
 import heapq
 
 #==============================================
-# Concrete Strategy: UCS
+# Concrete Strategy: UCS with Vehicle Length Cost
 #==============================================
 class UCSStrategy(SolverStrategy, BaseSolver):
-    """Uniform Cost Search strategy"""
+    """Uniform Cost Search strategy with vehicle length-based cost"""
     
     def __init__(self, map_obj):
         super().__init__(map_obj)
@@ -15,8 +15,12 @@ class UCSStrategy(SolverStrategy, BaseSolver):
     def get_name(self):
         return "UCS"
     
+    def get_move_cost(self, vehicle):
+        """Calculate cost based on vehicle length"""
+        return vehicle.length
+    
     def ucs(self):
-        """UCS search for solution"""
+        """UCS search for solution with vehicle length-based cost"""
         initial_vehicles = [v.copy() for v in self.map.vehicles]
         initial_state = self.get_state_key(initial_vehicles)
         
@@ -56,7 +60,21 @@ class UCSStrategy(SolverStrategy, BaseSolver):
             for move in moves:
                 new_vehicles = self.apply_move(current_vehicles, move)
                 new_state_key = self.get_state_key(new_vehicles)
-                new_cost = current_cost + 1  # Mỗi nước đi có cost = 1
+                
+                # Tính cost dựa trên độ dài xe
+                vehicle_id = move['vehicle_id']  # Giả sử move có vehicle_id
+                moved_vehicle = None
+                for vehicle in current_vehicles:
+                    if vehicle.id == vehicle_id:
+                        moved_vehicle = vehicle
+                        break
+                
+                if moved_vehicle:
+                    move_cost = self.get_move_cost(moved_vehicle)
+                else:
+                    move_cost = 1  # Fallback cost
+                
+                new_cost = current_cost + move_cost
                 new_path = current_path + [move]
                 
                 # Kiểm tra nếu state chưa được khám phá hoặc tìm thấy đường đi tốt hơn
@@ -80,7 +98,7 @@ class UCSStrategy(SolverStrategy, BaseSolver):
         return False
     
     def solve(self):
-        """Solve the puzzle using UCS"""
+        """Solve the puzzle using UCS with vehicle length-based cost"""
         self.table.clear()  
         self.solution.clear()
         
@@ -95,6 +113,31 @@ class UCSStrategy(SolverStrategy, BaseSolver):
             return []
         
         return self.solution
+    
+    def get_solution_cost(self):
+        """Calculate total cost of solution"""
+        if not self.solution:
+            return 0
+        
+        total_cost = 0
+        current_vehicles = [v.copy() for v in self.map.vehicles]
+        
+        for move in self.solution:
+            # Tìm xe được di chuyển
+            vehicle_id = move['vehicle_id']
+            moved_vehicle = None
+            for vehicle in current_vehicles:
+                if vehicle.id == vehicle_id:
+                    moved_vehicle = vehicle
+                    break
+            
+            if moved_vehicle:
+                total_cost += self.get_move_cost(moved_vehicle)
+            
+            # Cập nhật state cho bước tiếp theo
+            current_vehicles = self.apply_move(current_vehicles, move)
+        
+        return total_cost
     
     def reconstruct_path_from_table(self):
         """Tái tạo đường đi từ table (phương pháp thay thế)"""
@@ -138,10 +181,44 @@ class UCSStrategy(SolverStrategy, BaseSolver):
         """Lấy thống kê về quá trình tìm kiếm"""
         total_states = len(self.table)
         visited_states = sum(1 for state_info in self.table.values() if state_info['visited'])
+        solution_cost = self.get_solution_cost()
         
         return {
             'total_states_generated': total_states,
             'states_visited': visited_states,
             'solution_length': len(self.solution) if self.solution else 0,
-            'solution_cost': len(self.solution) if self.solution else float('inf')
+            'solution_cost': solution_cost,
+            'average_cost_per_move': solution_cost / len(self.solution) if self.solution else 0
         }
+    
+    def print_solution_details(self):
+        """In chi tiết về solution bao gồm cost của từng bước"""
+        if not self.solution:
+            print("No solution found")
+            return
+        
+        print(f"Solution found with {len(self.solution)} moves:")
+        print(f"Total cost: {self.get_solution_cost()}")
+        print("\nMove details:")
+        
+        current_vehicles = [v.copy() for v in self.map.vehicles]
+        total_cost = 0
+        
+        for i, move in enumerate(self.solution):
+            # Tìm xe được di chuyển
+            vehicle_id = move['vehicle_id']
+            moved_vehicle = None
+            for vehicle in current_vehicles:
+                if vehicle.id == vehicle_id:
+                    moved_vehicle = vehicle
+                    break
+            
+            if moved_vehicle:
+                move_cost = self.get_move_cost(moved_vehicle)
+                total_cost += move_cost
+                print(f"Move {i+1}: Vehicle {vehicle_id} (length {moved_vehicle.length}) - Cost: {move_cost}")
+            
+            # Cập nhật state cho bước tiếp theo
+            current_vehicles = self.apply_move(current_vehicles, move)
+        
+        print(f"\nTotal cost: {total_cost}")
