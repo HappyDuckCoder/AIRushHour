@@ -43,7 +43,7 @@ class GameScreen(Screen):
         self.pause_btn = Button("Pause", (button_x, SCREEN_H - 100), button_width, button_height, RED)
         
     def load_level(self, level_num):
-        self.map.load_level(level_num)
+        self.map.load_level_data_from_file(level_num)
         self.ui_state = "start"  # Reset UI state when loading new level
 
     def update(self):

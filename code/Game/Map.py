@@ -5,6 +5,7 @@ from constants import *
 import time
 from Graphic.Graphic import gfx, pygame
 from Resource.Resource import ResourceManager
+import os
 
 # ===============================
 # Map Class
@@ -31,7 +32,7 @@ class Map:
         self.victory_animation_started = False
 
     def create_level_data(self):
-        """Create 2 different level configurations"""
+        """Create 2 different level for testing"""
         levels = {
             1: [
                 Vehicle('target', 'h', 2, 0, 2, 'A'),
@@ -58,6 +59,27 @@ class Map:
             self.initial_vehicles = self.level_data[level_num]
             self.reset()
 
+    def load_level_data_from_file(self, level_num):
+        if level_num in range(NUMBER_OF_MAP): 
+            self.current_level = level_num
+
+            name_map = f"{level_num}.txt"
+            base_path = os.path.dirname(os.path.dirname(__file__))  # từ Game/ đi lên code/
+            map_folder = os.path.join(base_path, 'Map')             # code/Map/
+            full_path = os.path.join(map_folder, name_map)          # code/Map/1.txt
+
+            vehicles = []
+
+            with open(full_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    image_key, direction, length, row, col, name = line.strip().split()
+                    vehicle = Vehicle(image_key, direction, int(length), int(row), int(col), name)
+                    vehicles.append(vehicle)
+
+            self.initial_vehicles = vehicles
+
+            self.reset()
+
     def reset(self):
         """Reset game state"""
         self.vehicles = [v.copy() for v in self.initial_vehicles]
@@ -70,7 +92,7 @@ class Map:
         self.victory_animation_started = False
 
     def update(self):
-        """Update game state - OPTIMIZED"""
+        """Update game state"""
         # Chỉ cập nhật solving animation khi đang solving
         if self.solving:
             self.update_solving()
