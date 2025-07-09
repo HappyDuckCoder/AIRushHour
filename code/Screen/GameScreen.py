@@ -72,6 +72,11 @@ class GameScreen(Screen):
         self.algorithm_text.set_text("")
         self.status_text.set_text("Click Start to begin")
 
+    def check_offscreen(self):
+        for v in self.map.vehicles:
+            if v.is_target and v.is_offscreen:
+                self.screen_manager.set_screen('winning')
+
     def update(self):
         # Update visible buttons (including hover state)
         visible_buttons = self.get_visible_buttons()
@@ -80,6 +85,8 @@ class GameScreen(Screen):
 
         self.map.update()
         self.map.update_solving()
+
+        self.check_offscreen()
         
         # Update status text based on current state
         if self.ui_state == "start":
@@ -157,10 +164,6 @@ class GameScreen(Screen):
         visible_buttons = self.get_visible_buttons()
         for button in visible_buttons:
             button.handle_event(event)
-
-        for v in self.map.vehicles:
-            if v.is_target and v.is_offscreen:
-                self.screen_manager.set_screen('winning')
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.ui_state == "start":
