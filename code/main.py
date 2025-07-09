@@ -6,6 +6,7 @@ from Screen.GameScreen import GameScreen
 from Screen.BaseScreen import ScreenManager
 from Resource.Resource import ResourceManager
 from UI.Mouse import Mouse
+from UI.Text import Font
 
 # ===============================
 # Program Class - Singleton
@@ -52,6 +53,7 @@ class Program:
         ResourceManager().upload_all()
 
         self.mouse = Mouse()
+        self.MainFont = Font(24)
         
         # Initialize screen manager
         self.screen_manager = ScreenManager()

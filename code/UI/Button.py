@@ -1,5 +1,6 @@
 import pygame
 import time
+from UI.Text import Text, Font
 from constants import *
 
 class RippleEffect:
@@ -132,8 +133,10 @@ class Button:
         self.width = width
         self.height = height
         self.base_color = color
-        self.font = pygame.font.SysFont("arial", 24, bold=True)
+        # self.font = pygame.font.SysFont("arial", 24, bold=True)
         self.rect = pygame.Rect(pos[0], pos[1], width, height)
+
+        self.font = Font(24)
 
         # State pattern
         self.default_state = DefaultState()
@@ -276,8 +279,10 @@ class Button:
     def draw_text(self, surf, rect=None):
         if rect is None:
             rect = self.rect
-        text_surface = self.font.render(self.text, True, (255, 255, 255))
+
+        text_surface = self.font.render(self.text, (255, 255, 255))
         text_rect = text_surface.get_rect(center=rect.center)
+        
         surf.blit(text_surface, text_rect)
 
     def draw(self, surf):

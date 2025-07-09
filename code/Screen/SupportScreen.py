@@ -1,5 +1,6 @@
 from constants import *
 from UI.Button import Button
+from UI.Text import Text, Font
 from Screen.BaseScreen import Screen
 from Graphic.Graphic import gfx, pygame
 from Audio.Audio import AudioManager
@@ -11,6 +12,7 @@ class MenuScreen(Screen):
     def __init__(self, screen_manager):
         super().__init__(screen_manager)
         self.play_btn = Button("PLAY", (SCREEN_W//2 - 100, SCREEN_H//2 - 50), 200, 60, BLUE)
+        self.title = Text("RUSHRELIC", WHITE, (SCREEN_W//2, 200), font = Font(64))
         
     def draw_menu_background(self, surface):
         self.draw_background(surface, "menu")
@@ -19,7 +21,7 @@ class MenuScreen(Screen):
         """Draw complete menu screen"""
         self.draw_menu_background(surface)
 
-        gfx.draw_title(surface, "RUSHRELIC", (SCREEN_W//2, 200))
+        self.title.draw(surface)
 
         play_button.draw(surface)    
 
@@ -58,6 +60,9 @@ class LevelSelectScreen(Screen):
         self.back_btn = Button("BACK", (50, 50), 120, 50)
         self.level_buttons = []
         
+        # Tạo Text object cho title
+        self.select_level_title = Text("SELECT LEVEL", WHITE, (SCREEN_W//2, 150), font=Font(64))
+        
         button_width = 140
         button_height = 60
         cols = 3
@@ -80,7 +85,9 @@ class LevelSelectScreen(Screen):
     def draw_level_select_screen(self, surface, level_buttons, back_button):
         """Draw complete level select screen"""
         self.draw_level_select_background(surface)
-        gfx.draw_title(surface, "SELECT LEVEL", (SCREEN_W//2, 150), 64, WHITE)
+        
+        # Sử dụng Text object thay vì gfx.draw_title
+        self.select_level_title.draw(surface)
         
         for btn in level_buttons:
             btn.draw(surface)
@@ -139,6 +146,9 @@ class IntroScreen(Screen):
         self.start_time = pygame.time.get_ticks()
         self.title_y = SCREEN_H
         self.target_y = SCREEN_H // 2
+        
+        # Tạo Text object cho title intro
+        self.intro_title = Text("RUSHRELIC", WHITE, (SCREEN_W//2, self.title_y), font=Font(64))
 
     def draw_intro_background(self, surface):
         self.draw_background(surface, "intro")
@@ -151,7 +161,10 @@ class IntroScreen(Screen):
             # Animate the title moving up
             progress = elapsed / self.duration
             current_y = self.title_y - (self.title_y - self.target_y) * progress
-            gfx.draw_title(surface, "RUSHRELIC", (SCREEN_W // 2, int(current_y)))
+            
+            # Cập nhật vị trí của Text object
+            self.intro_title.rect.centery = int(current_y)
+            self.intro_title.draw(surface)
         else:
             self.screen_manager.set_screen("menu")
 
@@ -168,8 +181,9 @@ class IntroScreen(Screen):
         audio_manager = AudioManager.get_instance()
         audio_manager.play_background_music('intro')
         
-        # Reset thời gian bắt đầu
+        # Reset thời gian bắt đầu và vị trí title
         self.start_time = pygame.time.get_ticks()
+        self.intro_title.rect.centery = self.title_y
 
     def handle_event(self, event):
         # Cho phép skip intro bằng cách click hoặc nhấn phím
