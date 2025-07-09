@@ -19,31 +19,37 @@ class GameScreen(Screen):
         self.ui_state = "start"  # "start", "algorithm_select", "solving"
         
         # Button dimensions
-        button_x = 50
-        button_width = 120
-        button_height = 40
-        button_spacing = 10
+        button_width = 140
+        button_height = 45
+        button_spacing = 15
 
-        # Always visible buttons (top-right corner)
-        right_x = SCREEN_W - button_width - 50
-        self.back_btn = Button("Back", (50, 50), button_width, button_height)
-        self.next_level_btn = Button("Next Level", (right_x, 50), button_width, button_height, GREEN)
-        self.menu_btn = Button("Main Menu", (right_x, 100), button_width, button_height, GRAY)
+        # Top navigation buttons (positioned at top)
+        top_margin = 20
+        self.back_btn = Button("Back", (20, top_margin), button_width, button_height)
+        self.menu_btn = Button("Main Menu", (180, top_margin), button_width, button_height, GRAY)
         
-        # Start button (bottom corner)
-        self.start_btn = Button("Start", (button_x, SCREEN_H - 50), button_width, button_height, GREEN)
+        # Top-right corner buttons
+        right_margin = 20
+        self.next_level_btn = Button("Next Level", (SCREEN_W - button_width - right_margin, top_margin), button_width, button_height, GREEN)
+        self.switch_audio = Button("Audio On/Off", (SCREEN_W - button_width - right_margin, top_margin + button_height + 15), button_width, button_height, GREEN)
         
-        # Algorithm selection buttons (hidden initially)
-        self.solve_bfs = Button("BFS", (button_x, SCREEN_H - 200), button_width, button_height, BLUE)
-        self.solve_dfs = Button("DFS", (button_x, SCREEN_H - 150), button_width, button_height, ORANGE)
-        self.solve_astar = Button("A*", (button_x, SCREEN_H - 100), button_width, button_height, PURPLE)
-        self.solve_ucs = Button("UCS", (button_x, SCREEN_H - 50), button_width, button_height, YELLOW)
+        # Bottom-left corner buttons
+        bottom_margin = 20
+        left_margin = 20
         
-        # Solving control buttons (hidden initially)
-        self.reset_btn = Button("Reset", (button_x, SCREEN_H - 150), button_width, button_height, RED)
-        self.pause_btn = Button("Pause", (button_x, SCREEN_H - 100), button_width, button_height, RED)
-
-        self.switch_audio = Button("On/Off", (50, 100), 120, 40, GREEN)
+        # Start button (bottom-left)
+        self.start_btn = Button("Start", (left_margin, SCREEN_H - button_height - bottom_margin), button_width, button_height, GREEN)
+        
+        # Algorithm selection buttons (stacked vertically from bottom)
+        algo_start_y = SCREEN_H - bottom_margin - button_height
+        self.solve_bfs = Button("BFS", (left_margin, algo_start_y - (button_height + button_spacing) * 3), button_width, button_height, BLUE)
+        self.solve_dfs = Button("DFS", (left_margin, algo_start_y - (button_height + button_spacing) * 2), button_width, button_height, ORANGE)
+        self.solve_astar = Button("A*", (left_margin, algo_start_y - (button_height + button_spacing) * 1), button_width, button_height, PURPLE)
+        self.solve_ucs = Button("UCS", (left_margin, algo_start_y), button_width, button_height, YELLOW)
+        
+        # Solving control buttons (positioned in bottom-left)
+        self.reset_btn = Button("Reset", (left_margin, algo_start_y - (button_height + button_spacing) * 1), button_width, button_height, RED)
+        self.pause_btn = Button("Pause", (left_margin, algo_start_y), button_width, button_height, RED)
         
     def load_level(self, level_num):
         self.map.load_level_data_from_file(level_num)
@@ -85,12 +91,11 @@ class GameScreen(Screen):
         
         # Draw UI buttons
         for button in buttons:
-            gfx.draw_button(surface, button)
+            button.draw(surface)
 
     def draw(self, surface):
         visible_buttons = self.get_visible_buttons()
         self.draw_game_screen(surface, visible_buttons)
-
 
     def handle_event(self, event):
         AudioManager().play_background_music('game', fade_in=False)

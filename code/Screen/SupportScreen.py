@@ -26,7 +26,7 @@ class MenuScreen(Screen):
         gfx.draw_subtitle(surface, "Puzzle Game", (SCREEN_W//2, 250))
 
         # self.button.draw(surface)
-        gfx.draw_button(surface, play_button)    
+        play_button.draw(surface)    
 
     def draw(self, surface):        
         self.draw_menu_screen(surface, self.play_btn)
@@ -38,6 +38,9 @@ class MenuScreen(Screen):
         audio_manager.play_background_music('menu')
 
     def handle_event(self, event):
+        # QUAN TRỌNG: Gọi handle_event của button để xử lý hover/click
+        self.play_btn.handle_event(event)
+        
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.play_btn.hit(event.pos):
                 # Sử dụng AudioManager singleton để phát hiệu ứng âm thanh
@@ -80,9 +83,9 @@ class LevelSelectScreen(Screen):
         gfx.draw_title(surface, "SELECT LEVEL", (SCREEN_W//2, 150), 64, WHITE)
         
         for btn in level_buttons:
-            gfx.draw_button(surface, btn)
+            btn.draw(surface)
         
-        gfx.draw_button(surface, back_button)
+        back_button.draw(surface)
 
     def draw(self, surface):
         self.draw_level_select_screen(surface, self.level_buttons, self.back_btn)
@@ -94,6 +97,11 @@ class LevelSelectScreen(Screen):
         audio_manager.play_background_music('level_select')
         
     def handle_event(self, event):
+        # QUAN TRỌNG: Gọi handle_event cho tất cả buttons
+        self.back_btn.handle_event(event)
+        for btn in self.level_buttons:
+            btn.handle_event(event)
+        
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Lấy instance của AudioManager
             audio_manager = AudioManager.get_instance()
@@ -116,9 +124,13 @@ class LevelSelectScreen(Screen):
 
     def handle_mouse_motion(self, event):
         """Handle mouse hover effects"""
+        # Gọi handle_event với event MOUSEMOTION cho tất cả buttons
+        self.back_btn.handle_event(event)
+        for btn in self.level_buttons:
+            btn.handle_event(event)
+            
+        # Audio hover effects
         audio_manager = AudioManager.get_instance()
-        
-        # Kiểm tra hover trên các button
         for btn in self.level_buttons + [self.back_btn]:
             if btn.hit(event.pos):
                 if not hasattr(btn, 'was_hovered') or not btn.was_hovered:

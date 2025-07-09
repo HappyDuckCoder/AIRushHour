@@ -8,14 +8,6 @@ class Graphics:
         self.MAP_N = map_size
         self.TILE = tile_size
     
-    def draw_button(self, surface, button):
-        """Draw a button"""
-        pygame.draw.rect(surface, button.color, button.rect)
-        pygame.draw.rect(surface, WHITE, button.rect, 2)
-        text_surf = button.font.render(button.text, True, BLACK)
-        text_rect = text_surf.get_rect(center=button.rect.center)
-        surface.blit(text_surf, text_rect)
-    
     def draw_title(self, surface, title_text, pos, font_size=96, color=None):
         """Draw title text"""
         if color is None:
