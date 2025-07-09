@@ -3,9 +3,10 @@ from SolverAlgorithms.SolverFactory import StrategyFactory
 from Game.Vehicle import Vehicle
 from constants import *
 import time
+import json
+import os
 from Graphic.Graphic import gfx, pygame
 from Resource.Resource import ResourceManager
-import os
 
 # ===============================
 # Map Class
@@ -26,6 +27,11 @@ class Map:
         self.move_timer = 0
         self.move_delay = 0.5  
         self.list_solver = []
+        
+        # Statistics tracking
+        self.solve_start_time = 0
+        self.current_algorithm = ""
+        self.nodes_expanded = 0
         
         # Victory animation
         self.game_won = False
@@ -90,6 +96,11 @@ class Map:
         self.move_timer = 0
         self.game_won = False
         self.victory_animation_started = False
+        
+        # Reset statistics
+        self.solve_start_time = 0
+        self.current_algorithm = ""
+        self.nodes_expanded = 0
 
     def update(self):
         """Update game state"""
@@ -115,6 +126,11 @@ class Map:
         if not self.solving:
             print(f"Starting {nameAlgo} solver...")
 
+            # Track solving start time and algorithm
+            self.solve_start_time = time.time()
+            self.current_algorithm = nameAlgo
+            self.nodes_expanded = 0
+
             strategy = StrategyFactory.create_strategy(nameAlgo, self)
             
             self.reset_victory_animation()
@@ -134,11 +150,41 @@ class Map:
                 self.print_solution(solution)
             else:
                 print("No solution found!")
+                self.save_statistics(0, False)  # Save with 0 moves, no solution
 
     def print_solution(self, solution):
         """In ra các bước giải"""
         for i, move in enumerate(solution):
             print(f"Move {i+1}: ({move['name']}, {move['dx']}, {move['dy']})")
+
+    def save_statistics(self, solution_length, solved=True):
+        """Lưu thống kê vào file"""
+        solve_time = time.time() - self.solve_start_time
+        
+        # Get nodes expanded from solver if available
+        if self.solver and hasattr(self.solver, 'nodes_expanded'):
+            self.nodes_expanded = self.solver.nodes_expanded
+        
+        statistics = {
+            'level': self.current_level,
+            'algorithm': self.current_algorithm,
+            'time_executed': solve_time,
+            'nodes_expanded': self.nodes_expanded,
+            'solution_length': solution_length,
+            'solved': solved,
+            'timestamp': time.time()
+        }
+        
+        # Ensure directory exists
+        base_path = os.path.dirname(os.path.dirname(__file__))
+        stats_file = os.path.join(base_path, 'statistic.txt')
+        
+        try:
+            with open(stats_file, 'w', encoding='utf-8') as f:
+                json.dump(statistics, f, indent=2)
+            print(f"Statistics saved: {statistics}")
+        except Exception as e:
+            print(f"Error saving statistics: {e}")
 
     def update_solving(self):
         """Cập nhật quá trình giải puzzle tự động"""
@@ -162,6 +208,9 @@ class Map:
                 else:
                     # Solving complete
                     self.solving = False
+                    
+                    # Save statistics when solving is complete
+                    self.save_statistics(len(self.solution_moves), True)
 
                     for vehicle in self.vehicles:
                         if vehicle.is_target:
@@ -171,7 +220,7 @@ class Map:
         elif self.solving and not self.solution_moves:
             # No solution found
             self.solving = False
-            
+            self.save_statistics(0, False)
             print("No solution found!")
 
     def get_grid(self):

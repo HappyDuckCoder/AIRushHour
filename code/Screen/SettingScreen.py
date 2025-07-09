@@ -47,8 +47,8 @@ class SettingScreen(Screen):
     
     def update_volume_text(self):
         """Update volume percentage text"""
-        self.volume_value_text.text = f"{int(self.audio_manager.volume * 100)}%"
-        self.volume_value_text.create_surface()
+        self.volume_value_text.text = f"{int(self.audio_manager.music_volume * 100)}%"
+        self.volume_value_text.set_text(self.volume_value_text.text)
     
     def draw_setting_background(self, surface):
         """Draw setting screen background"""
@@ -122,14 +122,14 @@ class SettingScreen(Screen):
             
             # Volume down
             elif self.volume_down_btn.hit(event.pos):
-                self.audio_manager.decrease_volume()
+                self.audio_manager.decrease_volume(0.1)
                 self.update_volume_text()
                 if self.audio_manager.music_enabled:
                     self.audio_manager.play_sound_effect('button_click')
             
             # Volume up
             elif self.volume_up_btn.hit(event.pos):
-                self.audio_manager.increase_volume()
+                self.audio_manager.increase_volume(0.1)
                 self.update_volume_text()
                 if self.audio_manager.music_enabled:
                     self.audio_manager.play_sound_effect('button_click')

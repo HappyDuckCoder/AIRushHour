@@ -1,0 +1,9 @@
+{
+  "level": 6,
+  "algorithm": "DFS",
+  "time_executed": 1.4223928451538086,
+  "nodes_expanded": 0,
+  "solution_length": 0,
+  "solved": false,
+  "timestamp": 1752091106.3695586
+}
