@@ -31,7 +31,7 @@ class Map:
         self.game_won = False
         self.victory_animation_started = False
 
-    def create_level_data(self):
+    def create_level_data(self): # for testing
         """Create 2 different level for testing"""
         levels = {
             1: [
@@ -60,7 +60,7 @@ class Map:
             self.reset()
 
     def load_level_data_from_file(self, level_num):
-        if level_num in range(NUMBER_OF_MAP): 
+        if level_num in range(NUMBER_OF_MAP + 1): 
             self.current_level = level_num
 
             name_map = f"{level_num}.txt"
