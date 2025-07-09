@@ -1,6 +1,7 @@
 from Screen.BaseScreen import Screen
 from Game.Map import Map
 from UI.Button import Button
+from UI.Text import Text, Font
 from Graphic.Graphic import *
 from Resource.Resource import ResourceManager
 from Audio.Audio import AudioManager
@@ -51,9 +52,20 @@ class GameScreen(Screen):
         self.reset_btn = Button("Reset", (left_margin, algo_start_y - (button_height + button_spacing) * 1), button_width, button_height, RED)
         self.pause_btn = Button("Pause", (left_margin, algo_start_y), button_width, button_height, RED)
         
+        # Text elements for game information
+        self.level_text = Text("Level: 1", WHITE, (SCREEN_W//2, 30), font=Font(32))
+        self.algorithm_text = Text("", WHITE, (SCREEN_W//2, 70), font=Font(24))
+        self.status_text = Text("Click Start to begin", WHITE, (SCREEN_W//2, SCREEN_H - 50), font=Font(20))
+        self.instruction_text = Text("Select an algorithm:", WHITE, (left_margin + button_width + 20, algo_start_y - 60), font=Font(18), center=False)
+        
     def load_level(self, level_num):
         self.map.load_level_data_from_file(level_num)
         self.ui_state = "start"  # Reset UI state when loading new level
+        
+        # Update level text
+        self.level_text.set_text(f"Level: {level_num}")
+        self.algorithm_text.set_text("")
+        self.status_text.set_text("Click Start to begin")
 
     def update(self):
         for button in self.get_visible_buttons():
@@ -61,6 +73,24 @@ class GameScreen(Screen):
 
         self.map.update()
         self.map.update_solving()
+        
+        # Update status text based on current state
+        if self.ui_state == "start":
+            if hasattr(self.map, 'is_solved') and self.map.is_solved:
+                self.status_text.set_text("Level Complete! Click Next Level")
+            else:
+                self.status_text.set_text("Click Start to begin")
+        elif self.ui_state == "algorithm_select":
+            self.status_text.set_text("Choose solving algorithm")
+        elif self.ui_state == "solving":
+            if self.is_paused:
+                self.status_text.set_text("Paused - Click Continue to resume")
+            else:
+                if hasattr(self.map, 'current_algorithm'):
+                    self.status_text.set_text(f"Solving using {self.map.current_algorithm}...")
+                else:
+                    self.status_text.set_text("Solving...")
+        
         return True
     
     def draw_game_background(self, surface):
@@ -81,7 +111,19 @@ class GameScreen(Screen):
             
         return visible_buttons
 
-    def draw_game_screen(self, surface, buttons):
+    def get_visible_texts(self):
+        """Return list of text elements that should be visible based on current UI state"""
+        visible_texts = [self.level_text, self.status_text]
+        
+        if self.algorithm_text.text:  # Only show if algorithm is selected
+            visible_texts.append(self.algorithm_text)
+            
+        if self.ui_state == "algorithm_select":
+            visible_texts.append(self.instruction_text)
+            
+        return visible_texts
+
+    def draw_game_screen(self, surface, buttons, texts):
         """Draw complete game screen"""
         self.draw_game_background(surface)
         
@@ -91,10 +133,15 @@ class GameScreen(Screen):
         # Draw UI buttons
         for button in buttons:
             button.draw(surface)
+            
+        # Draw text elements
+        for text in texts:
+            text.draw(surface)
 
     def draw(self, surface):
         visible_buttons = self.get_visible_buttons()
-        self.draw_game_screen(surface, visible_buttons)
+        visible_texts = self.get_visible_texts()
+        self.draw_game_screen(surface, visible_buttons, visible_texts)
 
     def handle_event(self, event):
         AudioManager().play_background_music('game', fade_in=False)
@@ -107,21 +154,26 @@ class GameScreen(Screen):
             elif self.ui_state == "algorithm_select":
                 if self.solve_bfs.hit(event.pos):
                     self.map.start_solving("BFS")
+                    self.algorithm_text.set_text("Algorithm: BFS")
                     self.ui_state = "solving"
                 elif self.solve_dfs.hit(event.pos):
                     self.map.start_solving("DFS")
+                    self.algorithm_text.set_text("Algorithm: DFS")
                     self.ui_state = "solving"
                 elif self.solve_astar.hit(event.pos):
                     self.map.start_solving("A*")
+                    self.algorithm_text.set_text("Algorithm: A*")
                     self.ui_state = "solving"
                 elif self.solve_ucs.hit(event.pos):
                     self.map.start_solving("UCS")
+                    self.algorithm_text.set_text("Algorithm: UCS")
                     self.ui_state = "solving"
                     
             elif self.ui_state == "solving":
                 if self.reset_btn.hit(event.pos):
                     self.map.reset()
                     self.ui_state = "start"
+                    self.algorithm_text.set_text("")
                 elif self.pause_btn.hit(event.pos):
                     pause_result = self.map.handle_pause()
                     
@@ -129,6 +181,7 @@ class GameScreen(Screen):
                         self.ui_state = "start"
                         self.is_paused = False
                         self.pause_btn.set_text("Pause")
+                        self.algorithm_text.set_text("")
                     else:  # Không có sự thay đổi
                         self.is_paused = not self.is_paused
                         new_text = "Continue" if self.is_paused else "Pause"
