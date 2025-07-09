@@ -60,3 +60,8 @@ class Button:
         """Update button text"""
         self.text = new_text
         self.text_obj.set_text(new_text)
+
+    def set_color(self, new_color):
+        """Update button color"""
+        self.color = new_color
+        self.hover_color = tuple(min(c + 30, 255) for c in self.color)
