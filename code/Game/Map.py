@@ -115,14 +115,7 @@ class Map:
         if not self.solving:
             print(f"Starting {nameAlgo} solver...")
 
-            # Chọn chiến lược phù hợp
-            if nameAlgo.lower() == "dfs":
-                strategy = StrategyFactory.create_dfs(self)
-            elif nameAlgo.lower() == "bfs":
-                strategy = StrategyFactory.create_bfs(self)
-            else:
-                print(f"Unknown algorithm: {nameAlgo}")
-                return
+            strategy = StrategyFactory.create_strategy(nameAlgo, self)
             
             self.reset_victory_animation()
 
