@@ -65,7 +65,7 @@ class GameScreen(Screen):
     
     def draw_game_background(self, surface):
         """Draw game screen background"""
-        self.draw_background(surface)
+        self.draw_background(surface, "game")
 
     def get_visible_buttons(self):
         """Return list of buttons that should be visible based on current UI state"""

@@ -115,24 +115,42 @@ class ResourceManager:
         ResourceManager._fonts.clear()
 
     def load_background():
+        """ Background cho intro, setting, menu"""
         ResourceManager.load_image(
-            "background",
+            "background1",
             "assets/bgRes/bg2/background.png",
             size=(SCREEN_W, SCREEN_H)
         )
         ResourceManager.load_image(
-            "background2",
+            "background12",
             "assets/bgRes/bg2/background2.png",
             size=(SCREEN_W, SCREEN_H)
         )
         ResourceManager.load_image(
-            "background3",
+            "background13",
             "assets/bgRes/bg2/background3.png",
             size=(SCREEN_W, SCREEN_H)
         )
         ResourceManager.load_image(
-            "background4",
+            "background14",
             "assets/bgRes/bg2/background4.png",
+            size=(SCREEN_W, SCREEN_H)
+        )
+
+        """ Background cho game """
+        ResourceManager.load_image(
+            "background21",
+            "assets/bgRes/bg1/background1.png",
+            size=(SCREEN_W, SCREEN_H)
+        )
+        ResourceManager.load_image(
+            "background22",
+            "assets/bgRes/bg1/background2.png",
+            size=(SCREEN_W, SCREEN_H)
+        )
+        ResourceManager.load_image(
+            "background23",
+            "assets/bgRes/bg1/background3.png",
             size=(SCREEN_W, SCREEN_H)
         )
 

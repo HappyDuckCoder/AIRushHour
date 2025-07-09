@@ -34,13 +34,20 @@ class Screen:
     def __init__(self, screen_manager):
         self.screen_manager = screen_manager
 
-        self.layer_backgrouds = ["background", "background2", "background3", "background4"]
+        self.layer_backgrouds_1 = ["background1", "background12", "background13", "background14"]
+        self.layer_backgrouds_2 = ["background21", "background22", "background23"]
 
-    def draw_background(self, surface):
-        for layer in self.layer_backgrouds:
-            layer = ResourceManager().get_image(layer)
-            if layer:
-                surface.blit(layer, (0, 0))
+    def draw_background(self, surface, current_screen="intro"):
+        if current_screen == "intro" or current_screen == "setting" or current_screen == "menu":
+            for layer in self.layer_backgrouds_2:
+                layer = ResourceManager().get_image(layer)
+                if layer:
+                    surface.blit(layer, (0, 0))
+        else: 
+            for layer in self.layer_backgrouds_1:
+                layer = ResourceManager().get_image(layer)
+                if layer:
+                    surface.blit(layer, (0, 0))
 
     def update(self):
         return True
