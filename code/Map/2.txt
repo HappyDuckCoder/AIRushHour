@@ -1,5 +1,9 @@
-target h 2 1 2 A
+target h 2 0 2 A
 v2 v 2 0 0 B
-v3 h 3 2 0 C
-v2 v 2 3 1 D
-v2 h 2 1 4 E
+v2 v 2 3 0 C
+v2 v 2 3 2 D
+v3 h 3 0 3 E
+v2 v 2 1 4 F
+v2 h 2 2 4 G
+v2 h 2 2 5 H
+v3 v 3 5 2 I
