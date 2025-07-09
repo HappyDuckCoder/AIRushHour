@@ -4,3 +4,4 @@
 # Ignore compiled python files
 *.pyc
 *.pyo
+ .vs/

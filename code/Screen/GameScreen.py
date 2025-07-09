@@ -3,6 +3,7 @@ from Game.Map import Map
 from UI.Button import Button
 from Graphic.Graphic import *
 from Resource.Resource import ResourceManager
+from Audio.Audio import AudioManager
 
 # ===============================
 # Game Screen
@@ -41,6 +42,8 @@ class GameScreen(Screen):
         # Solving control buttons (hidden initially)
         self.reset_btn = Button("Reset", (button_x, SCREEN_H - 150), button_width, button_height, RED)
         self.pause_btn = Button("Pause", (button_x, SCREEN_H - 100), button_width, button_height, RED)
+
+        self.switch_audio = Button("On/Off", (50, 100), 120, 40, GREEN)
         
     def load_level(self, level_num):
         self.map.load_level_data_from_file(level_num)
@@ -62,7 +65,7 @@ class GameScreen(Screen):
     def get_visible_buttons(self):
         """Return list of buttons that should be visible based on current UI state"""
         # Always visible buttons
-        visible_buttons = [self.back_btn, self.next_level_btn, self.menu_btn]
+        visible_buttons = [self.back_btn, self.next_level_btn, self.menu_btn, self.switch_audio]
         
         if self.ui_state == "start":
             visible_buttons.append(self.start_btn)
@@ -88,7 +91,9 @@ class GameScreen(Screen):
         visible_buttons = self.get_visible_buttons()
         self.draw_game_screen(surface, visible_buttons)
 
+
     def handle_event(self, event):
+        AudioManager().play_background_music('game', fade_in=False)
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.ui_state == "start":
                 if self.start_btn.hit(event.pos):
@@ -131,6 +136,8 @@ class GameScreen(Screen):
                 self.next_level()
             elif self.menu_btn.hit(event.pos):
                 self.screen_manager.set_screen('menu')
+            elif self.switch_audio.hit(event.pos):
+                AudioManager().toggle_music()
             else:
                 # Only handle map interactions in start state
                 if self.ui_state == "start":

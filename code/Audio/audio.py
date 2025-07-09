@@ -4,11 +4,31 @@ import os
 from constants import *
 
 class AudioManager:
-    """Quản lý âm thanh cho game với nhạc nền và hiệu ứng âm thanh"""
+    """Quản lý âm thanh cho game với nhạc nền và hiệu ứng âm thanh - Singleton Pattern"""
+    
+    _instance = None
+    _lock = threading.Lock()
+    _initialized = False
+    
+    def __new__(cls):
+        """Đảm bảo chỉ có một instance duy nhất"""
+        if cls._instance is None:
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = super(AudioManager, cls).__new__(cls)
+        return cls._instance
     
     def __init__(self):
+        """Khởi tạo chỉ thực hiện một lần"""
+        if AudioManager._initialized:
+            return
+            
         # Khởi tạo pygame mixer
-        pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=512)
+        try:
+            pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=512)
+        except pygame.error as e:
+            print(f"Lỗi khởi tạo audio: {e}")
+            return
         
         # Âm lượng mặc định
         self.music_volume = 0.5
@@ -30,24 +50,34 @@ class AudioManager:
         self.sound_effects = {
             'button_click': 'assets/audio/button_click.wav',
             'button_hover': 'assets/audio/button_hover.wav',
-            #'level_select': 'assets/audio/level_select.wav',
-            #'solve_start': 'assets/audio/solve_start.wav',
-            #'victory': 'assets/audio/victory.wav',
-            #'car_move': 'assets/audio/car_move.wav',
-            #'car_place': 'assets/audio/car_place.wav'
+            # 'level_select': 'assets/audio/level_select.wav',
+            # 'solve_start': 'assets/audio/solve_start.wav',
+            # 'victory': 'assets/audio/victory.wav',
+            # 'car_move': 'assets/audio/car_move.wav',
+            # 'car_place': 'assets/audio/car_place.wav'
         }
         
         # Lưu trữ âm thanh đã load
-        self.loaded_sounds = {}
-        self.current_music = None
-        self.current_screen = None
+        self.loaded_sounds: Dict[str, pygame.mixer.Sound] = {}
+        self.current_music: Optional[str] = None
+        self.current_screen: Optional[str] = None
         
         # Threading để không block game
         self.audio_thread = None
         self.music_fade_thread = None
         
+        # Lock cho thread safety
+        self.sound_lock = threading.Lock()
+        
         # Load tất cả âm thanh
         self._load_all_sounds()
+        
+        # Đánh dấu đã khởi tạo
+        AudioManager._initialized = True
+    
+    @classmethod
+    def get_instance(cls):
+        return cls()
     
     def _load_all_sounds(self):
         """Load tất cả file âm thanh vào bộ nhớ"""
@@ -81,7 +111,6 @@ class AudioManager:
             if self.current_screen:
                 self.play_background_music(self.current_screen)
         else:
-            #pygame.mixer.music.stop()
             self.music_enabled = False
     
     def toggle_sfx(self):
@@ -198,45 +227,3 @@ class AudioManager:
         self.stop_all_sounds()
         pygame.mixer.quit()
 
-# Singleton instance
-_audio_manager = None
-
-def get_audio_manager():
-    """Lấy instance AudioManager (Singleton pattern)"""
-    global _audio_manager
-    if _audio_manager is None:
-        _audio_manager = AudioManager()
-    return _audio_manager
-
-# Hàm tiện ích để dễ sử dụng
-def play_background_music(screen_name, fade_in=True):
-    """Phát nhạc nền cho màn hình"""
-    get_audio_manager().play_background_music(screen_name, fade_in)
-
-def play_button_sound():
-    """Phát âm thanh nút bấm"""
-    get_audio_manager().play_button_click()
-
-def play_hover_sound():
-    """Phát âm thanh hover"""
-    get_audio_manager().play_button_hover()
-
-def play_level_select_sound():
-    """Phát âm thanh chọn level"""
-    get_audio_manager().play_level_select()
-
-def play_game_reset_sound():
-    """Phát âm thanh reset game"""
-    get_audio_manager().play_game_reset()
-
-def play_victory_sound():
-    """Phát âm thanh thắng"""
-    get_audio_manager().play_victory()
-
-def play_car_move_sound():
-    """Phát âm thanh di chuyển xe"""
-    get_audio_manager().play_car_move()
-
-def play_car_place_sound():
-    """Phát âm thanh đặt xe"""
-    get_audio_manager().play_car_place()
