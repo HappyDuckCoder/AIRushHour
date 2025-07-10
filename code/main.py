@@ -82,7 +82,7 @@ class Program:
 
         # quick test in game
         game_screen = self.screen_manager.screens['game']
-        game_screen.load_level(2)
+        game_screen.load_level(9)
         self.screen_manager.set_screen('game')
 
         # Mark as initialized
