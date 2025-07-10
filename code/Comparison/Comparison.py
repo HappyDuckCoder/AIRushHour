@@ -133,62 +133,6 @@ class AlgorithmComparison:
         
         return self.results
     
-    def print_comparison_report(self):
-        """In báo cáo so sánh chi tiết"""
-        print("\n" + "=" * 80)
-        print(f"📋 BÁO CÁO SO SÁNH THUẬT TOÁN - MAP {self.map_id}")
-        print("=" * 80)
-        
-        for algorithm_name, data in self.results.items():
-            print(f"\n🔸 {algorithm_name.upper()}")
-            print("-" * 40)
-            print(f"⏱️  Thời gian trung bình: {data['average_time']:.4f} giây")
-            print(f"💾 Bộ nhớ sử dụng: {data['average_memory']:.2f} MB")
-            print(f"🎯 Tỷ lệ thành công: {data['success_rate']:.1f}%")
-            print(f"📏 Độ dài nghiệm TB: {data['average_solution_length']:.1f} bước")
-            print(f"🔍 Số trạng thái khám phá: {data['average_states_explored']:.0f}")
-            
-            if data['execution_times']:
-                print(f"⚡ Thời gian nhanh nhất: {min(data['execution_times']):.4f} giây")
-                print(f"🐌 Thời gian chậm nhất: {max(data['execution_times']):.4f} giây")
-        
-        # So sánh trực tiếp
-        print(f"\n🏆 SO SÁNH TRỰC TIẾP")
-        print("-" * 40)
-        
-        if len(self.results) >= 2:
-            algorithms = list(self.results.keys())
-            dfs_data = self.results.get('DFS', {})
-            bfs_data = self.results.get('BFS', {})
-            
-            if dfs_data and bfs_data:
-                # So sánh thời gian
-                if dfs_data['average_time'] < bfs_data['average_time']:
-                    time_diff = bfs_data['average_time'] - dfs_data['average_time']
-                    print(f"⚡ DFS nhanh hơn BFS {time_diff:.4f} giây ({((time_diff/bfs_data['average_time'])*100):.1f}%)")
-                else:
-                    time_diff = dfs_data['average_time'] - bfs_data['average_time']
-                    print(f"⚡ BFS nhanh hơn DFS {time_diff:.4f} giây ({((time_diff/dfs_data['average_time'])*100):.1f}%)")
-                
-                # So sánh bộ nhớ
-                if dfs_data['average_memory'] < bfs_data['average_memory']:
-                    memory_diff = bfs_data['average_memory'] - dfs_data['average_memory']
-                    print(f"💾 DFS tiết kiệm bộ nhớ hơn BFS {memory_diff:.2f} MB")
-                else:
-                    memory_diff = dfs_data['average_memory'] - bfs_data['average_memory']
-                    print(f"💾 BFS tiết kiệm bộ nhớ hơn DFS {memory_diff:.2f} MB")
-                
-                # So sánh độ dài nghiệm
-                if dfs_data['average_solution_length'] > 0 and bfs_data['average_solution_length'] > 0:
-                    if dfs_data['average_solution_length'] < bfs_data['average_solution_length']:
-                        step_diff = bfs_data['average_solution_length'] - dfs_data['average_solution_length']
-                        print(f"🎯 DFS tìm nghiệm ngắn hơn BFS {step_diff:.1f} bước")
-                    elif bfs_data['average_solution_length'] < dfs_data['average_solution_length']:
-                        step_diff = dfs_data['average_solution_length'] - bfs_data['average_solution_length']
-                        print(f"🎯 BFS tìm nghiệm ngắn hơn DFS {step_diff:.1f} bước")
-                    else:
-                        print(f"🎯 Cả hai thuật toán tìm nghiệm cùng độ dài")
-    
     def generate_performance_chart(self, save_path=None):
         """Tạo biểu đồ so sánh hiệu suất"""
         if not self.comparison_data:
@@ -307,9 +251,6 @@ def run_all_comparisons(max_depth=50, runs=3):
             # Chạy so sánh
             results = comparison.compare_algorithms(max_depth, runs)
             all_results.append((map_id, results))
-            
-            # In báo cáo
-            comparison.print_comparison_report()
             
             # Lưu các file kết quả
             base_filename = f"{results_dir}/{map_id:02d}_comparison"
