@@ -6,7 +6,7 @@ from SolverAlgorithms.Solver import SolverStrategy, BaseSolver
 class DFSStrategy(SolverStrategy, BaseSolver):
     """Depth-First Search strategy"""
     
-    def __init__(self, map_obj, max_depth=50):
+    def __init__(self, map_obj, max_depth=100):
         super().__init__(map_obj)
         self.max_depth = max_depth
         self.table = {}  

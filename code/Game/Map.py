@@ -143,10 +143,6 @@ class Map:
 
             self.solver = PuzzleSolver(self, strategy) 
             
-            # Initialize expanded_nodes list in solver for tracking
-            if not hasattr(self.solver, 'expanded_nodes'):
-                self.solver.expanded_nodes = []
-            
             solution = self.solver.solve()
 
             if solution:
