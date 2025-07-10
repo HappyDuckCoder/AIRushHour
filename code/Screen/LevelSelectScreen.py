@@ -2,10 +2,8 @@ from constants import *
 from UI.Button import Button
 from UI.Text import Text, Font
 from Screen.BaseScreen import Screen
-from Graphic.Graphic import gfx, pygame
 from Audio.AudioManager import AudioManager
-
-
+import pygame
 
 # ===============================
 # Level Select Screen
@@ -35,14 +33,11 @@ class LevelSelectScreen(Screen):
             self.level_buttons.append(Button(f"Level {i+1}", (x, y), button_width, button_height))
 
     def draw_level_select_background(self, surface):
-        """Draw level select screen background"""
         self.draw_background(surface, "level_select")
 
     def draw_level_select_screen(self, surface, level_buttons, back_button):
-        """Draw complete level select screen"""
         self.draw_level_select_background(surface)
         
-        # Sử dụng Text object thay vì gfx.draw_title
         self.select_level_title.draw(surface)
         
         for btn in level_buttons:
@@ -54,7 +49,6 @@ class LevelSelectScreen(Screen):
         self.draw_level_select_screen(surface, self.level_buttons, self.back_btn)
 
     def update(self):
-        """Update animations"""
         self.back_btn.update()
         for btn in self.level_buttons:
             btn.update()
@@ -62,7 +56,6 @@ class LevelSelectScreen(Screen):
 
     def on_enter(self):
         """Called when entering level select screen"""
-        # Sử dụng AudioManager singleton để phát nhạc nền
         audio_manager = AudioManager.get_instance()
         audio_manager.play_background_music('level_select')
         
@@ -72,20 +65,14 @@ class LevelSelectScreen(Screen):
             btn.handle_event(event)
         
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            # Lấy instance của AudioManager
-            audio_manager = AudioManager.get_instance()
-            
+            audio_manager = AudioManager.get_instance()            
             if self.back_btn.hit(event.pos):
-                # Phát hiệu ứng âm thanh khi click back
                 audio_manager.play_sound_effect('button_click')
                 self.screen_manager.set_screen('menu')
             else:
                 for i, btn in enumerate(self.level_buttons):
                     if btn.hit(event.pos):
-                        # Phát hiệu ứng âm thanh khi chọn level
-                        audio_manager.play_sound_effect('level_select')
-                        
-                        # Load level và chuyển màn hình
+                        audio_manager.play_sound_effect('level_select')                        
                         game_screen = self.screen_manager.screens['game']
                         game_screen.load_level(i + 1)
                         self.screen_manager.set_screen('game')

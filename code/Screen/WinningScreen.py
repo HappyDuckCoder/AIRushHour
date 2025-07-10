@@ -1,13 +1,12 @@
 from Screen.BaseScreen import Screen
 from UI.Text import Text, Font
-from Graphic.Graphic import gfx, pygame
 from Audio.AudioManager import AudioManager
 from Animation.CharacterAnimation import Warrior, Archer, Monk
+from UI.StatisticBoard import StatisticBoard
 from constants import *
 import math
+import pygame
 import random
-import json
-import os
 
 # ===============================
 # Winning Screen
@@ -38,31 +37,8 @@ class WinningScreen(Screen):
         self.march_start_time = 0
         self.march_speed = 2.0
         
-        # Statistics
-        self.statistics = None
-        self.load_statistics()
-        
-        # Statistics display
-        self.stats_panel_alpha = 0
-        self.stats_panel_target_alpha = 255
-        self.stats_fade_speed = 3
-
-    def load_statistics(self):
-        """Load statistics from file"""
-        try:
-            base_path = os.path.dirname(os.path.dirname(__file__))
-            stats_file = os.path.join(base_path, 'statistic.txt')
-            
-            if os.path.exists(stats_file):
-                with open(stats_file, 'r', encoding='utf-8') as f:
-                    self.statistics = json.load(f)
-                print(f"Loaded statistics: {self.statistics}")
-            else:
-                print("No statistics file found")
-                self.statistics = None
-        except Exception as e:
-            print(f"Error loading statistics: {e}")
-            self.statistics = None
+        # Statistics board
+        self.statistics_board = StatisticBoard()
 
     def setup_characters(self):
         """Thiết lập các character cho victory animation"""
@@ -267,7 +243,8 @@ class WinningScreen(Screen):
                 
             # Statistics panel fades in
             if phase_elapsed > 1200:
-                self.stats_panel_alpha = min(255, (phase_elapsed - 1200) / 800 * 255)
+                target_alpha = min(255, (phase_elapsed - 1200) / 800 * 255)
+                self.statistics_board.set_alpha(target_alpha)
             
             # Bounce effect for title
             if phase_elapsed > 500:
@@ -315,91 +292,6 @@ class WinningScreen(Screen):
             glow_surface.fill(GOLD)
             surface.blit(glow_surface, (0, 0))
 
-    def draw_statistics_panel(self, surface):
-        """Vẽ panel thống kê"""
-        if not self.statistics or self.stats_panel_alpha <= 0:
-            return
-            
-        # Panel dimensions and position
-        panel_width = 400
-        panel_height = 280
-        panel_x = (SCREEN_W - panel_width) // 2
-        panel_y = SCREEN_H // 2 + 50
-        
-        # Create panel surface
-        panel_surface = pygame.Surface((panel_width, panel_height))
-        panel_surface.set_alpha(self.stats_panel_alpha)
-        
-        # Background with gradient effect
-        for i in range(panel_height):
-            color_intensity = 240 - int(i * 0.3)
-            color = (color_intensity, color_intensity, color_intensity + 10)
-            pygame.draw.line(panel_surface, color, (0, i), (panel_width, i))
-        
-        # Border
-        pygame.draw.rect(panel_surface, GOLD, (0, 0, panel_width, panel_height), 3)
-        pygame.draw.rect(panel_surface, (200, 200, 200), (3, 3, panel_width-6, panel_height-6), 1)
-        
-        # Title
-        title_font = pygame.font.Font(None, 32)
-        title_text = title_font.render("PUZZLE SOLVED!", True, GOLD)
-        title_rect = title_text.get_rect(center=(panel_width//2, 25))
-        panel_surface.blit(title_text, title_rect)
-        
-        # Statistics
-        stats_font = pygame.font.Font(None, 24)
-        y_offset = 60
-        line_height = 28
-        
-        # Format statistics data
-        stats_data = [
-            ("Level:", str(self.statistics.get('level', 'N/A'))),
-            ("Algorithm:", self.statistics.get('algorithm', 'N/A')),
-            ("Time:", f"{self.statistics.get('time_executed', 0):.3f}s"),
-            ("Nodes Expanded:", str(self.statistics.get('nodes_expanded', 0))),
-            ("Solution Length:", str(self.statistics.get('solution_length', 0))),
-            ("Status:", "SOLVED" if self.statistics.get('solved', False) else "FAILED")
-        ]
-        
-        for label, value in stats_data:
-            # Label
-            label_text = stats_font.render(label, True, (80, 80, 80))
-            panel_surface.blit(label_text, (20, y_offset))
-            
-            # Value
-            value_color = (40, 40, 40)
-            if label == "Status:":
-                value_color = (60, 179, 113) if value == "SOLVED" else (220, 20, 60)
-            elif label == "Algorithm:":
-                value_color = (70, 130, 180)
-            
-            value_text = stats_font.render(value, True, value_color)
-            panel_surface.blit(value_text, (180, y_offset))
-            
-            y_offset += line_height
-        
-        # Performance rating
-        if self.statistics.get('solved', False):
-            time_taken = self.statistics.get('time_executed', 0)
-            nodes_expanded = self.statistics.get('nodes_expanded', 0)
-            
-            # Simple rating system
-            if time_taken < 0.1 and nodes_expanded < 100:
-                rating = "EXCELLENT"
-                rating_color = GOLD
-            elif time_taken < 0.5 and nodes_expanded < 500:
-                rating = "GOOD"
-                rating_color = (70, 130, 180)
-            else:
-                rating = "COMPLETED"
-                rating_color = (128, 128, 128)
-            
-            rating_text = stats_font.render(rating, True, rating_color)
-            rating_rect = rating_text.get_rect(center=(panel_width//2, panel_height - 25))
-            panel_surface.blit(rating_text, rating_rect)
-        
-        surface.blit(panel_surface, (panel_x, panel_y))
-
     def draw_victory_elements(self, surface):
         """Vẽ các elements của victory screen"""
         # Draw characters
@@ -434,7 +326,7 @@ class WinningScreen(Screen):
                 surface.blit(continue_surface, continue_rect)
             
             # Draw statistics panel
-            self.draw_statistics_panel(surface)
+            self.statistics_board.draw(surface)
 
     def update_animation_phase(self):
         """Cập nhật phase của animation"""
@@ -471,7 +363,7 @@ class WinningScreen(Screen):
         audio_manager.play_sound_effect('victory')
         
         # Reload statistics
-        self.load_statistics()
+        self.statistics_board.reload_statistics()
         
         # Reset animation
         self.start_time = pygame.time.get_ticks()
@@ -479,7 +371,7 @@ class WinningScreen(Screen):
         self.particles = []
         self.text_fade_alpha = 0
         self.title_bounce_offset = 0
-        self.stats_panel_alpha = 0
+        self.statistics_board.set_alpha(0)
         
         # Reset character positions và skill timers
         for char_data in self.characters:
@@ -515,7 +407,6 @@ class WinningScreen(Screen):
                 audio_manager = AudioManager.get_instance()
                 audio_manager.play_sound_effect('button_click')
                 self.screen_manager.set_screen("level_select")
-
 
     def on_exit(self):
         """Called when exiting victory screen"""

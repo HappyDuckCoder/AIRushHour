@@ -2,9 +2,10 @@ from Screen.BaseScreen import Screen
 from Game.Map import Map
 from UI.Button import Button
 from UI.Text import Text, Font
-from Graphic.Graphic import *
 from Audio.AudioManager import AudioManager
 import time
+from constants import *
+import pygame
 
 # ===============================
 # Game Screen

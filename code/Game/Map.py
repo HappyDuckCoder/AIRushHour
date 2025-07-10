@@ -2,12 +2,11 @@ from SolverAlgorithms.Solver import PuzzleSolver
 from SolverAlgorithms.SolverFactory import StrategyFactory
 from Game.Vehicle import Vehicle
 from constants import *
-import time
-import json
-import os
-from Graphic.Graphic import gfx, pygame
 from Resource.Resource import ResourceManager
 from typing import Dict
+import json
+import time
+import os
 
 # ===============================
 # Map Class

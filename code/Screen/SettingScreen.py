@@ -1,9 +1,9 @@
 from Screen.BaseScreen import Screen
 from UI.Button import Button
 from UI.Text import Text, Font
-from Graphic.Graphic import gfx, pygame
 from Audio.AudioManager import AudioManager
 from constants import *
+import pygame
 
 # ===============================
 # Setting Screen
@@ -52,7 +52,7 @@ class SettingScreen(Screen):
     
     def draw_setting_background(self, surface):
         """Draw setting screen background"""
-        self.draw_background(surface, "menu")  # Reuse menu background or create new one
+        self.draw_background(surface, "menu")  
         
         # Add semi-transparent overlay
         overlay = pygame.Surface((SCREEN_W, SCREEN_H))
@@ -62,15 +62,9 @@ class SettingScreen(Screen):
     
     def draw(self, surface):
         """Draw the setting screen"""
-        self.draw_setting_background(surface)
-        
-        # Draw title
+        self.draw_setting_background(surface)        
         self.title.draw(surface)
-        
-        # Draw sound toggle
         self.sound_toggle_btn.draw(surface)
-        
-        # Draw volume controls
         self.volume_text.draw(surface)
         self.volume_down_btn.draw(surface)
         self.volume_up_btn.draw(surface)
@@ -81,10 +75,8 @@ class SettingScreen(Screen):
         bar_height = 20
         bar_x = SCREEN_W//2 - bar_width//2
         bar_y = 380
-        
         # Background bar
         pygame.draw.rect(surface, GRAY, (bar_x, bar_y, bar_width, bar_height))
-        
         # Volume bar
         volume_bar_width = int(bar_width * self.audio_manager.music_volume)
         pygame.draw.rect(surface, GREEN, (bar_x, bar_y, volume_bar_width, bar_height))
@@ -93,7 +85,6 @@ class SettingScreen(Screen):
         self.back_btn.draw(surface)
     
     def update(self):
-        """Update animations"""
         self.sound_toggle_btn.update()
         self.volume_down_btn.update()
         self.volume_up_btn.update()
@@ -105,7 +96,6 @@ class SettingScreen(Screen):
         pass
     
     def handle_event(self, event):
-        """Handle setting screen events"""
         # Update all buttons
         self.sound_toggle_btn.handle_event(event)
         self.volume_down_btn.handle_event(event)

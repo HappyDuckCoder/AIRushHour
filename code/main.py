@@ -67,6 +67,7 @@ class Program:
         # Upload all resources
         ResourceManager().upload_all()
 
+        # Create mouse and font
         self.mouse = Mouse()
         self.MainFont = Font(24)
         
@@ -84,12 +85,13 @@ class Program:
         # game_screen.load_level(4)
         # self.screen_manager.set_screen('game')
 
-        # Đánh dấu đã init rồi
+        # Mark as initialized
         self._initialized = True
 
     def run(self):
         running = True
         while running:
+            # RECEIVE EVENT
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -97,16 +99,20 @@ class Program:
                     if self.screen_manager.current_screen:
                         self.screen_manager.current_screen.handle_event(event)
 
+            # UPDATE NEW STATUS
             if not self.screen_manager.update():
                 running = False
 
+            # DRAW ALL IN THE BACK BUFFER
             self.buffer.fill(BLACK)
             self.screen_manager.draw(self.buffer)
-
             self.mouse.draw(self.buffer)
-
             self.screen.blit(self.buffer, (0, 0))
+            
+            # FLIP TO THE FRONT BUFFER
             pygame.display.flip()
+            
+            # WAITING TIME TILL NEXT FRAME
             self.clock.tick(FPS)
 
         pygame.quit()
