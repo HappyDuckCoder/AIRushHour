@@ -1,9 +1,9 @@
 {
-  "level": 1,
-  "algorithm": "A*",
-  "time_executed": 3.5646190643310547,
+  "level": 10,
+  "algorithm": "UCS",
+  "time_executed": 0.12495684623718262,
   "nodes_expanded": 0,
-  "solution_length": 6,
-  "solved": true,
-  "timestamp": 1752132522.8320036
+  "solution_length": 0,
+  "solved": false,
+  "timestamp": 1752158328.6003191
 }
