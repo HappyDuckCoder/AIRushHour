@@ -66,8 +66,6 @@ class AStarStrategy(SolverStrategy, BaseSolver):
                     board[y + i][x] = name
         return board
     
-
-    
     # generate_successors():
     def generate_successors(self, state, car_info):
         # Generate all valid moves
@@ -110,7 +108,19 @@ class AStarStrategy(SolverStrategy, BaseSolver):
 
         return successors
     
-    # reconstruct_path():
+    def expand_path(self, path):
+        expanded = []
+        for name, dx, dy in path:
+            if dx != 0:
+                step = 1 if dx > 0 else -1
+                for _ in range(abs(dx)):
+                    expanded.append((name, step, 0))
+            elif dy != 0:
+                step = 1 if dy > 0 else -1
+                for _ in range(abs(dy)):
+                    expanded.append((name, 0, step))
+        return expanded
+
     def reconstruct_path(self, goal_encoded, table):
         # Return from goal_state to start_state to get list of move
         path = []
@@ -123,7 +133,7 @@ class AStarStrategy(SolverStrategy, BaseSolver):
             if parent == b'':
                 break
             current = parent
-        return path[::-1]
+        return self.expand_path(path[::-1])
     
     # is_solved:
     def is_solved(self, state, car_info):
