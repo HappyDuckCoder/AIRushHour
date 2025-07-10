@@ -70,34 +70,24 @@ class GameScreen(Screen):
             self.solve_ucs, self.reset_btn, self.pause_btn, self.try_again_btn
         ]
         
-        # Text elements for game information
-        self.level_text = Text("Level: 1", WHITE, (SCREEN_W//2, 30), font=Font(32))
-        self.algorithm_text = Text("", WHITE, (SCREEN_W//2, 70), font=Font(24))
-        self.status_text = Text("Click Start to begin", WHITE, (SCREEN_W//2, SCREEN_H - 50), font=Font(20))
-        self.instruction_text = Text("Select an algorithm:", (255, 255, 100), (left_margin + button_width + 20, algo_start_y - 60), font=Font(22), center=False)
+        # Text elements for game information - INCREASED FONT SIZES BY 5x
+        self.level_text = Text("Level: 1", WHITE, (SCREEN_W//2, 30), font=Font(32)) 
+        self.algorithm_text = Text("", WHITE, (SCREEN_W//2, 70), font=Font(24))  
+        self.status_text = Text("Click Start to begin", WHITE, (SCREEN_W//2, SCREEN_H - 50), font=Font(20)) 
+        self.instruction_text = Text("Select an algorithm:", (255, 255, 100), (left_margin + button_width + 20, algo_start_y - 60), font=Font(22), center=False)  
         
         # No solution message
-        self.no_solution_text = Text("No solution found for this puzzle!", (255, 100, 100), (SCREEN_W//2, SCREEN_H//2), font=Font(32))
+        self.no_solution_text = Text("No solution found for this puzzle!", (255, 100, 100), (SCREEN_W//2, SCREEN_H//2), font=Font(100))  
         
-        # Algorithm info panel - positioned on the left side
+        # Algorithm info panel - positioned on the left side (simplified) 
         info_panel_x = 20
         info_panel_y = 120
-        info_spacing = 30
+        info_spacing = 50
         
-        # Algorithm info text elements with improved colors and larger fonts
-        self.info_title = Text("Algorithm Info", (100, 200, 255), (info_panel_x, info_panel_y), font=Font(40), center=False)
-        self.total_moves_text = Text("Total Moves: 0", (100, 255, 100), (info_panel_x, info_panel_y + info_spacing), font=Font(30), center=False)
-        self.current_move_text = Text("Current Move: 0", (255, 200, 100), (info_panel_x, info_panel_y + info_spacing * 2), font=Font(30), center=False)
-        self.execution_time_text = Text("Execution Time: 0.0s", (255, 100, 200), (info_panel_x, info_panel_y + info_spacing * 3), font=Font(30), center=False)
-        
-        # Expanded nodes list
-        self.expanded_nodes_title = Text("Expanded Nodes:", (200, 200, 255), (info_panel_x, info_panel_y + info_spacing * 4), font=Font(30), center=False)
-        
-        # Create multiple text objects for expanded nodes list (showing last 10 nodes)
-        self.expanded_nodes_texts = []
-        for i in range(10):  # Show last 10 expanded nodes
-            text = Text("", (180, 180, 180), (info_panel_x + 10, info_panel_y + info_spacing * 5 + i * 20), font=Font(20), center=False)
-            self.expanded_nodes_texts.append(text)
+        # Only show total moves and current move
+        self.info_title = Text("Algorithm Info", (100, 200, 255), (info_panel_x, info_panel_y), font=Font(40), center=False)  
+        self.total_moves_text = Text("Total Moves: 0", (100, 255, 100), (info_panel_x, info_panel_y + info_spacing), font=Font(30), center=False) 
+        self.current_move_text = Text("Current Move: 0", (255, 200, 100), (info_panel_x, info_panel_y + info_spacing * 2), font=Font(30), center=False)  
         
     def load_level(self, level_num):
         self.map.load_level_data_from_file(level_num)
@@ -107,6 +97,7 @@ class GameScreen(Screen):
         self.algorithm_start_time = 0
         self.current_execution_time = 0
         self.no_solution_timer = 0
+        self.is_paused = False
         self.update_algorithm_info()
         
         # Update level text
@@ -115,122 +106,41 @@ class GameScreen(Screen):
         self.status_text.set_text("Click Start to begin")
 
     def update_algorithm_info(self):
-        """Update algorithm information display"""
+        """Update algorithm information display - simplified version"""
         if self.ui_state == "solving" and self.map.solving:
             # Update total moves
             total_moves = len(self.map.solution_moves) if self.map.solution_moves else 0
             self.total_moves_text.set_text(f"Total Moves: {total_moves}")
             
-            # Update current move - FIX: Chỉ hiển thị move hiện tại, không +1
+            # Update current move
             current_move = self.map.current_move_index if self.map.current_move_index < total_moves else total_moves
             self.current_move_text.set_text(f"Current Move: {current_move}")
-            
-            # Update execution time
-            if self.algorithm_start_time > 0:
-                self.current_execution_time = time.time() - self.algorithm_start_time
-                self.execution_time_text.set_text(f"Execution Time: {self.current_execution_time:.2f}s")
-            
-            # Update expanded nodes list
-            self.update_expanded_nodes_display()
-        elif self.ui_state == "no_solution":
-            # Keep showing the final stats for no solution case
-            self.update_expanded_nodes_display()
         else:
             # Reset display when not solving
             self.total_moves_text.set_text("Total Moves: 0")
             self.current_move_text.set_text("Current Move: 0")
-            self.execution_time_text.set_text("Execution Time: 0.0s")
-            self.clear_expanded_nodes_display()
-    
-    def update_expanded_nodes_display(self):
-        """Update the expanded nodes display with improved formatting"""
-        try:
-            # Check if map has solver and solver has expanded_nodes
-            if (self.map.solver and 
-                getattr(self.map.solver, 'expanded_nodes', None) is not None):
-                
-                expanded_nodes = self.map.solver.expanded_nodes
-                
-                # Show last 10 expanded nodes
-                display_nodes = expanded_nodes[-10:] if len(expanded_nodes) > 10 else expanded_nodes
-                
-                for i, text_obj in enumerate(self.expanded_nodes_texts):
-                    if i < len(display_nodes):
-                        node_info = display_nodes[i]
-                        
-                        # Format node info based on its structure
-                        if isinstance(node_info, dict):
-                            # Check for common dictionary structures
-                            if 'vehicles' in node_info:
-                                # Format vehicle positions
-                                vehicles_info = []
-                                for v in node_info['vehicles']:
-                                    try:
-                                        name = getattr(v, 'name', 'Unknown')
-                                        x = getattr(v, 'x', 0)
-                                        y = getattr(v, 'y', 0)
-                                        vehicles_info.append(f"{name}({x},{y})")
-                                    except:
-                                        vehicles_info.append('Vehicle')
-                                text_obj.set_text(f"• {' '.join(vehicles_info[:3])}")  # Show first 3 vehicles
-                            elif 'state' in node_info:
-                                state_str = str(node_info['state'])[:25]
-                                text_obj.set_text(f"• State: {state_str}")
-                            elif 'cost' in node_info and 'position' in node_info:
-                                text_obj.set_text(f"• Cost:{node_info['cost']} Pos:{node_info['position']}")
-                            else:
-                                # Generic dict representation
-                                keys = list(node_info.keys())[:2]  # Show first 2 keys
-                                text_obj.set_text(f"• {', '.join(keys)}")
-                        elif isinstance(node_info, list):
-                            # Handle list of positions or vehicle data
-                            if len(node_info) > 0:
-                                if all(isinstance(item, (tuple, list)) and len(item) >= 2 for item in node_info):
-                                    # List of positions
-                                    positions = [f"({x},{y})" for x, y in node_info[:3]]
-                                    text_obj.set_text(f"• {' '.join(positions)}")
-                                else:
-                                    # List of other data
-                                    items = [str(item)[:10] for item in node_info[:3]]
-                                    text_obj.set_text(f"• {' '.join(items)}")
-                            else:
-                                text_obj.set_text("• []")
-                        elif isinstance(node_info, tuple):
-                            # Handle tuple (likely coordinates or state)
-                            if len(node_info) == 2:
-                                text_obj.set_text(f"• ({node_info[0]},{node_info[1]})")
-                            else:
-                                text_obj.set_text(f"• {str(node_info)[:25]}")
-                        elif isinstance(node_info, str):
-                            # Simple string format
-                            text_obj.set_text(f"• {node_info[:25]}")
-                        else:
-                            # Fallback for other types
-                            text_obj.set_text(f"• {str(node_info)[:25]}")
-                    else:
-                        text_obj.set_text("")
-            else:
-                # Clear all texts if no expanded nodes available
-                self.clear_expanded_nodes_display()
-        except Exception as e:
-            print(f"Error updating expanded nodes display: {e}")
-            self.clear_expanded_nodes_display()
-
-    def clear_expanded_nodes_display(self):
-        """Clear all expanded nodes display"""
-        for text_obj in self.expanded_nodes_texts:
-            text_obj.set_text("")
 
     def handle_no_solution(self):
         """Handle when no solution is found"""
         self.ui_state = "no_solution"
         self.no_solution_timer = time.time()
-        self.algorithm_text.set_text(f"Algorithm: {self.current_algorithm} - No Solution")
-        
-        # Calculate final execution time
-        if self.algorithm_start_time > 0:
-            final_time = time.time() - self.algorithm_start_time
-            self.execution_time_text.set_text(f"Execution Time: {final_time:.2f}s")
+        self.algorithm_text.set_text(f"Algorithm: {self.map.current_algorithm} - No Solution")
+        self.is_paused = False  # Reset pause state
+        # Reset map solving state
+        self.map.solving_failed = False  # Reset the flag to prevent repeated calls
+
+    def reset_to_start(self):
+        """Reset game to start state"""
+        self.ui_state = "start"
+        self.algorithm_text.set_text("")
+        self.algorithm_start_time = 0
+        self.current_execution_time = 0
+        self.no_solution_timer = 0
+        self.is_paused = False
+        self.pause_btn.set_text("Pause")
+        # Reset map state
+        if hasattr(self.map, 'reset'):
+            self.map.reset()
 
     def check_offscreen(self):
         for v in self.map.vehicles:
@@ -238,26 +148,26 @@ class GameScreen(Screen):
                 self.screen_manager.set_screen('winning')
 
     def update(self):
-        # Handle no solution timer
-        if self.ui_state == "no_solution":
-            if time.time() - self.no_solution_timer >= self.no_solution_duration:
-                self.ui_state = "start"
-                self.algorithm_text.set_text("")
-                self.algorithm_start_time = 0
-                self.current_execution_time = 0
-                self.clear_expanded_nodes_display()
+        # Handle no solution timer - FIXED: Only auto-reset if timer is active
+        if self.ui_state == "no_solution" and self.no_solution_timer > 0:
+            current_time = time.time()
+            if current_time - self.no_solution_timer >= self.no_solution_duration:
+                print("No solution timer expired, returning to start")  # Debug
+                self.reset_to_start()
 
         # Update visible buttons (including hover state)
         visible_buttons = self.get_visible_buttons()
         for button in visible_buttons:
             button.update()
 
-        self.map.update()
-        self.map.update_solving()
+        # Only update map if not paused
+        if not self.is_paused:
+            self.map.update()
+            self.map.update_solving()
 
-        # Check if solving failed (no solution found)
-        if getattr(self.map, 'solving_failed', False):
-            self.map.solving_failed = False  # Reset flag
+        # FIXED: Check for solving failure
+        if hasattr(self.map, 'solving_failed') and self.map.solving_failed:
+            print("Map solving failed, handling no solution")  # Debug
             self.handle_no_solution()
 
         # Update algorithm info
@@ -280,7 +190,7 @@ class GameScreen(Screen):
                 current_algorithm = getattr(self.map, 'current_algorithm', 'Unknown')
                 self.status_text.set_text(f"Solving using {current_algorithm}...")
         elif self.ui_state == "no_solution":
-            self.status_text.set_text("No solution found! Try a different algorithm or reset.")
+            self.status_text.set_text("No solution found! Click Try Again or wait for auto-reset.")
         
         return True
     
@@ -316,16 +226,13 @@ class GameScreen(Screen):
         elif self.ui_state == "no_solution":
             visible_texts.append(self.no_solution_text)
         
-        # Show algorithm info panel when solving, no solution, or algorithm is selected
+        # Show simplified algorithm info panel when solving, no solution, or algorithm is selected
         if self.ui_state in ["solving", "algorithm_select", "no_solution"] or (self.ui_state == "start" and self.algorithm_text.text):
             visible_texts.extend([
                 self.info_title,
                 self.total_moves_text,
-                self.current_move_text,
-                self.execution_time_text,
-                self.expanded_nodes_title
+                self.current_move_text
             ])
-            visible_texts.extend(self.expanded_nodes_texts)
             
         return visible_texts
 
@@ -358,8 +265,11 @@ class GameScreen(Screen):
             button.handle_event(event)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
+            print(f"Mouse clicked at {event.pos}, current UI state: {self.ui_state}")  # Debug
+            
             if self.ui_state == "start":
                 if self.start_btn.hit(event.pos):
+                    print("Start button clicked")  # Debug
                     self.ui_state = "algorithm_select"
                     
             elif self.ui_state == "algorithm_select":
@@ -368,51 +278,53 @@ class GameScreen(Screen):
                     self.map.start_solving("BFS")
                     self.algorithm_text.set_text("Algorithm: BFS")
                     self.ui_state = "solving"
+                    self.is_paused = False
                 elif self.solve_dfs.hit(event.pos):
                     self.algorithm_start_time = time.time()
                     self.map.start_solving("DFS")
                     self.algorithm_text.set_text("Algorithm: DFS")
                     self.ui_state = "solving"
+                    self.is_paused = False
                 elif self.solve_astar.hit(event.pos):
                     self.algorithm_start_time = time.time()
                     self.map.start_solving("A*")
                     self.algorithm_text.set_text("Algorithm: A*")
                     self.ui_state = "solving"
+                    self.is_paused = False
                 elif self.solve_ucs.hit(event.pos):
                     self.algorithm_start_time = time.time()
                     self.map.start_solving("UCS")
                     self.algorithm_text.set_text("Algorithm: UCS")
                     self.ui_state = "solving"
+                    self.is_paused = False
                     
             elif self.ui_state == "solving":
                 if self.reset_btn.hit(event.pos):
-                    self.map.reset()
-                    self.ui_state = "start"
-                    self.algorithm_text.set_text("")
-                    self.algorithm_start_time = 0
-                    self.current_execution_time = 0
+                    print("Reset button clicked")  # Debug
+                    self.reset_to_start()
                 elif self.pause_btn.hit(event.pos):
-                    pause_result = self.map.handle_pause()
-                    
-                    if pause_result:  # Có sự thay đổi của các xe
-                        self.ui_state = "start"
-                        self.is_paused = False
+                    # FIXED: Simplified pause logic - just toggle pause state
+                    self.is_paused = not self.is_paused
+                    if self.is_paused:
+                        self.pause_btn.set_text("Continue")
+                        # Optionally pause the map solving process
+                        if hasattr(self.map, 'pause_solving'):
+                            self.map.pause_solving()
+                    else:
                         self.pause_btn.set_text("Pause")
-                        self.algorithm_text.set_text("")
-                        self.algorithm_start_time = 0
-                        self.current_execution_time = 0
-                    else:  # Không có sự thay đổi
-                        self.is_paused = not self.is_paused
-                        new_text = "Continue" if self.is_paused else "Pause"
-                        self.pause_btn.set_text(new_text)
+                        # Optionally resume the map solving process
+                        if hasattr(self.map, 'resume_solving'):
+                            self.map.resume_solving()
             
             elif self.ui_state == "no_solution":
                 if self.try_again_btn.hit(event.pos):
+                    print("Try Again button clicked")  # Debug
                     self.ui_state = "algorithm_select"
                     self.algorithm_text.set_text("")
                     self.algorithm_start_time = 0
                     self.current_execution_time = 0
-                    self.clear_expanded_nodes_display()
+                    self.no_solution_timer = 0  # Reset timer
+                    self.is_paused = False
             
             # Always check these buttons regardless of UI state
             if self.back_btn.hit(event.pos):

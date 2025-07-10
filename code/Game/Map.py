@@ -160,14 +160,11 @@ class Map:
                 self.list_solver = solution
                 self.print_solution(solution)
             else:
+                self.solving_failed = True
                 print("No solution found!")
                 self.save_statistics(0, False)  # Save with 0 moves, no solution
 
     def print_solution(self, solution):
-        """In ra các bước giải"""
-        # for i, move in enumerate(solution):
-        #     print(f"Move {i+1}: ({move['name']}, {move['dx']}, {move['dy']})")
-
         for move in solution:
             print(move)
 
@@ -256,12 +253,7 @@ class Map:
 
                     print("Solving complete!")
         elif self.solving and not self.solution_moves:
-            # No solution found
-            self.solving_failed = True
-            self.solving = False
-
-            self.save_statistics(0, False)
-            print("No solution found!")
+            pass
 
     def get_grid(self):
         """Lấy grid hiện tại"""
