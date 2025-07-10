@@ -37,8 +37,10 @@ class Screen:
         self.layer_backgrouds_1 = ["background1", "background12", "background13", "background14"]
         self.layer_backgrouds_2 = ["background21", "background22", "background23"]
 
+        self.list_screens_1 = ["intro", "menu", "level_select", "game", "setting", "winning", "about_us", "statistic"]
+
     def draw_background(self, surface, current_screen="intro"):
-        if current_screen == "intro" or current_screen == "setting" or current_screen == "menu":
+        if current_screen in self.list_screens_1:
             for layer in self.layer_backgrouds_2:
                 layer = ResourceManager().get_image(layer)
                 if layer:

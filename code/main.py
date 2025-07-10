@@ -7,7 +7,9 @@ from Screen.LevelSelectScreen import LevelSelectScreen
 from Screen.GameScreen import GameScreen
 from Screen.WinningScreen import WinningScreen
 from Screen.SettingScreen import SettingScreen
+from Screen.AboutUsScreen import AboutUsScreen
 from Screen.BaseScreen import ScreenManager
+from Screen.StatisticScreen import StatisticScreen
 from Resource.Resource import ResourceManager
 from UI.Mouse import Mouse
 from UI.Text import Font
@@ -37,6 +39,8 @@ class Program:
         game_screen = GameScreen(self.screen_manager)
         setting_screen = SettingScreen(self.screen_manager)
         winning_screen = WinningScreen(self.screen_manager)
+        about_us_screen = AboutUsScreen(self.screen_manager)
+        statistic_screen = StatisticScreen(self.screen_manager)
 
         # Add screens to manager
         self.screen_manager.add_screen('intro', intro_screen)
@@ -45,6 +49,9 @@ class Program:
         self.screen_manager.add_screen('game', game_screen)
         self.screen_manager.add_screen('setting', setting_screen)
         self.screen_manager.add_screen('winning', winning_screen)
+        self.screen_manager.add_screen('about_us', about_us_screen)
+        self.screen_manager.add_screen('statistic', statistic_screen)
+
 
     def __init__(self):
         # Chỉ init lần đầu

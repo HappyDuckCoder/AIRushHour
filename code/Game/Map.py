@@ -7,6 +7,7 @@ import json
 import os
 from Graphic.Graphic import gfx, pygame
 from Resource.Resource import ResourceManager
+from typing import Dict
 
 # ===============================
 # Map Class
@@ -165,8 +166,11 @@ class Map:
 
     def print_solution(self, solution):
         """In ra các bước giải"""
-        for i, move in enumerate(solution):
-            print(f"Move {i+1}: ({move['name']}, {move['dx']}, {move['dy']})")
+        # for i, move in enumerate(solution):
+        #     print(f"Move {i+1}: ({move['name']}, {move['dx']}, {move['dy']})")
+
+        for move in solution:
+            print(move)
 
     def save_statistics(self, solution_length, solved=True):
         """Lưu thống kê vào file"""
@@ -206,16 +210,40 @@ class Map:
                     move = self.solution_moves[self.current_move_index]
                     
                     # Extract move information from the dictionary format
-                    vehicle_index = move['index']
-                    dx = move['dx']
-                    dy = move['dy']
-                    
-                    # Apply the move
-                    self.vehicles[vehicle_index].x += dx
-                    self.vehicles[vehicle_index].y += dy
-                                        
-                    self.current_move_index += 1
-                    self.move_timer = current_time
+
+                    # move = {
+                    #     'name': move_name,
+                    #     'index': vehicle_index,
+                    #     'dx': dx,
+                    #     'dy': dy
+                    # }
+                
+                    if isinstance(move, Dict):
+                        vehicle_index = move['index']
+                        dx = move['dx']
+                        dy = move['dy']
+                        
+                        # Apply the move
+                        self.vehicles[vehicle_index].x += dx
+                        self.vehicles[vehicle_index].y += dy
+                        
+                        self.current_move_index += 1
+                        self.move_timer = current_time
+
+                    else:
+                        # dạng tuple ('A', dx, dy)
+                        vehicle_name, dx, dy = move
+
+                        # tìm index của xe theo tên
+                        for idx, v in enumerate(self.vehicles):
+                            if v.name == vehicle_name:
+                                v.x += dx
+                                v.y += dy
+                                break
+
+                        self.current_move_index += 1
+                        self.move_timer = current_time
+
                 else:
                     # Solving complete
                     self.solving = False

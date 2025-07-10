@@ -58,7 +58,7 @@ class AStarStrategy(SolverStrategy, BaseSolver):
         board = [['.' for _ in range(6)] for _ in range(6)]
         for name, x, y in state:
             orient, length = car_info[name]
-            if orient == 'H':
+            if orient == 'h':
                 for i in range(length):
                     board[y][x + i] = name
             else:
@@ -66,93 +66,10 @@ class AStarStrategy(SolverStrategy, BaseSolver):
                     board[y + i][x] = name
         return board
     
-    # def compute_blocked_map():
-    def compute_blocked_map(self, state, car_info):
-        # Compute which rows and columns have car
-        blocked_rows = [False] * 6
-        blocked_cols = [False] * 6
-        for name, x, y in state:
-            orient, length = car_info[name]
-            if orient == 'H':
-                blocked_rows[y] = True
-            else:
-                blocked_cols[x] = True
-        return blocked_rows, blocked_cols
-
-    # precompute_helpful_moves():
-    def precompute_helpful_moves(self, state, car_info):
-        # Create a default dict to determine current position if moving to new state frees other vehicles(directly or indirectly)
-        blocked_rows, blocked_cols = self.compute_blocked_map(state, car_info)
-        helpful_moves = defaultdict(dict)
-        for name, x, y in state:
-            orient, length = car_info[name]
-            if orient == 'H':
-                for from_x in range(0, 6 - length + 1):
-                    for to_x in range(0, 6 - length + 1):
-                        if from_x == to_x:
-                            continue
-                        old_range = [from_x + i for i in range(length)]
-                        new_range = [to_x + i for i in range(length)]
-                        for col in old_range:
-                            if col not in new_range and blocked_cols[col]:
-                                helpful_moves[name][(from_x, y, to_x, y)] = True
-                                break
-            else:
-                for from_y in range(0, 6 - length + 1):
-                    for to_y in range(0, 6 - length + 1):
-                        if from_y == to_y:
-                            continue
-                        old_range = [from_y + i for i in range(length)]
-                        new_range = [to_y + i for i in range(length)]
-                        for row in old_range:
-                            if row not in new_range and blocked_rows[row]:
-                                helpful_moves[name][(x, from_y, x, to_y)] = True
-                                break
-        return helpful_moves
-    
-    @staticmethod
-    # Create a default dict to consider the cases where two cars in the same horizontal or vertical direction create an advantage for the other car.
-    def relative_helpful_moves(self, state, car_info):
-        helpful = defaultdict(dict)
-        for i, (name1, x1, y1) in enumerate(state):
-            orient1, len1 = car_info[name1]
-            end1_x = x1 + len1 - 1
-            end1_y = y1 + len1 - 1
-            for j, (name2, x2, y2) in enumerate(state):
-                if i == j:
-                    continue
-                orient2, len2 = car_info[name2]
-                end2_x = x2 + len2 - 1
-                end2_y = y2 + len2 - 1
-                if orient1 != orient2:
-                    continue
-                if orient1 == 'H' and y1 == y2:
-                    if end1_x < x2:
-                        for from_x in range(0, 6 - len1 + 1):
-                            for to_x in range(0, 6 - len1 + 1):
-                                if to_x < from_x:
-                                    helpful[name1][(from_x, y1, to_x, y1)] = True
-                    elif x1 > end2_x:
-                        for from_x in range(0, 6 - len1 + 1):
-                            for to_x in range(0, 6 - len1 + 1):
-                                if to_x > from_x:
-                                    helpful[name1][(from_x, y1, to_x, y1)] = True
-                elif orient1 == 'V' and x1 == x2:
-                    if end1_y < y2:
-                        for from_y in range(0, 6 - len1 + 1):
-                            for to_y in range(0, 6 - len1 + 1):
-                                if to_y < from_y:
-                                    helpful[name1][(x1, from_y, x1, to_y)] = True
-                    elif y1 > end2_y:
-                        for from_y in range(0, 6 - len1 + 1):
-                            for to_y in range(0, 6 - len1 + 1):
-                                if to_y > from_y:
-                                    helpful[name1][(x1, from_y, x1, to_y)] = True
-        return helpful
 
     
     # generate_successors():
-    def generate_successors(self, state, car_info, helpful_moves, relative_moves):
+    def generate_successors(self, state, car_info):
         # Generate all valid moves
         board = self.build_board_2d(state, car_info)
         successors = []
@@ -162,7 +79,7 @@ class AStarStrategy(SolverStrategy, BaseSolver):
 
             for direction in [-1, 1]:
                 for step in range(1, 6):
-                    if orient == 'H':
+                    if orient == 'h':
                         new_x = x + direction * step
                         new_y = y
                         if new_x < 0 or new_x + length > 6:
@@ -176,10 +93,6 @@ class AStarStrategy(SolverStrategy, BaseSolver):
                             break
                         if any(board[new_y + i][x] not in ('.', car_name) for i in range(length)):
                             break
-
-                    if not (helpful_moves.get(car_name, {}).get((x, y, new_x, new_y), False) or
-                        relative_moves.get(car_name, {}).get((x, y, new_x, new_y), False)):
-                            continue
 
                     new_state = []
                     for name, ox, oy in state:
@@ -231,9 +144,8 @@ class AStarStrategy(SolverStrategy, BaseSolver):
         for v in self.map.vehicles:
             a, b = v.change_vehicle_data()
             start_tuple.append(tuple(a))  
-            car_info[a[0]] = tuple(b[1:])  
-
-        start_tuple = tuple(sorted(start_tuple))  # đảm bảo thống nhất
+            car_info[a[0]] = (b[1].lower(), b[2])  
+        start_tuple = tuple(sorted(start_tuple))  
         start_state = self.encode_state(start_tuple)
         start_g = 0
         start_h = self.heuristic(start_tuple, car_info)
@@ -245,13 +157,13 @@ class AStarStrategy(SolverStrategy, BaseSolver):
         # Return cars blocking the given car
         direction, length = car_info[name]
         blockers = set()
-        if direction == 'H':
+        if direction == 'h':
             x_end = x + length - 1
             for xi in range(x_end + 1, 6):
                 if board[y][xi] != '.' and board[y][xi] != name:
                     blockers.add(board[y][xi])
                     break
-        elif direction == 'V':
+        elif direction == 'v':
             y_end = y + length - 1
             for yi in range(y_end + 1, 6):
                 if board[yi][x] != '.' and board[yi][x] != name:
@@ -260,7 +172,7 @@ class AStarStrategy(SolverStrategy, BaseSolver):
         return blockers
 
     def heuristic(self, state, car_info):
-        # h(n):HDH
+        # recursively find all cars in the relative group and each car = estimated_moves * length
         board = self.build_board_2d(state, car_info)
         for name, x, y in state:
             if name == 'A':
@@ -297,9 +209,6 @@ class AStarStrategy(SolverStrategy, BaseSolver):
         open_heap = heapdict.heapdict()
         table = {}
 
-        helpful_moves = self.precompute_helpful_moves(start_tuple, car_info)
-        relative_moves = self.relative_helpful_moves(self, start_tuple, car_info)
-
         open_heap[start_state] = start_f
         table[start_state] = self.encode_table_entry(b'', None, start_g, start_f)
         count = 0
@@ -313,8 +222,8 @@ class AStarStrategy(SolverStrategy, BaseSolver):
 
             if self.is_solved(parent_tuple, car_info):
                 return self.reconstruct_path(parent_state, table)
-
-            for child_tuple, move, step_cost in self.generate_successors(parent_tuple, car_info, helpful_moves, relative_moves):
+            
+            for child_tuple, move, step_cost in self.generate_successors(parent_tuple, car_info):
                 if parent_move and move[0] == parent_move[0]:
                     continue
                 child_state = self.encode_state(child_tuple)
@@ -329,7 +238,6 @@ class AStarStrategy(SolverStrategy, BaseSolver):
                     _, length_child = car_info[move[0]]
                     child_h = child_h + length_child
                 child_f = child_g + child_h
-
                 open_heap[child_state] = child_f
                 table[child_state] = self.encode_table_entry(parent_state, move, child_g, child_f)
         return []
