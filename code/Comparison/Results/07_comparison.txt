@@ -4,41 +4,45 @@
 
 🔸 DFS
 ----------------------------------------
-⏱️  Thời gian trung bình: 1.4858 giây
-💾 Bộ nhớ sử dụng: -15.74 MB
+⏱️  Thời gian trung bình: 1.3364 giây
+💾 Bộ nhớ sử dụng: -16.75 MB
 🎯 Tỷ lệ thành công: 100.0%
 📏 Độ dài nghiệm TB: 1931.0 bước
-🔍 Số trạng thái khám phá: 0
-⚡ Thời gian nhanh nhất: 1.4656 giây
-🐌 Thời gian chậm nhất: 1.4988 giây
+🔍 Số trạng thái khám phá: 2478
+💰 Chi phí trung bình: 0.00
+⚡ Thời gian nhanh nhất: 1.2723 giây
+🐌 Thời gian chậm nhất: 1.4466 giây
 
 🔸 BFS
 ----------------------------------------
-⏱️  Thời gian trung bình: 4.3188 giây
-💾 Bộ nhớ sử dụng: -0.05 MB
+⏱️  Thời gian trung bình: 4.1207 giây
+💾 Bộ nhớ sử dụng: -0.04 MB
 🎯 Tỷ lệ thành công: 100.0%
 📏 Độ dài nghiệm TB: 63.0 bước
-🔍 Số trạng thái khám phá: 0
-⚡ Thời gian nhanh nhất: 4.2270 giây
-🐌 Thời gian chậm nhất: 4.4841 giây
+🔍 Số trạng thái khám phá: 7883
+💰 Chi phí trung bình: 0.00
+⚡ Thời gian nhanh nhất: 4.0826 giây
+🐌 Thời gian chậm nhất: 4.1698 giây
 
 🔸 A*
 ----------------------------------------
-⏱️  Thời gian trung bình: 6.0949 giây
-💾 Bộ nhớ sử dụng: -0.81 MB
+⏱️  Thời gian trung bình: 5.4917 giây
+💾 Bộ nhớ sử dụng: -0.04 MB
 🎯 Tỷ lệ thành công: 100.0%
 📏 Độ dài nghiệm TB: 63.0 bước
-🔍 Số trạng thái khám phá: 0
-⚡ Thời gian nhanh nhất: 5.6981 giây
-🐌 Thời gian chậm nhất: 6.6780 giây
+🔍 Số trạng thái khám phá: 7775
+💰 Chi phí trung bình: 136.00
+⚡ Thời gian nhanh nhất: 5.4703 giây
+🐌 Thời gian chậm nhất: 5.5244 giây
 
 🔸 UCS
 ----------------------------------------
-⏱️  Thời gian trung bình: 5.8445 giây
-💾 Bộ nhớ sử dụng: 0.02 MB
+⏱️  Thời gian trung bình: 5.2187 giây
+💾 Bộ nhớ sử dụng: 0.01 MB
 🎯 Tỷ lệ thành công: 100.0%
 📏 Độ dài nghiệm TB: 63.0 bước
-🔍 Số trạng thái khám phá: 0
-⚡ Thời gian nhanh nhất: 5.6806 giây
-🐌 Thời gian chậm nhất: 5.9628 giây
+🔍 Số trạng thái khám phá: 8651
+💰 Chi phí trung bình: 136.00
+⚡ Thời gian nhanh nhất: 5.1510 giây
+🐌 Thời gian chậm nhất: 5.3224 giây
 

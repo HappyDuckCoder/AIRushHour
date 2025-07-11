@@ -42,11 +42,13 @@ class AlgorithmComparison:
             'peak_memory': [],
             'solution_lengths': [],
             'states_explored': [],
+            'total_costs': [],
             'success_rate': 0,
             'average_time': 0,
             'average_memory': 0,
             'average_solution_length': 0,
-            'average_states_explored': 0
+            'average_states_explored': 0,
+            'average_total_cost': 0
         }
         
         successful_runs = 0
@@ -60,56 +62,69 @@ class AlgorithmComparison:
             memory_before = process.memory_info().rss / 1024 / 1024  # MB
             
             # Tạo instance thuật toán
-            if algorithm_name == 'DFS':
-                solver = algorithm_class(self.map, max_depth)
-            elif algorithm_name == 'BFS':
-                solver = algorithm_class(self.map, max_depth)  
-            elif algorithm_name == 'UCS':
-                solver = algorithm_class(self.map)
-            elif algorithm_name == 'A*':
-                solver = algorithm_class(self.map, max_time=30)
-            else:
-                raise ValueError(f"Thuật toán không được hỗ trợ: {algorithm_name}")
-            
-            # Đo thời gian thực thi
-            start_time = time.time()
-            solution = solver.solve()
-            end_time = time.time()
-            
-            execution_time = end_time - start_time
-            
-            # Đo bộ nhớ sau khi chạy
-            current, peak = tracemalloc.get_traced_memory()
-            tracemalloc.stop()
-            
-            memory_after = process.memory_info().rss / 1024 / 1024  # MB
-            memory_used = memory_after - memory_before
-            peak_memory_mb = peak / 1024 / 1024  # MB
-            
-            # Lưu kết quả
-            performance_data['execution_times'].append(execution_time)
-            performance_data['memory_usage'].append(memory_used)
-            performance_data['peak_memory'].append(peak_memory_mb)
-            
-            if solution is not None:
-                successful_runs += 1
-                performance_data['solution_lengths'].append(len(solution))
-                
-                # Lấy thông tin từ solver nếu có
-                if hasattr(solver, 'get_search_info'):
-                    search_info = solver.get_search_info()
-                    performance_data['states_explored'].append(search_info.get('states_explored', 0))
+            try:
+                if algorithm_name == 'DFS':
+                    solver = algorithm_class(self.map, max_depth)
+                elif algorithm_name == 'BFS':
+                    solver = algorithm_class(self.map, max_depth)  
+                elif algorithm_name == 'UCS':
+                    solver = algorithm_class(self.map)
+                elif algorithm_name == 'A*':
+                    solver = algorithm_class(self.map, max_time=30)
                 else:
-                    performance_data['states_explored'].append(len(solver.table) if hasattr(solver, 'table') else 0)
-            else:
+                    raise ValueError(f"Thuật toán không được hỗ trợ: {algorithm_name}")
+                
+                # Đo thời gian thực thi
+                start_time = time.time()
+                solution, node_expanded, total_cost = solver.solve()
+                end_time = time.time()
+                
+                execution_time = end_time - start_time
+                
+                # Đo bộ nhớ sau khi chạy
+                current, peak = tracemalloc.get_traced_memory()
+                tracemalloc.stop()
+                
+                memory_after = process.memory_info().rss / 1024 / 1024  # MB
+                memory_used = memory_after - memory_before
+                peak_memory_mb = peak / 1024 / 1024  # MB
+                
+                # Lưu kết quả
+                performance_data['execution_times'].append(execution_time)
+                performance_data['memory_usage'].append(memory_used)
+                performance_data['peak_memory'].append(peak_memory_mb)
+                
+                if solution is not None:
+                    successful_runs += 1
+                    performance_data['solution_lengths'].append(len(solution))
+                    performance_data['states_explored'].append(node_expanded if node_expanded is not None else 0)
+                    performance_data['total_costs'].append(total_cost if total_cost is not None else 0)
+                else:
+                    performance_data['solution_lengths'].append(0)
+                    performance_data['states_explored'].append(node_expanded if node_expanded is not None else 0)
+                    performance_data['total_costs'].append(0)
+                    
+            except Exception as e:
+                print(f"⚠️ Lỗi khi chạy {algorithm_name} - Lần {run + 1}: {e}")
+                # Dừng tracemalloc nếu có lỗi
+                try:
+                    tracemalloc.stop()
+                except:
+                    pass
+                # Thêm giá trị mặc định cho lần chạy thất bại
+                performance_data['execution_times'].append(0)
+                performance_data['memory_usage'].append(0)
+                performance_data['peak_memory'].append(0)
                 performance_data['solution_lengths'].append(0)
-                performance_data['states_explored'].append(len(solver.table) if hasattr(solver, 'table') else 0)
+                performance_data['states_explored'].append(0)
+                performance_data['total_costs'].append(0)
         
         # Tính toán trung bình
         if performance_data['execution_times']:
             performance_data['average_time'] = sum(performance_data['execution_times']) / len(performance_data['execution_times'])
             performance_data['average_memory'] = sum(performance_data['memory_usage']) / len(performance_data['memory_usage'])
             performance_data['average_states_explored'] = sum(performance_data['states_explored']) / len(performance_data['states_explored'])
+            performance_data['average_total_cost'] = sum(performance_data['total_costs']) / len(performance_data['total_costs'])
         
         if successful_runs > 0:
             valid_solutions = [x for x in performance_data['solution_lengths'] if x > 0]
@@ -183,7 +198,7 @@ class AlgorithmComparison:
         
         with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
             fieldnames = ['Algorithm', 'Avg_Time', 'Avg_Memory', 'Success_Rate', 
-                         'Avg_Solution_Length', 'Avg_States_Explored', 'Map_ID']
+                         'Avg_Solution_Length', 'Avg_States_Explored', 'Avg_Total_Cost', 'Map_ID']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             
             writer.writeheader()
@@ -195,6 +210,7 @@ class AlgorithmComparison:
                     'Success_Rate': data['success_rate'],
                     'Avg_Solution_Length': data['average_solution_length'],
                     'Avg_States_Explored': data['average_states_explored'],
+                    'Avg_Total_Cost': data['average_total_cost'],
                     'Map_ID': self.map_id
                 })
         
@@ -217,6 +233,7 @@ class AlgorithmComparison:
                 f.write(f"🎯 Tỷ lệ thành công: {data['success_rate']:.1f}%\n")
                 f.write(f"📏 Độ dài nghiệm TB: {data['average_solution_length']:.1f} bước\n")
                 f.write(f"🔍 Số trạng thái khám phá: {data['average_states_explored']:.0f}\n")
+                f.write(f"💰 Chi phí trung bình: {data['average_total_cost']:.2f}\n")
                 
                 if data['execution_times']:
                     f.write(f"⚡ Thời gian nhanh nhất: {min(data['execution_times']):.4f} giây\n")
