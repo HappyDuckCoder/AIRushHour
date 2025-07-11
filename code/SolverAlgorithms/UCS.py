@@ -1,271 +1,197 @@
 from SolverAlgorithms.Solver import SolverStrategy, BaseSolver
-import heapq
-from typing import List, Dict, Tuple, Optional, Any
+import heapdict
+from collections import defaultdict
+import time
 
 #==============================================
-# Concrete Strategy: UCS with Vehicle Length Cost
+# Concrete Strategy: UCS
 #==============================================
 class UCSStrategy(SolverStrategy, BaseSolver):
-    """Uniform Cost Search strategy with vehicle length-based cost"""
-    
-    def __init__(self, map_obj):
+    """UCS Search strategy"""
+
+    def __init__(self, map_obj, max_time = 30):
         super().__init__(map_obj)
-        self.table: Dict[str, Dict[str, Any]] = {}  
-        self.solution: List[Dict[str, Any]] = []
-        self.nodes_expanded = 0
-        self.max_frontier_size = 0
+        self.max_time = max_time
+        self.PADDING = bytes([220])
+
+    # def encode_state(state_tuple):
+    def encode_state(self, state_tuple):
+        # Encode a sorted state tuple into bytes.
+        start = tuple(sorted(state_tuple))  
+        return b''.join(bytes([ord(name), x, y]) for name, x, y in start)
     
-    def get_name(self) -> str:
-        return "UCS"
+    # def decode_state(state_bytes):
+    def decode_state(self, state_bytes):
+        # Decode bytes back into a list of (name, x, y) tuples.
+        return [(chr(state_bytes[i]), state_bytes[i+1], state_bytes[i+2]) for i in range(0, len(state_bytes), 3)]
     
-    def debug_vehicle_attributes(self, vehicle):
-        """Debug method to inspect vehicle attributes"""
-        if vehicle is None:
-            print("[Debug] Vehicle is None")
-            return
-        
-        print(f"[Debug] Vehicle attributes: {[attr for attr in dir(vehicle) if not attr.startswith('_')]}")
-        
-        # Print some common attributes if they exist
-        for attr in ['name', 'x', 'y', 'length', 'size', 'width', 'height', 'positions', 'orientation']:
-            if hasattr(vehicle, attr):
-                value = getattr(vehicle, attr)
-                print(f"[Debug] {attr}: {value}")
+    def encode_signed(self, val):
+        return val % 256
+
+    def decode_signed(self, byte_val):
+        if byte_val >= 128 and byte_val != 220:
+            return byte_val - 256
+        return byte_val
     
-    def get_move_cost(self, vehicle) -> int:
-        """Calculate cost based on vehicle length or size"""
-        if vehicle is None:
-            return 1  # Default cost for invalid vehicles
-        
-        # Try different possible attributes for vehicle size/length
-        for attr in ['length', 'size', 'width', 'height']:
-            if hasattr(vehicle, attr):
-                value = getattr(vehicle, attr)
-                if isinstance(value, (int, float)) and value > 0:
-                    return int(value)
-        
-        # If vehicle has positions (method or property), calculate length from them
-        if hasattr(vehicle, 'positions'):
-            try:
-                positions = vehicle.positions
-                # Check if it's a method that needs to be called
-                if callable(positions):
-                    positions = positions()
-                
-                if positions and hasattr(positions, '__len__'):
-                    return len(positions)
-            except Exception as e:
-                print(f"[Warning] Error getting positions: {e}")
-        
-        # Check if it's a horizontal or vertical vehicle and has start/end coordinates
-        if hasattr(vehicle, 'x') and hasattr(vehicle, 'y'):
-            if hasattr(vehicle, 'end_x') and hasattr(vehicle, 'end_y'):
-                length = max(abs(vehicle.end_x - vehicle.x) + 1, abs(vehicle.end_y - vehicle.y) + 1)
-                return length
-        
-        # Default cost if no size information is available
-        print(f"[Warning] Could not determine vehicle size, using default cost of 2")
-        return 2
+    # def encode_table_entry():
+    def encode_table_entry(self, parent_state_bytes, move_tuple, g_val):
+        # Encode a table entry with parent, move, g(n), and f(n), seperate by PADDING.
+        move_bytes = bytes([ord(move_tuple[0]), self.encode_signed(move_tuple[1]), self.encode_signed(move_tuple[2])]) if move_tuple else b''
+        g_bytes = g_val.to_bytes(4, 'little')
+        return parent_state_bytes + self.PADDING + move_bytes + self.PADDING + g_bytes
     
-    def find_vehicle_by_index(self, vehicles: List, vehicle_index: int):
-        """Helper method to find vehicle by index"""
-        if 0 <= vehicle_index < len(vehicles):
-            return vehicles[vehicle_index]
-        return None
+    # def decode_table_entry():
+    def decode_table_entry(self, entry_bytes):
+        # Decode a table entry into its components.
+        parts = entry_bytes.split(self.PADDING)
+        parent_bytes = parts[0]
+        move_bytes = parts[1]
+        g_val = int.from_bytes(parts[2], 'little')
+        move = None
+        if move_bytes:
+            move = (chr(move_bytes[0]), self.decode_signed(move_bytes[1]), self.decode_signed(move_bytes[2]))
+        return parent_bytes, move, g_val
     
-    def ucs(self) -> bool:
-        """UCS search for solution with vehicle length-based cost"""
-        initial_vehicles = [v.copy() for v in self.map.vehicles]
-        initial_state = self.get_state_key(initial_vehicles)
-        
-        # Priority queue: (cost, counter, state_key, vehicles, path)
-        counter = 0
-        frontier = [(0, counter, initial_state, initial_vehicles, [])]
-        heapq.heapify(frontier)
-        
-        # Initialize tracking variables
-        self.nodes_expanded = 0
-        self.max_frontier_size = 0
-        
-        # Initialize table with initial state
-        self.table[initial_state] = {
-            'parent_state': None,
-            'move': None,
-            'g_n': 0,
-            'f_n': 0,
-            'visited': False
-        }
-        
-        while frontier:
-            # Track maximum frontier size for analysis
-            self.max_frontier_size = max(self.max_frontier_size, len(frontier))
-            
-            current_cost, _, current_state_key, current_vehicles, current_path = heapq.heappop(frontier)
-            
-            # Skip if already visited (handles duplicate states)
-            if self.table[current_state_key]['visited']:
-                continue
-            
-            # Mark as visited and increment counter
-            self.table[current_state_key]['visited'] = True
-            self.nodes_expanded += 1
-            
-            # Check if goal state is reached
-            if self.is_solved(current_vehicles):
-                self.solution = current_path[:]
-                return True
-            
-            # Generate possible moves
-            moves = self.get_possible_moves(current_vehicles)
-            
-            for move in moves:
-                # Validate move structure
-                if not self._is_valid_move(move):
-                    continue
-                
-                # Find the vehicle being moved
-                vehicle_index = move.get('vehicle_index', move.get('index'))
-                moved_vehicle = self.find_vehicle_by_index(current_vehicles, vehicle_index)
-                
-                if moved_vehicle is None:
-                    print(f"[Warning] Vehicle with index {vehicle_index} not found or invalid")
-                    continue
-                
-                # Debug: Print vehicle attributes (remove this after debugging)
-                if self.nodes_expanded == 0:  # Only print once
-                    self.debug_vehicle_attributes(moved_vehicle)
-                
-                # Calculate move cost and new state
-                move_cost = self.get_move_cost(moved_vehicle)
-                new_vehicles = self.apply_move(current_vehicles, move)
-                new_state_key = self.get_state_key(new_vehicles)
-                new_cost = current_cost + move_cost
-                new_path = current_path + [move]
-                
-                # Add to frontier if not visited or if better path found
-                if self._should_add_to_frontier(new_state_key, new_cost):
-                    self.table[new_state_key] = {
-                        'parent_state': current_state_key,
-                        'move': move,
-                        'g_n': new_cost,
-                        'f_n': new_cost,
-                        'visited': False
-                    }
-                    
-                    counter += 1
-                    heapq.heappush(frontier, (new_cost, counter, new_state_key, new_vehicles, new_path))
-        
-        return False
+    # def build_board_2d():
+    def build_board_2d(self, state, car_info):
+        # Build a 6x6 board from the current state.
+        board = [['.' for _ in range(6)] for _ in range(6)]
+        for name, x, y in state:
+            orient, length = car_info[name]
+            if orient == 'h':
+                for i in range(length):
+                    board[y][x + i] = name
+            else:
+                for i in range(length):
+                    board[y + i][x] = name
+        return board
     
-    def _is_valid_move(self, move: Dict[str, Any]) -> bool:
-        """Validate move structure"""
-        # Check for either 'vehicle_index' or 'index' key
-        if 'vehicle_index' not in move and 'index' not in move:
-            print(f"[Warning] Move missing vehicle identifier: {move}")
-            return False
-        return True
+    # generate_successors():
+    def generate_successors(self, state, car_info):
+        # Generate all valid moves
+        board = self.build_board_2d(state, car_info)
+        successors = []
+
+        for car_name, x, y in state:
+            orient, length = car_info[car_name]
+
+            for direction in [-1, 1]:
+                for step in range(1, 6):
+                    if orient == 'h':
+                        new_x = x + direction * step
+                        new_y = y
+                        if new_x < 0 or new_x + length > 6:
+                            break
+                        if any(board[y][new_x + i] not in ('.', car_name) for i in range(length)):
+                            break
+                    else:
+                        new_x = x
+                        new_y = y + direction * step
+                        if new_y < 0 or new_y + length > 6:
+                            break
+                        if any(board[new_y + i][x] not in ('.', car_name) for i in range(length)):
+                            break
+
+                    new_state = []
+                    for name, ox, oy in state:
+                        if name == car_name:
+                            new_state.append((name, new_x, new_y))
+                        else:
+                            new_state.append((name, ox, oy))
+                    new_state = tuple(sorted(new_state))
+
+                    dx = new_x - x
+                    dy = new_y - y
+                    move = (car_name, dx, dy)
+                    cost = abs(dx)*length + abs(dy)*length
+                    successors.append((new_state, move, cost))
+
+        return successors
     
-    def _should_add_to_frontier(self, state_key: str, cost: int) -> bool:
-        """Determine if state should be added to frontier"""
-        return (state_key not in self.table or 
-                (not self.table[state_key]['visited'] and 
-                 cost < self.table[state_key]['g_n']))
-    
-    def solve(self) -> Optional[List[Dict[str, Any]]]:
-        """Solve the puzzle using UCS with vehicle length-based cost"""
-        self.table.clear()  
-        self.solution.clear()
-        
-        if self.ucs():
-            return self.solution
-        else:
-            return None
-    
-    def get_solution_path(self) -> List[Dict[str, Any]]:
-        """Get the solution path"""
-        return self.solution[:] if self.solution else []
-    
-    def get_solution_cost(self) -> int:
-        """Calculate total cost of solution"""
-        if not self.solution:
-            return 0
-        
-        total_cost = 0
-        current_vehicles = [v.copy() for v in self.map.vehicles]
-        
-        for move in self.solution:
-            if not self._is_valid_move(move):
-                continue
-            
-            vehicle_index = move.get('vehicle_index', move.get('index'))
-            moved_vehicle = self.find_vehicle_by_index(current_vehicles, vehicle_index)
-            
-            if moved_vehicle:
-                total_cost += self.get_move_cost(moved_vehicle)
-            
-            current_vehicles = self.apply_move(current_vehicles, move)
-        
-        return total_cost
-    
-    def get_search_statistics(self) -> Dict[str, int]:
-        """Get statistics about the search process"""
-        return {
-            'nodes_expanded': self.nodes_expanded,
-            'max_frontier_size': self.max_frontier_size,
-            'solution_length': len(self.solution),
-            'solution_cost': self.get_solution_cost(),
-            'states_explored': len([s for s in self.table.values() if s['visited']])
-        }
-    
-    def reconstruct_path_from_table(self) -> List[Dict[str, Any]]:
-        """Reconstruct path from table (alternative method)"""
-        if not self.table:
-            return []
-        
-        # Find goal state
-        goal_state = self._find_goal_state()
-        if not goal_state:
-            return []
-        
-        # Reconstruct path backwards
+    def expand_path(self, path):
+        expanded = []
+        for name, dx, dy in path:
+            if dx != 0:
+                step = 1 if dx > 0 else -1
+                for _ in range(abs(dx)):
+                    expanded.append((name, step, 0))
+            elif dy != 0:
+                step = 1 if dy > 0 else -1
+                for _ in range(abs(dy)):
+                    expanded.append((name, 0, step))
+        return expanded
+
+    def reconstruct_path(self, goal_encoded, table):
+        # Return from goal_state to start_state to get list of move
+        print(1)
         path = []
-        current_state = goal_state
-        
-        while current_state and self.table[current_state]['parent_state']:
-            move = self.table[current_state]['move']
+        current = goal_encoded
+        while current in table:
+            entry = table[current]
+            parent, move, _, = self.decode_table_entry(entry)
             if move:
                 path.append(move)
-            current_state = self.table[current_state]['parent_state']
-        
-        path.reverse()
-        return path
+            if parent == b'':
+                break
+            current = parent
+        return self.expand_path(path[::-1])
     
-    def _find_goal_state(self) -> Optional[str]:
-        """Find the goal state in the table"""
-        for state_key, state_info in self.table.items():
-            if state_info['visited']:
-                try:
-                    vehicles = self.state_key_to_vehicles(state_key)
-                    if self.is_solved(vehicles):
-                        return state_key
-                except Exception as e:
-                    print(f"[Warning] Error reconstructing vehicles from state: {e}")
+    # is_solved:
+    def is_solved(self, state, car_info):
+        # Check if red car (A) reaches the exit
+        for name, x, y in state:
+            if name == 'A':
+                length = car_info['A'][1]
+                return x + length - 1 == 5
+        return False
+
+    def get_name(self):
+        return f"UCS Search {self.max_time})"
+
+    def solve(self):
+        start_tuple = []
+        car_info = {}
+
+        for v in self.map.vehicles:
+            a, b = v.change_vehicle_data()
+            start_tuple.append(tuple(a))  
+            car_info[a[0]] = (b[1].lower(), b[2])  
+        start_tuple = tuple(sorted(start_tuple))  
+        start_state = self.encode_state(start_tuple)
+        start_g = 0
+
+        return self.solving_UCS(start_state, start_tuple, car_info, start_g, max_time=self.max_time)
+
+    def solving_UCS(self, start_state, start_tuple, car_info, start_g, max_time=30):
+        # Main UCS search loop
+        start_time_clock = time.time()
+        open_heap = heapdict.heapdict()
+        table = {}
+
+        open_heap[start_state] = start_g
+        table[start_state] = self.encode_table_entry(b'', None, start_g)
+        count = 0
+        while open_heap:
+            if time.time() - start_time_clock > max_time:
+                print("Timed out")
+                return []
+            parent_state, parent_f = open_heap.popitem()
+            parent_tuple = self.decode_state(parent_state)
+            _, parent_move, parent_g= self.decode_table_entry(table[parent_state])
+
+            if self.is_solved(parent_tuple, car_info):
+                return self.reconstruct_path(parent_state, table)
+            
+            for child_tuple, move, step_cost in self.generate_successors(parent_tuple, car_info):
+                if parent_move and move[0] == parent_move[0]:
                     continue
-        return None
-    
-    def print_solution_details(self):
-        """Print detailed solution information"""
-        if not self.solution:
-            print("No solution found")
-            return
-        
-        print(f"\n=== UCS Solution Details ===")
-        print(f"Solution found: Yes")
-        print(f"Solution length: {len(self.solution)} moves")
-        print(f"Total cost: {self.get_solution_cost()}")
-        print(f"Nodes expanded: {self.nodes_expanded}")
-        print(f"Max frontier size: {self.max_frontier_size}")
-        
-        print(f"\nSolution path:")
-        for i, move in enumerate(self.solution, 1):
-            print(f"  {i}. {move}")
+                child_state = self.encode_state(child_tuple)
+                child_g = parent_g + step_cost
+                if child_state in table:
+                    _, _, old_g = self.decode_table_entry(table[child_state])
+                    if child_g >= old_g:
+                        continue
+
+                open_heap[child_state] = child_g
+                table[child_state] = self.encode_table_entry(parent_state, move, child_g)
+        return []

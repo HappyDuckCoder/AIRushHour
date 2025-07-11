@@ -12,13 +12,12 @@ class AStarStrategy(SolverStrategy, BaseSolver):
     def __init__(self, map_obj, max_time=30):
         super().__init__(map_obj)
         self.max_time = max_time
-        self.PADDING = bytes([150])
+        self.PADDING = bytes([220])
 
     # def encode_state(state_tuple):
     def encode_state(self, state_tuple):
         # Encode a sorted state tuple into bytes.
-        state = tuple(sorted(state_tuple))
-        return b''.join(bytes([ord(name), x, y]) for name, x, y in state)
+        return b''.join(bytes([ord(name), x, y]) for name, x, y in state_tuple)
     
     # def decode_state(state_bytes):
     def decode_state(self, state_bytes):
@@ -29,7 +28,9 @@ class AStarStrategy(SolverStrategy, BaseSolver):
         return val % 256
 
     def decode_signed(self, byte_val):
-        return byte_val if byte_val < 128 else byte_val - 256
+        if byte_val >= 128 and byte_val != 220:
+            return byte_val - 256
+        return byte_val
     
     # def encode_table_entry():
     def encode_table_entry(self, parent_state_bytes, move_tuple, g_val, f_val):
@@ -244,9 +245,6 @@ class AStarStrategy(SolverStrategy, BaseSolver):
                         continue
 
                 child_h = self.heuristic(child_tuple, car_info)
-                if (parent_f - parent_g == child_h):
-                    _, length_child = car_info[move[0]]
-                    child_h = child_h + length_child
                 child_f = child_g + child_h
                 open_heap[child_state] = child_f
                 table[child_state] = self.encode_table_entry(parent_state, move, child_g, child_f)
