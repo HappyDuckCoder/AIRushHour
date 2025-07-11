@@ -1,9 +1,9 @@
 {
-  "level": 9,
-  "algorithm": "DFS",
-  "time_executed": 0.0008761882781982422,
+  "level": 10,
+  "algorithm": "BFS",
+  "time_executed": 42.66549229621887,
   "nodes_expanded": 0,
-  "solution_length": 0,
-  "solved": false,
-  "timestamp": 1752250475.8082964
+  "solution_length": 82,
+  "solved": true,
+  "timestamp": 1752252187.3514383
 }

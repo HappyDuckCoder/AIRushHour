@@ -6,7 +6,7 @@ import time
 class DFSStrategy(SolverStrategy, BaseSolver):
     """Depth-First Search strategy"""
 
-    def __init__(self, map_obj, max_time = 10000):
+    def __init__(self, map_obj, max_time=30):
         super().__init__(map_obj)
         self.max_time = max_time
         self.PADDING = bytes([220])
