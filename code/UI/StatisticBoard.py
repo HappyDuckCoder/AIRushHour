@@ -1,4 +1,4 @@
-import pygame
+﻿import pygame
 import json
 import os
 from constants import *
@@ -56,11 +56,17 @@ class StatisticBoard:
         
         # Create statistics text objects
         self.stats_texts = []
+        
+        # Take algorithm solve time or fallback to time_executed
+        algorithm_time = self.statistics.get('algorithm_solve_time', 0)
+        if algorithm_time == 0:
+            # Fallback to time_executed if algorithm_solve_time is not available
+            algorithm_time = self.statistics.get('time_executed', 0)
+        
         stats_data = [
             ("Level:", str(self.statistics.get('level', 'N/A'))),
             ("Algorithm:", self.statistics.get('algorithm', 'N/A')),
-            ("Time:", f"{self.statistics.get('time_executed', 0):.3f}s"),
-            ("Nodes Expanded:", str(self.statistics.get('nodes_expanded', 0))),
+            ("Time:", f"{algorithm_time:.3f}s"),
             ("Solution Length:", str(self.statistics.get('solution_length', 0))),
             ("Status:", "SOLVED" if self.statistics.get('solved', False) else "FAILED")
         ]
@@ -81,6 +87,8 @@ class StatisticBoard:
                 value_color = (60, 179, 113) if value == "SOLVED" else (220, 20, 60)
             elif label == "Algorithm:":
                 value_color = (70, 130, 180)
+            elif label == "Time:":
+                value_color = (255, 140, 0)  # Orange for time to highlight
             
             value_text = Text(
                 value,
@@ -94,14 +102,13 @@ class StatisticBoard:
         
         # Create performance rating text
         if self.statistics.get('solved', False):
-            time_taken = self.statistics.get('time_executed', 0)
             nodes_expanded = self.statistics.get('nodes_expanded', 0)
             
-            # Simple rating system
-            if time_taken < 0.1 and nodes_expanded < 100:
+            # Simple rating system based on algorithm performance
+            if algorithm_time < 0.1 and nodes_expanded < 100:
                 rating = "EXCELLENT"
                 rating_color = GOLD
-            elif time_taken < 0.5 and nodes_expanded < 500:
+            elif algorithm_time < 0.5 and nodes_expanded < 500:
                 rating = "GOOD"
                 rating_color = (70, 130, 180)
             else:
@@ -194,4 +201,3 @@ class StatisticBoard:
     def reload_statistics(self):
         """Reload statistics from file"""
         self.load_statistics()
-
