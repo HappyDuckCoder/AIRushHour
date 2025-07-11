@@ -163,6 +163,7 @@ class DFSStrategy(SolverStrategy, BaseSolver):
         table[start_state] = self.encode_table_entry(b'', None)
         count = 0
         while dfsStack:
+            count += 1
             if time.time() - start_time_clock > max_time:
                 print("Timed out")
                 return []
@@ -171,7 +172,7 @@ class DFSStrategy(SolverStrategy, BaseSolver):
             _, parent_move = self.decode_table_entry(table[parent_state])
 
             if self.is_solved(parent_tuple, car_info):
-                return self.reconstruct_path(parent_state, table)
+                return self.reconstruct_path(parent_state, table), count, 0
             
             for child_tuple, move in self.generate_successors(parent_tuple, car_info):
                 if parent_move and move[0] == parent_move[0]:
@@ -182,4 +183,4 @@ class DFSStrategy(SolverStrategy, BaseSolver):
                     continue
                 dfsStack.append(child_state)
                 table[child_state] = self.encode_table_entry(parent_state, move)
-        return []
+        return [], 0, 0

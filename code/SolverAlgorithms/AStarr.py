@@ -227,6 +227,7 @@ class AStarStrategy(SolverStrategy, BaseSolver):
         table[start_state] = self.encode_table_entry(b'', None, start_g, start_f)
         count = 0
         while open_heap:
+            count += 1
             if time.time() - start_time_clock > max_time:
                 print("Timed out")
                 return []
@@ -235,7 +236,8 @@ class AStarStrategy(SolverStrategy, BaseSolver):
             _, parent_move, parent_g, _ = self.decode_table_entry(table[parent_state])
 
             if self.is_solved(parent_tuple, car_info):
-                return self.reconstruct_path(parent_state, table)
+                _, _, gn, _  = self.decode_table_entry(table[parent_state])
+                return self.reconstruct_path(parent_state, table), count, gn
             
             for child_tuple, move, step_cost in self.generate_successors(parent_tuple, car_info):
                 if parent_move and move[0] == parent_move[0]:
@@ -251,4 +253,4 @@ class AStarStrategy(SolverStrategy, BaseSolver):
                 child_f = child_g + child_h
                 open_heap[child_state] = child_f
                 table[child_state] = self.encode_table_entry(parent_state, move, child_g, child_f)
-        return []
+        return [], 0, 0

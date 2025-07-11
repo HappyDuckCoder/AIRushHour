@@ -39,3 +39,6 @@ SUPPORT_CHARACTER_ALLIANCE = 45
 
 # mouse size
 MOUSE_SIZE = 20
+
+# animation solving
+SOLVE_ANIMATION_SPEED = 0.1

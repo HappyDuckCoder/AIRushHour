@@ -25,7 +25,7 @@ class Map:
         self.solution_moves = []
         self.current_move_index = 0
         self.move_timer = 0
-        self.move_delay = 0.5  
+        self.move_delay = SOLVE_ANIMATION_SPEED
         self.list_solver = []
         self.current_algorithm = ""
         
@@ -33,6 +33,7 @@ class Map:
         self.solve_start_time = 0
         self.current_algorithm = ""
         self.nodes_expanded = 0
+        self.total_cost = 0
         
         # Victory animation
         self.game_won = False
@@ -143,7 +144,7 @@ class Map:
 
             self.solver = PuzzleSolver(self, strategy) 
             
-            solution = self.solver.solve()
+            solution, self.nodes_expanded, self.total_cost = self.solver.solve()
 
             if solution:
                 self.solution_moves = solution

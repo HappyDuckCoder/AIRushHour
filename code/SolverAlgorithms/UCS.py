@@ -172,6 +172,7 @@ class UCSStrategy(SolverStrategy, BaseSolver):
         table[start_state] = self.encode_table_entry(b'', None, start_g)
         count = 0
         while open_heap:
+            count += 1
             if time.time() - start_time_clock > max_time:
                 print("Timed out")
                 return []
@@ -180,7 +181,8 @@ class UCSStrategy(SolverStrategy, BaseSolver):
             _, parent_move, parent_g= self.decode_table_entry(table[parent_state])
 
             if self.is_solved(parent_tuple, car_info):
-                return self.reconstruct_path(parent_state, table)
+                _, _, gn  = self.decode_table_entry(table[parent_state])
+                return self.reconstruct_path(parent_state, table), count, gn
             
             for child_tuple, move, step_cost in self.generate_successors(parent_tuple, car_info):
                 if parent_move and move[0] == parent_move[0]:
@@ -194,4 +196,4 @@ class UCSStrategy(SolverStrategy, BaseSolver):
 
                 open_heap[child_state] = child_g
                 table[child_state] = self.encode_table_entry(parent_state, move, child_g)
-        return []
+        return [], 0, 0

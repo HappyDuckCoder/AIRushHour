@@ -94,7 +94,10 @@ class GameScreen(Screen):
         # Only show total moves and current move
         self.info_title = Text("Algorithm Info", (100, 200, 255), (info_panel_x, info_panel_y), font=Font(40), center=False)  
         self.total_moves_text = Text("Total Moves: 0", (100, 255, 100), (info_panel_x, info_panel_y + info_spacing), font=Font(30), center=False) 
-        self.current_move_text = Text("Current Move: 0", (255, 200, 100), (info_panel_x, info_panel_y + info_spacing * 2), font=Font(30), center=False)  
+        self.current_move_text = Text("Current Move: 0", (255, 200, 100), (info_panel_x, info_panel_y + info_spacing * 2), font=Font(30), center=False)
+        self.nodes_expanded_text = Text("Nodes Expanded: 0", (200, 150, 255), (info_panel_x, info_panel_y + info_spacing * 3), font=Font(30), center=False)  
+        self.total_cost_text = Text("Total Cost (g(n)): 0", (255, 150, 200), (info_panel_x, info_panel_y + info_spacing * 4), font=Font(30), center=False)  
+
         
     def load_level(self, level_num):
         self.map.load_level_data_from_file(level_num)
@@ -127,10 +130,20 @@ class GameScreen(Screen):
             # Update current move
             current_move = self.map.current_move_index if self.map.current_move_index < total_moves else total_moves
             self.current_move_text.set_text(f"Current Move: {current_move}")
+
+            # Update nodes expanded
+            nodes_expanded = self.map.nodes_expanded if self.map.nodes_expanded else 0
+            self.nodes_expanded_text.set_text(f"Nodes Expanded: {nodes_expanded}")
+
+            # Update total cost
+            total_cost = self.map.total_cost if self.map.total_cost else 0
+            self.total_cost_text.set_text(f"Total Cost (g(n)): {total_cost}")
         else:
             # Reset display when not solving
             self.total_moves_text.set_text("Total Moves: 0")
             self.current_move_text.set_text("Current Move: 0")
+            self.nodes_expanded_text.set_text("Nodes Expanded: 0")
+            self.total_cost_text.set_text("Total Cost (g(n)): 0")
 
     def check_and_play_move_sound(self):
         """Check if a move occurred and play car_move sound"""
@@ -271,7 +284,9 @@ class GameScreen(Screen):
             visible_texts.extend([
                 self.info_title,
                 self.total_moves_text,
-                self.current_move_text
+                self.current_move_text,
+                self.nodes_expanded_text,
+                self.total_cost_text,
             ])
             
         return visible_texts
