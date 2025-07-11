@@ -28,6 +28,13 @@ class GameScreen(Screen):
         self.no_solution_timer = 0
         self.no_solution_duration = 3.0  # Show message for 3 seconds
         
+        # Audio manager instance
+        self.audio_manager = AudioManager()
+        
+        # Track previous state for sound triggering
+        self.previous_move_index = 0
+        self.previous_solving_state = False
+        
         # Button dimensions
         button_width = 140
         button_height = 45
@@ -98,6 +105,11 @@ class GameScreen(Screen):
         self.current_execution_time = 0
         self.no_solution_timer = 0
         self.is_paused = False
+        
+        # Reset sound tracking
+        self.previous_move_index = 0
+        self.previous_solving_state = False
+        
         self.update_algorithm_info()
         
         # Update level text
@@ -120,6 +132,26 @@ class GameScreen(Screen):
             self.total_moves_text.set_text("Total Moves: 0")
             self.current_move_text.set_text("Current Move: 0")
 
+    def check_and_play_move_sound(self):
+        """Check if a move occurred and play car_move sound"""
+        if self.ui_state == "solving" and self.map.solving and not self.is_paused:
+            # Check if move index changed (indicating a new move)
+            current_move_index = getattr(self.map, 'current_move_index', 0)
+            if current_move_index != self.previous_move_index:
+                # Play car move sound
+                self.audio_manager.play_car_move()
+                self.previous_move_index = current_move_index
+            
+            # Also check if solving just started
+            if not self.previous_solving_state and self.map.solving:
+                self.audio_manager.play_car_move()
+            
+            self.previous_solving_state = self.map.solving
+        elif self.ui_state == "start":
+            # Reset tracking when not solving
+            self.previous_move_index = 0
+            self.previous_solving_state = False
+
     def handle_no_solution(self):
         """Handle when no solution is found"""
         self.ui_state = "no_solution"
@@ -138,6 +170,11 @@ class GameScreen(Screen):
         self.no_solution_timer = 0
         self.is_paused = False
         self.pause_btn.set_text("Pause")
+        
+        # Reset sound tracking
+        self.previous_move_index = 0
+        self.previous_solving_state = False
+        
         # Reset map state
         if hasattr(self.map, 'reset'):
             self.map.reset()
@@ -164,6 +201,9 @@ class GameScreen(Screen):
         if not self.is_paused:
             self.map.update()
             self.map.update_solving()
+
+        # Check for car movement sounds
+        self.check_and_play_move_sound()
 
         # FIXED: Check for solving failure
         if hasattr(self.map, 'solving_failed') and self.map.solving_failed:
@@ -279,24 +319,33 @@ class GameScreen(Screen):
                     self.algorithm_text.set_text("Algorithm: BFS")
                     self.ui_state = "solving"
                     self.is_paused = False
+                    # Reset move tracking for new algorithm
+                    self.previous_move_index = 0
+                    self.previous_solving_state = False
                 elif self.solve_dfs.hit(event.pos):
                     self.algorithm_start_time = time.time()
                     self.map.start_solving("DFS")
                     self.algorithm_text.set_text("Algorithm: DFS")
                     self.ui_state = "solving"
                     self.is_paused = False
+                    self.previous_move_index = 0
+                    self.previous_solving_state = False
                 elif self.solve_astar.hit(event.pos):
                     self.algorithm_start_time = time.time()
                     self.map.start_solving("A*")
                     self.algorithm_text.set_text("Algorithm: A*")
                     self.ui_state = "solving"
                     self.is_paused = False
+                    self.previous_move_index = 0
+                    self.previous_solving_state = False
                 elif self.solve_ucs.hit(event.pos):
                     self.algorithm_start_time = time.time()
                     self.map.start_solving("UCS")
                     self.algorithm_text.set_text("Algorithm: UCS")
                     self.ui_state = "solving"
                     self.is_paused = False
+                    self.previous_move_index = 0
+                    self.previous_solving_state = False
                     
             elif self.ui_state == "solving":
                 if self.reset_btn.hit(event.pos):
@@ -325,6 +374,9 @@ class GameScreen(Screen):
                     self.current_execution_time = 0
                     self.no_solution_timer = 0  # Reset timer
                     self.is_paused = False
+                    # Reset sound tracking
+                    self.previous_move_index = 0
+                    self.previous_solving_state = False
             
             # Always check these buttons regardless of UI state
             if self.back_btn.hit(event.pos):
@@ -336,11 +388,44 @@ class GameScreen(Screen):
             else:
                 # Only handle map interactions in start state
                 if self.ui_state == "start":
+                    # Play car move sound when manually moving cars
+                    old_positions = {}
+                    if hasattr(self.map, 'vehicles'):
+                        for vehicle in self.map.vehicles:
+                            old_positions[id(vehicle)] = (vehicle.x, vehicle.y)
+                    
                     self.map.handle_mouse_down(event.pos)
+                    
+                    # Check if any vehicle moved and play sound
+                    if hasattr(self.map, 'vehicles'):
+                        for vehicle in self.map.vehicles:
+                            vehicle_id = id(vehicle)
+                            if vehicle_id in old_positions:
+                                old_x, old_y = old_positions[vehicle_id]
+                                if vehicle.x != old_x or vehicle.y != old_y:
+                                    self.audio_manager.play_car_move()
+                                    break
                     
         elif event.type == pygame.MOUSEBUTTONUP:
             if self.ui_state == "start":
+                # Check for movement on mouse up as well
+                old_positions = {}
+                if hasattr(self.map, 'vehicles'):
+                    for vehicle in self.map.vehicles:
+                        old_positions[id(vehicle)] = (vehicle.x, vehicle.y)
+                
                 self.map.handle_mouse_up(event.pos)
+                
+                # Check if any vehicle moved and play sound
+                if hasattr(self.map, 'vehicles'):
+                    for vehicle in self.map.vehicles:
+                        vehicle_id = id(vehicle)
+                        if vehicle_id in old_positions:
+                            old_x, old_y = old_positions[vehicle_id]
+                            if vehicle.x != old_x or vehicle.y != old_y:
+                                self.audio_manager.play_car_move()
+                                break
+                                
         elif event.type == pygame.MOUSEMOTION:
             # Handle hover effects for mouse motion
             visible_buttons = self.get_visible_buttons()
