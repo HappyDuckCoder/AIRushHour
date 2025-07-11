@@ -114,6 +114,8 @@ class ResourceManager:
 
         ResourceManager.load_all_character_animations()
 
+        ResourceManager.load_statistics_image()
+
     @staticmethod
     def unload_all():
         """Xóa hết tài nguyên đã load (nếu cần reset)."""
@@ -121,6 +123,7 @@ class ResourceManager:
         ResourceManager._sounds.clear()
         ResourceManager._fonts.clear()
 
+    @staticmethod
     def load_background():
         """ Background cho intro, setting, menu"""
         ResourceManager.load_image(
@@ -161,6 +164,7 @@ class ResourceManager:
             size=(SCREEN_W, SCREEN_H)
         )
 
+    @staticmethod
     def load_all_vehicle_image():
         """Load tất cả ảnh cho vehicles"""
 
@@ -188,6 +192,7 @@ class ResourceManager:
             size=(TILE, TILE * 3 + 25),
         )
 
+    @staticmethod
     def load_all_character_animations():
         """Load tất cả animations cho các nhân vật"""
         
@@ -240,3 +245,12 @@ class ResourceManager:
             "assets/Units/Black Units/Monk/Monk_Heal.png", 
             FRAME_WIDTH, FRAME_HEIGHT, 11
         )
+
+    @staticmethod
+    def load_statistics_image():
+        for i in range(1, 11):
+            ResourceManager.load_image(
+                f"map_{i}_statistic",
+                f"code/Comparison/Results/0{i}_comparison_chart.png",
+                size=(SCREEN_W // 2 + TILE, SCREEN_H // 2 + TILE)
+            )

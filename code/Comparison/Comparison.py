@@ -254,7 +254,7 @@ def run_all_comparisons(max_depth=50, runs=3):
     
     all_results = []
     
-    for map_id in range(1, 11):
+    for map_id in range(1, 10):
         print(f"\n🗺️  Đang xử lý Map {map_id}...")
         
         try:
