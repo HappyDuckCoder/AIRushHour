@@ -81,7 +81,7 @@ class StatisticScreen(Screen):
                 surface.blit(prev_img, prev_rect)
         
         # Update map title
-        self.map_title.text = f"Map {self.current_map + 1} Statistics"
+        self.map_title.set_text(f"Map {self.current_map + 1} Statistics")
         self.map_title.draw(surface)
         
         # Draw navigation buttons
