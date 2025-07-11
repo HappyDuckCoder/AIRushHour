@@ -1,0 +1,44 @@
+================================================================================
+📋 BÁO CÁO SO SÁNH THUẬT TOÁN - MAP 3
+================================================================================
+
+🔸 DFS
+----------------------------------------
+⏱️  Thời gian trung bình: 0.1020 giây
+💾 Bộ nhớ sử dụng: 0.02 MB
+🎯 Tỷ lệ thành công: 100.0%
+📏 Độ dài nghiệm TB: 246.0 bước
+🔍 Số trạng thái khám phá: 0
+⚡ Thời gian nhanh nhất: 0.0942 giây
+🐌 Thời gian chậm nhất: 0.1129 giây
+
+🔸 BFS
+----------------------------------------
+⏱️  Thời gian trung bình: 0.5409 giây
+💾 Bộ nhớ sử dụng: 0.02 MB
+🎯 Tỷ lệ thành công: 100.0%
+📏 Độ dài nghiệm TB: 40.0 bước
+🔍 Số trạng thái khám phá: 0
+⚡ Thời gian nhanh nhất: 0.4842 giây
+🐌 Thời gian chậm nhất: 0.5955 giây
+
+🔸 A*
+----------------------------------------
+⏱️  Thời gian trung bình: 0.7498 giây
+💾 Bộ nhớ sử dụng: 0.00 MB
+🎯 Tỷ lệ thành công: 100.0%
+📏 Độ dài nghiệm TB: 39.0 bước
+🔍 Số trạng thái khám phá: 0
+⚡ Thời gian nhanh nhất: 0.7040 giây
+🐌 Thời gian chậm nhất: 0.7796 giây
+
+🔸 UCS
+----------------------------------------
+⏱️  Thời gian trung bình: 0.7340 giây
+💾 Bộ nhớ sử dụng: 0.00 MB
+🎯 Tỷ lệ thành công: 100.0%
+📏 Độ dài nghiệm TB: 39.0 bước
+🔍 Số trạng thái khám phá: 0
+⚡ Thời gian nhanh nhất: 0.6678 giây
+🐌 Thời gian chậm nhất: 0.7693 giây
+

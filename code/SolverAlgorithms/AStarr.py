@@ -13,6 +13,8 @@ class AStarStrategy(SolverStrategy, BaseSolver):
         super().__init__(map_obj)
         self.max_time = max_time
         self.PADDING = bytes([220])
+        self.total_nodes_expanded = 0
+        self.total_cost = 0
 
     # def encode_state(state_tuple):
     def encode_state(self, state_tuple):
@@ -214,6 +216,7 @@ class AStarStrategy(SolverStrategy, BaseSolver):
                         break
 
         return cost
+    
     def solving_A_star(self, start_state, start_tuple, car_info, start_g, start_f, max_time=30):
         # Main A* search loop
         start_time_clock = time.time()

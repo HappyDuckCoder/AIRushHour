@@ -1,0 +1,44 @@
+================================================================================
+📋 BÁO CÁO SO SÁNH THUẬT TOÁN - MAP 7
+================================================================================
+
+🔸 DFS
+----------------------------------------
+⏱️  Thời gian trung bình: 1.4858 giây
+💾 Bộ nhớ sử dụng: -15.74 MB
+🎯 Tỷ lệ thành công: 100.0%
+📏 Độ dài nghiệm TB: 1931.0 bước
+🔍 Số trạng thái khám phá: 0
+⚡ Thời gian nhanh nhất: 1.4656 giây
+🐌 Thời gian chậm nhất: 1.4988 giây
+
+🔸 BFS
+----------------------------------------
+⏱️  Thời gian trung bình: 4.3188 giây
+💾 Bộ nhớ sử dụng: -0.05 MB
+🎯 Tỷ lệ thành công: 100.0%
+📏 Độ dài nghiệm TB: 63.0 bước
+🔍 Số trạng thái khám phá: 0
+⚡ Thời gian nhanh nhất: 4.2270 giây
+🐌 Thời gian chậm nhất: 4.4841 giây
+
+🔸 A*
+----------------------------------------
+⏱️  Thời gian trung bình: 6.0949 giây
+💾 Bộ nhớ sử dụng: -0.81 MB
+🎯 Tỷ lệ thành công: 100.0%
+📏 Độ dài nghiệm TB: 63.0 bước
+🔍 Số trạng thái khám phá: 0
+⚡ Thời gian nhanh nhất: 5.6981 giây
+🐌 Thời gian chậm nhất: 6.6780 giây
+
+🔸 UCS
+----------------------------------------
+⏱️  Thời gian trung bình: 5.8445 giây
+💾 Bộ nhớ sử dụng: 0.02 MB
+🎯 Tỷ lệ thành công: 100.0%
+📏 Độ dài nghiệm TB: 63.0 bước
+🔍 Số trạng thái khám phá: 0
+⚡ Thời gian nhanh nhất: 5.6806 giây
+🐌 Thời gian chậm nhất: 5.9628 giây
+

@@ -1,0 +1,44 @@
+================================================================================
+📋 BÁO CÁO SO SÁNH THUẬT TOÁN - MAP 9
+================================================================================
+
+🔸 DFS
+----------------------------------------
+⏱️  Thời gian trung bình: 0.2560 giây
+💾 Bộ nhớ sử dụng: 0.03 MB
+🎯 Tỷ lệ thành công: 100.0%
+📏 Độ dài nghiệm TB: 381.0 bước
+🔍 Số trạng thái khám phá: 0
+⚡ Thời gian nhanh nhất: 0.2248 giây
+🐌 Thời gian chậm nhất: 0.2983 giây
+
+🔸 BFS
+----------------------------------------
+⏱️  Thời gian trung bình: 0.6095 giây
+💾 Bộ nhớ sử dụng: 0.00 MB
+🎯 Tỷ lệ thành công: 100.0%
+📏 Độ dài nghiệm TB: 54.0 bước
+🔍 Số trạng thái khám phá: 0
+⚡ Thời gian nhanh nhất: 0.5997 giây
+🐌 Thời gian chậm nhất: 0.6160 giây
+
+🔸 A*
+----------------------------------------
+⏱️  Thời gian trung bình: 0.6154 giây
+💾 Bộ nhớ sử dụng: 0.00 MB
+🎯 Tỷ lệ thành công: 100.0%
+📏 Độ dài nghiệm TB: 54.0 bước
+🔍 Số trạng thái khám phá: 0
+⚡ Thời gian nhanh nhất: 0.6098 giây
+🐌 Thời gian chậm nhất: 0.6182 giây
+
+🔸 UCS
+----------------------------------------
+⏱️  Thời gian trung bình: 0.6153 giây
+💾 Bộ nhớ sử dụng: 0.00 MB
+🎯 Tỷ lệ thành công: 100.0%
+📏 Độ dài nghiệm TB: 54.0 bước
+🔍 Số trạng thái khám phá: 0
+⚡ Thời gian nhanh nhất: 0.5967 giây
+🐌 Thời gian chậm nhất: 0.6512 giây
+

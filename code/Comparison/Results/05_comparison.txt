@@ -1,0 +1,44 @@
+================================================================================
+📋 BÁO CÁO SO SÁNH THUẬT TOÁN - MAP 5
+================================================================================
+
+🔸 DFS
+----------------------------------------
+⏱️  Thời gian trung bình: 0.3553 giây
+💾 Bộ nhớ sử dụng: 0.15 MB
+🎯 Tỷ lệ thành công: 100.0%
+📏 Độ dài nghiệm TB: 598.0 bước
+🔍 Số trạng thái khám phá: 0
+⚡ Thời gian nhanh nhất: 0.3360 giây
+🐌 Thời gian chậm nhất: 0.3754 giây
+
+🔸 BFS
+----------------------------------------
+⏱️  Thời gian trung bình: 3.2613 giây
+💾 Bộ nhớ sử dụng: 0.23 MB
+🎯 Tỷ lệ thành công: 100.0%
+📏 Độ dài nghiệm TB: 58.0 bước
+🔍 Số trạng thái khám phá: 0
+⚡ Thời gian nhanh nhất: 2.9741 giây
+🐌 Thời gian chậm nhất: 3.5391 giây
+
+🔸 A*
+----------------------------------------
+⏱️  Thời gian trung bình: 4.1542 giây
+💾 Bộ nhớ sử dụng: 0.01 MB
+🎯 Tỷ lệ thành công: 100.0%
+📏 Độ dài nghiệm TB: 58.0 bước
+🔍 Số trạng thái khám phá: 0
+⚡ Thời gian nhanh nhất: 4.0635 giây
+🐌 Thời gian chậm nhất: 4.3080 giây
+
+🔸 UCS
+----------------------------------------
+⏱️  Thời gian trung bình: 4.0725 giây
+💾 Bộ nhớ sử dụng: 0.08 MB
+🎯 Tỷ lệ thành công: 100.0%
+📏 Độ dài nghiệm TB: 58.0 bước
+🔍 Số trạng thái khám phá: 0
+⚡ Thời gian nhanh nhất: 3.9119 giây
+🐌 Thời gian chậm nhất: 4.2721 giây
+

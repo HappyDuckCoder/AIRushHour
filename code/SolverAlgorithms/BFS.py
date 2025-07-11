@@ -7,7 +7,7 @@ import time
 class BFSStrategy(SolverStrategy, BaseSolver):
     """Breadth-First Search strategy"""
 
-    def __init__(self, map_obj, max_time = 10000):
+    def __init__(self, map_obj, max_time=30):
         super().__init__(map_obj)
         self.max_time = max_time
         self.PADDING = bytes([220])
@@ -63,44 +63,42 @@ class BFSStrategy(SolverStrategy, BaseSolver):
     
     # generate_successors():
     def generate_successors(self, state, car_info):
+        # Generate all valid moves
         board = self.build_board_2d(state, car_info)
         successors = []
 
         for car_name, x, y in state:
             orient, length = car_info[car_name]
 
-            for direction in [-1, 1]:  
-                if orient == 'h':
-                    new_x = x + direction
-                    new_y = y
-
-                    if new_x < 0 or new_x + length > 6:
-                        continue
-
-                    if any(board[y][new_x + i] not in ('.', car_name) for i in range(length)):
-                        continue
-                else:  
-                    new_x = x
-                    new_y = y + direction
-
-                    if new_y < 0 or new_y + length > 6:
-                        continue
-
-                    if any(board[new_y + i][x] not in ('.', car_name) for i in range(length)):
-                        continue
-
-                new_state = []
-                for name, ox, oy in state:
-                    if name == car_name:
-                        new_state.append((name, new_x, new_y))
+            for direction in [-1, 1]:
+                for step in range(1, 6):
+                    if orient == 'h':
+                        new_x = x + direction * step
+                        new_y = y
+                        if new_x < 0 or new_x + length > 6:
+                            break
+                        if any(board[y][new_x + i] not in ('.', car_name) for i in range(length)):
+                            break
                     else:
-                        new_state.append((name, ox, oy))
-                new_state = tuple(sorted(new_state))
+                        new_x = x
+                        new_y = y + direction * step
+                        if new_y < 0 or new_y + length > 6:
+                            break
+                        if any(board[new_y + i][x] not in ('.', car_name) for i in range(length)):
+                            break
 
-                dx = new_x - x
-                dy = new_y - y
-                move = (car_name, dx, dy)
-                successors.append((new_state, move))
+                    new_state = []
+                    for name, ox, oy in state:
+                        if name == car_name:
+                            new_state.append((name, new_x, new_y))
+                        else:
+                            new_state.append((name, ox, oy))
+                    new_state = tuple(sorted(new_state))
+
+                    dx = new_x - x
+                    dy = new_y - y
+                    move = (car_name, dx, dy)
+                    successors.append((new_state, move))
 
         return successors
     

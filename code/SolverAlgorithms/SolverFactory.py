@@ -10,16 +10,16 @@ class StrategyFactory:
     """Factory to create different strategies"""
     
     @staticmethod
-    def create_dfs(map_obj, max_depth=100):
-        return DFSStrategy(map_obj, max_depth)
+    def create_dfs(map_obj, max_time=30):
+        return DFSStrategy(map_obj, max_time)
 
     @staticmethod
-    def create_bfs(map_obj, max_depth=50):
-        return BFSStrategy(map_obj, max_depth)
+    def create_bfs(map_obj, max_time=30):
+        return BFSStrategy(map_obj, max_time)
     
     @staticmethod
-    def create_ucs(map_obj):
-        return UCSStrategy(map_obj)
+    def create_ucs(map_obj, max_time=30):
+        return UCSStrategy(map_obj, max_time)
 
     @staticmethod
     def create_astar(map_obj, max_time=30):   

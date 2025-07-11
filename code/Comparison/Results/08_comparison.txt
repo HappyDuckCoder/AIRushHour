@@ -1,44 +1,44 @@
 ================================================================================
-📋 BÁO CÁO SO SÁNH THUẬT TOÁN - MAP 1
+📋 BÁO CÁO SO SÁNH THUẬT TOÁN - MAP 8
 ================================================================================
 
 🔸 DFS
 ----------------------------------------
-⏱️  Thời gian trung bình: 0.0434 giây
+⏱️  Thời gian trung bình: 0.1260 giây
 💾 Bộ nhớ sử dụng: 0.01 MB
 🎯 Tỷ lệ thành công: 100.0%
-📏 Độ dài nghiệm TB: 70.0 bước
+📏 Độ dài nghiệm TB: 180.0 bước
 🔍 Số trạng thái khám phá: 0
-⚡ Thời gian nhanh nhất: 0.0279 giây
-🐌 Thời gian chậm nhất: 0.0566 giây
+⚡ Thời gian nhanh nhất: 0.1147 giây
+🐌 Thời gian chậm nhất: 0.1449 giây
 
 🔸 BFS
 ----------------------------------------
-⏱️  Thời gian trung bình: 0.0412 giây
+⏱️  Thời gian trung bình: 0.4593 giây
 💾 Bộ nhớ sử dụng: 0.00 MB
 🎯 Tỷ lệ thành công: 100.0%
-📏 Độ dài nghiệm TB: 12.0 bước
+📏 Độ dài nghiệm TB: 60.0 bước
 🔍 Số trạng thái khám phá: 0
-⚡ Thời gian nhanh nhất: 0.0376 giây
-🐌 Thời gian chậm nhất: 0.0447 giây
+⚡ Thời gian nhanh nhất: 0.4223 giây
+🐌 Thời gian chậm nhất: 0.4865 giây
 
 🔸 A*
 ----------------------------------------
-⏱️  Thời gian trung bình: 0.0434 giây
+⏱️  Thời gian trung bình: 0.5256 giây
 💾 Bộ nhớ sử dụng: 0.00 MB
 🎯 Tỷ lệ thành công: 100.0%
-📏 Độ dài nghiệm TB: 12.0 bước
+📏 Độ dài nghiệm TB: 60.0 bước
 🔍 Số trạng thái khám phá: 0
-⚡ Thời gian nhanh nhất: 0.0406 giây
-🐌 Thời gian chậm nhất: 0.0464 giây
+⚡ Thời gian nhanh nhất: 0.4948 giây
+🐌 Thời gian chậm nhất: 0.5715 giây
 
 🔸 UCS
 ----------------------------------------
-⏱️  Thời gian trung bình: 0.0634 giây
+⏱️  Thời gian trung bình: 0.4245 giây
 💾 Bộ nhớ sử dụng: 0.00 MB
 🎯 Tỷ lệ thành công: 100.0%
-📏 Độ dài nghiệm TB: 12.0 bước
+📏 Độ dài nghiệm TB: 60.0 bước
 🔍 Số trạng thái khám phá: 0
-⚡ Thời gian nhanh nhất: 0.0592 giây
-🐌 Thời gian chậm nhất: 0.0710 giây
+⚡ Thời gian nhanh nhất: 0.4046 giây
+🐌 Thời gian chậm nhất: 0.4408 giây
 
