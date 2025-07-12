@@ -43,7 +43,6 @@ class Text:
             self.rect = self.image.get_rect(topleft=topleft_pos)
     
     def set_position(self, new_pos):
-        """Cập nhật vị trí của text"""
         self.pos = new_pos
         if self.center:
             self.rect.center = new_pos

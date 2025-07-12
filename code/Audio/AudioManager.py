@@ -189,7 +189,7 @@ class AudioManager:
             except pygame.error as e:
                 print(f"Error playing sound effect {effect_name}: {e}")
         
-        # Phát âm thanh trong thread riêng để không block game
+        # use thread not to block game
         self.audio_thread = threading.Thread(target=play_sound, daemon=True)
         self.audio_thread.start()
     

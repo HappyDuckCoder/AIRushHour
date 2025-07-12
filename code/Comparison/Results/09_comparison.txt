@@ -1,48 +1,48 @@
 ================================================================================
-📋 BÁO CÁO SO SÁNH THUẬT TOÁN - MAP 9
+BAO CAO SO SANH THUAT TOAN - MAP 9
 ================================================================================
 
-🔸 DFS
+DFS
 ----------------------------------------
-⏱️  Thời gian trung bình: 0.2283 giây
-💾 Bộ nhớ sử dụng: 0.07 MB
-🎯 Tỷ lệ thành công: 100.0%
-📏 Độ dài nghiệm TB: 381.0 bước
-🔍 Số trạng thái khám phá: 446
-💰 Chi phí trung bình: 0.00
-⚡ Thời gian nhanh nhất: 0.2214 giây
-🐌 Thời gian chậm nhất: 0.2390 giây
+Thời gian trung bình: 0.4415 giây
+Bộ nhớ sử dụng: 0.28 MB
+Tỷ lệ thành công: 100.0%
+Độ dài nghiệm TB: 381.0 bước
+Số trạng thái khám phá: 446
+Chi phí trung bình: 0.00
+Thời gian nhanh nhất: 0.4130 giây
+Thời gian chậm nhất: 0.4573 giây
 
-🔸 BFS
+BFS
 ----------------------------------------
-⏱️  Thời gian trung bình: 0.5665 giây
-💾 Bộ nhớ sử dụng: 0.00 MB
-🎯 Tỷ lệ thành công: 100.0%
-📏 Độ dài nghiệm TB: 54.0 bước
-🔍 Số trạng thái khám phá: 1083
-💰 Chi phí trung bình: 0.00
-⚡ Thời gian nhanh nhất: 0.5271 giây
-🐌 Thời gian chậm nhất: 0.6312 giây
+Thời gian trung bình: 0.8560 giây
+Bộ nhớ sử dụng: 0.22 MB
+Tỷ lệ thành công: 100.0%
+Độ dài nghiệm TB: 54.0 bước
+Số trạng thái khám phá: 1083
+Chi phí trung bình: 0.00
+Thời gian nhanh nhất: 0.7608 giây
+Thời gian chậm nhất: 0.9994 giây
 
-🔸 A*
+A*
 ----------------------------------------
-⏱️  Thời gian trung bình: 0.5358 giây
-💾 Bộ nhớ sử dụng: 0.00 MB
-🎯 Tỷ lệ thành công: 100.0%
-📏 Độ dài nghiệm TB: 54.0 bước
-🔍 Số trạng thái khám phá: 820
-💰 Chi phí trung bình: 118.00
-⚡ Thời gian nhanh nhất: 0.5333 giây
-🐌 Thời gian chậm nhất: 0.5372 giây
+Thời gian trung bình: 0.6388 giây
+Bộ nhớ sử dụng: 0.21 MB
+Tỷ lệ thành công: 100.0%
+Độ dài nghiệm TB: 54.0 bước
+Số trạng thái khám phá: 820
+Chi phí trung bình: 118.00
+Thời gian nhanh nhất: 0.6165 giây
+Thời gian chậm nhất: 0.6524 giây
 
-🔸 UCS
+UCS
 ----------------------------------------
-⏱️  Thời gian trung bình: 0.5348 giây
-💾 Bộ nhớ sử dụng: 0.00 MB
-🎯 Tỷ lệ thành công: 100.0%
-📏 Độ dài nghiệm TB: 54.0 bước
-🔍 Số trạng thái khám phá: 993
-💰 Chi phí trung bình: 118.00
-⚡ Thời gian nhanh nhất: 0.5257 giây
-🐌 Thời gian chậm nhất: 0.5435 giây
+Thời gian trung bình: 0.7020 giây
+Bộ nhớ sử dụng: 0.22 MB
+Tỷ lệ thành công: 100.0%
+Độ dài nghiệm TB: 54.0 bước
+Số trạng thái khám phá: 993
+Chi phí trung bình: 118.00
+Thời gian nhanh nhất: 0.6594 giây
+Thời gian chậm nhất: 0.7370 giây
 

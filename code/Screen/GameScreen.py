@@ -252,7 +252,6 @@ class GameScreen(Screen):
         self.draw_background(surface, "game")
 
     def get_visible_buttons(self):
-        """Return list of buttons that should be visible based on current UI state"""
         # Always visible buttons
         visible_buttons = [self.back_btn, self.next_level_btn, self.menu_btn]
         
@@ -268,19 +267,17 @@ class GameScreen(Screen):
         return visible_buttons
 
     def get_visible_texts(self):
-        """Return list of text elements that should be visible based on current UI state"""
-        visible_texts = [self.level_text, self.status_text]
-        
-        if self.algorithm_text.text:  # Only show if algorithm is selected
-            visible_texts.append(self.algorithm_text)
+        # Always visible
+        visible_texts = [self.level_text, self.status_text] 
             
+        # Only visible when algorithm select
         if self.ui_state == "algorithm_select":
-            visible_texts.append(self.instruction_text)
+            visible_texts.append(self.instruction_text) 
+        # Only visible when no solution
         elif self.ui_state == "no_solution":
-            visible_texts.append(self.no_solution_text)
-        
-        # Show simplified algorithm info panel when solving, no solution, or algorithm is selected
-        if self.ui_state in ["solving", "algorithm_select", "no_solution"] or (self.ui_state == "start" and self.algorithm_text.text):
+            visible_texts.append(self.no_solution_text) 
+        # Only visible when solving, algorithm select, or no solution
+        elif self.ui_state in ["solving", "algorithm_select", "no_solution"]: 
             visible_texts.extend([
                 self.info_title,
                 self.total_moves_text,
@@ -319,14 +316,10 @@ class GameScreen(Screen):
         for button in visible_buttons:
             button.handle_event(event)
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            print(f"Mouse clicked at {event.pos}, current UI state: {self.ui_state}")  # Debug
-            
+        if event.type == pygame.MOUSEBUTTONDOWN:            
             if self.ui_state == "start":
                 if self.start_btn.hit(event.pos):
-                    print("Start button clicked")  # Debug
                     self.ui_state = "algorithm_select"
-                    
             elif self.ui_state == "algorithm_select":
                 if self.solve_bfs.hit(event.pos):
                     self.algorithm_start_time = time.time()
@@ -360,36 +353,28 @@ class GameScreen(Screen):
                     self.ui_state = "solving"
                     self.is_paused = False
                     self.previous_move_index = 0
-                    self.previous_solving_state = False
-                    
+                    self.previous_solving_state = False                 
             elif self.ui_state == "solving":
                 if self.reset_btn.hit(event.pos):
-                    print("Reset button clicked")  # Debug
                     self.reset_to_start()
                 elif self.pause_btn.hit(event.pos):
-                    # FIXED: Simplified pause logic - just toggle pause state
                     self.is_paused = not self.is_paused
                     if self.is_paused:
                         self.pause_btn.set_text("Continue")
-                        # Optionally pause the map solving process
                         if hasattr(self.map, 'pause_solving'):
                             self.map.pause_solving()
                     else:
                         self.pause_btn.set_text("Pause")
-                        # Optionally resume the map solving process
                         if hasattr(self.map, 'resume_solving'):
-                            self.map.resume_solving()
-            
+                            self.map.resume_solving()  
             elif self.ui_state == "no_solution":
                 if self.try_again_btn.hit(event.pos):
-                    print("Try Again button clicked")  # Debug
                     self.ui_state = "algorithm_select"
                     self.algorithm_text.set_text("")
                     self.algorithm_start_time = 0
                     self.current_execution_time = 0
-                    self.no_solution_timer = 0  # Reset timer
+                    self.no_solution_timer = 0  
                     self.is_paused = False
-                    # Reset sound tracking
                     self.previous_move_index = 0
                     self.previous_solving_state = False
             
@@ -401,9 +386,7 @@ class GameScreen(Screen):
             elif self.menu_btn.hit(event.pos):
                 self.screen_manager.set_screen('menu')
             else:
-                # Only handle map interactions in start state
                 if self.ui_state == "start":
-                    # Play car move sound when manually moving cars
                     old_positions = {}
                     if hasattr(self.map, 'vehicles'):
                         for vehicle in self.map.vehicles:
@@ -411,7 +394,6 @@ class GameScreen(Screen):
                     
                     self.map.handle_mouse_down(event.pos)
                     
-                    # Check if any vehicle moved and play sound
                     if hasattr(self.map, 'vehicles'):
                         for vehicle in self.map.vehicles:
                             vehicle_id = id(vehicle)

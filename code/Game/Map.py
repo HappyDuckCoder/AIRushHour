@@ -224,10 +224,10 @@ class Map:
                         self.move_timer = current_time
 
                     else:
-                        # dạng tuple ('A', dx, dy)
+                        # tuple type ('A', dx, dy)
                         vehicle_name, dx, dy = move
 
-                        # tìm index của xe theo tên
+                        # find index of vehicle by name
                         for idx, v in enumerate(self.vehicles):
                             if v.name == vehicle_name:
                                 v.x += dx
@@ -236,7 +236,6 @@ class Map:
 
                         self.current_move_index += 1
                         self.move_timer = current_time
-
                 else:
                     # Solving complete
                     self.solving = False
@@ -351,3 +350,4 @@ class Map:
         self.draw_map_overlay(surf)
         self.draw_exit(surf)
         self.draw_all_vehicles(surf)
+

@@ -1,0 +1,48 @@
+================================================================================
+BAO CAO SO SANH THUAT TOAN - MAP 10
+================================================================================
+
+DFS
+----------------------------------------
+Thời gian trung bình: 0.8990 giây
+Bộ nhớ sử dụng: 0.44 MB
+Tỷ lệ thành công: 100.0%
+Độ dài nghiệm TB: 834.0 bước
+Số trạng thái khám phá: 2035
+Chi phí trung bình: 0.00
+Thời gian nhanh nhất: 0.8691 giây
+Thời gian chậm nhất: 0.9497 giây
+
+BFS
+----------------------------------------
+Thời gian trung bình: 1.6623 giây
+Bộ nhớ sử dụng: 0.00 MB
+Tỷ lệ thành công: 100.0%
+Độ dài nghiệm TB: 82.0 bước
+Số trạng thái khám phá: 3585
+Chi phí trung bình: 0.00
+Thời gian nhanh nhất: 1.5845 giây
+Thời gian chậm nhất: 1.7662 giây
+
+A*
+----------------------------------------
+Thời gian trung bình: 2.1453 giây
+Bộ nhớ sử dụng: 0.01 MB
+Tỷ lệ thành công: 100.0%
+Độ dài nghiệm TB: 82.0 bước
+Số trạng thái khám phá: 3607
+Chi phí trung bình: 183.00
+Thời gian nhanh nhất: 2.1183 giây
+Thời gian chậm nhất: 2.1925 giây
+
+UCS
+----------------------------------------
+Thời gian trung bình: 1.9191 giây
+Bộ nhớ sử dụng: 0.02 MB
+Tỷ lệ thành công: 100.0%
+Độ dài nghiệm TB: 82.0 bước
+Số trạng thái khám phá: 3898
+Chi phí trung bình: 183.00
+Thời gian nhanh nhất: 1.9063 giây
+Thời gian chậm nhất: 1.9266 giây
+

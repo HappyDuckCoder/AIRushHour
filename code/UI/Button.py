@@ -9,9 +9,7 @@ class Button:
         self.width = width
         self.height = height
         self.color = color
-        self.rect = pygame.Rect(pos[0], pos[1], width, height)
-        
-        # Text object for rendering
+        self.rect = pygame.Rect(pos[0], pos[1], width, height)        
         self.text_obj = Text(text, WHITE, self.rect.center, font=Font(24))
         
         # Hover properties
@@ -19,21 +17,16 @@ class Button:
         self.hover_color = tuple(min(c + 30, 255) for c in self.color)
         
     def handle_event(self, event):
-        """Handle mouse events for hover detection"""
         mouse_pos = pygame.mouse.get_pos()
         self.is_hovered = self.rect.collidepoint(mouse_pos)
         
     def update(self):
-        """Update button state"""
-        # Update text position in case button moved
         self.text_obj.rect.center = self.rect.center
         
     def get_current_color(self):
-        """Get current button color based on hover state"""
         return self.hover_color if self.is_hovered else self.color
         
     def draw(self, surface):
-        """Draw the button"""
         current_color = self.get_current_color()
         
         # Draw shadow for depth
@@ -53,15 +46,12 @@ class Button:
         self.text_obj.draw(surface)
         
     def hit(self, mouse_pos):
-        """Check if button is clicked"""
         return self.rect.collidepoint(mouse_pos)
         
     def set_text(self, new_text):
-        """Update button text"""
         self.text = new_text
         self.text_obj.set_text(new_text)
 
     def set_color(self, new_color):
-        """Update button color"""
         self.color = new_color
         self.hover_color = tuple(min(c + 30, 255) for c in self.color)

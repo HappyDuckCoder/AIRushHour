@@ -34,13 +34,13 @@ class StrategyFactory:
         return StrategyFactory.create_strategy(strategy_name, map_obj, max_depth)
     
     @staticmethod
-    def create_strategy(strategy_name, map_obj, max_depth=50, max_time=30):
+    def create_strategy(strategy_name, map_obj, max_time=30):
         if strategy_name == 'DFS':
-            return DFSStrategy(map_obj, max_depth)
+            return DFSStrategy(map_obj, max_time)
         elif strategy_name == 'BFS':
-            return BFSStrategy(map_obj, max_depth)
+            return BFSStrategy(map_obj, max_time)
         elif strategy_name == 'UCS':
-            return UCSStrategy(map_obj)
+            return UCSStrategy(map_obj, max_time)
         elif strategy_name == 'A*':
             return AStarStrategy(map_obj, max_time)
         else:
