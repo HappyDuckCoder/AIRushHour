@@ -77,11 +77,9 @@ class PerformanceMetrics:
 
 
 class AlgorithmFactory:
-    """Factory Pattern để tạo các algorithm instances"""
     
     @staticmethod
     def create_algorithm(algorithm_name: str, game_map: Map, max_time: int = 30):
-        """Tạo algorithm instance dựa trên tên"""
         if algorithm_name == 'DFS':
             return DFSStrategy(game_map, max_time)
         elif algorithm_name == 'BFS':
@@ -95,7 +93,6 @@ class AlgorithmFactory:
 
 
 class ReportGenerator(ABC):
-    """Abstract base class cho các loại report generators"""
     
     @abstractmethod
     def generate_report(self, results, map_id: int, output_path: str):
@@ -104,7 +101,6 @@ class ReportGenerator(ABC):
 
 
 class TextReportGenerator(ReportGenerator):
-    """Concrete implementation cho text report"""
     
     def generate_report(self, results, map_id: int, output_path: str):
         """Tạo báo cáo text"""
@@ -132,10 +128,8 @@ class TextReportGenerator(ReportGenerator):
 
 
 class CSVReportGenerator(ReportGenerator):
-    """Concrete implementation cho CSV report"""
     
     def generate_report(self, results, map_id: int, output_path: str):
-        """Tạo báo cáo CSV"""
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         
         with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
@@ -160,7 +154,6 @@ class CSVReportGenerator(ReportGenerator):
 
 
 class ChartGenerator(ReportGenerator):
-    """Concrete implementation cho chart generation"""
     
     def generate_report(self, results, map_id: int, output_path: str):
         """Tạo biểu đồ so sánh"""
@@ -174,25 +167,21 @@ class ChartGenerator(ReportGenerator):
         algorithms = list(results.keys())
         colors = ['skyblue', 'lightcoral', 'lightgreen', 'lightyellow']
         
-        # Biểu đồ thời gian thực thi
         times = [results[alg]['average_time'] for alg in algorithms]
         axes[0, 0].bar(algorithms, times, color=colors[:len(algorithms)])
         axes[0, 0].set_title('Thời gian thực thi trung bình')
         axes[0, 0].set_ylabel('Thời gian (giây)')
         
-        # Biểu đồ bộ nhớ sử dụng
         memories = [results[alg]['average_memory'] for alg in algorithms]
         axes[0, 1].bar(algorithms, memories, color=colors[:len(algorithms)])
         axes[0, 1].set_title('Bộ nhớ sử dụng trung bình')
         axes[0, 1].set_ylabel('Bộ nhớ (MB)')
         
-        # Biểu đồ số bước giải
         solution_lengths = [results[alg]['average_solution_length'] for alg in algorithms]
         axes[1, 0].bar(algorithms, solution_lengths, color=colors[:len(algorithms)])
         axes[1, 0].set_title('Độ dài nghiệm trung bình')
         axes[1, 0].set_ylabel('Số bước')
         
-        # Biểu đồ số trạng thái khám phá
         states_explored = [results[alg]['average_states_explored'] for alg in algorithms]
         axes[1, 1].bar(algorithms, states_explored, color=colors[:len(algorithms)])
         axes[1, 1].set_title('Số trạng thái khám phá')
@@ -206,7 +195,6 @@ class ChartGenerator(ReportGenerator):
 
 
 class AlgorithmComparison:
-    """Main class để so sánh các thuật toán"""
     
     def __init__(self, game_map: Map, map_id: Optional[int] = None):
         self.map = game_map
@@ -219,23 +207,17 @@ class AlgorithmComparison:
         }
     
     def measure_single_run(self, algorithm_name: str, max_time: int = 30):
-        """Đo performance một lần chạy"""
-        # Preparation
         solver = AlgorithmFactory.create_algorithm(algorithm_name, self.map, max_time)
         
-        # Dọn dẹp bộ nhớ trước khi đo
         import gc
         gc.collect()
         
-        # Memory measurement setup 
         tracemalloc.start()
         
-        # Execution
         start_time = time.time()
         solution, node_expanded, total_cost = solver.solve()
         end_time = time.time()
         
-        # Memory measurement cleanup
         _, peak = tracemalloc.get_traced_memory()
         tracemalloc.stop()
                 

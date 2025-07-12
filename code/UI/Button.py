@@ -12,7 +12,6 @@ class Button:
         self.rect = pygame.Rect(pos[0], pos[1], width, height)        
         self.text_obj = Text(text, WHITE, self.rect.center, font=Font(24))
         
-        # Hover properties
         self.is_hovered = False
         self.hover_color = tuple(min(c + 30, 255) for c in self.color)
         
@@ -29,20 +28,16 @@ class Button:
     def draw(self, surface):
         current_color = self.get_current_color()
         
-        # Draw shadow for depth
         shadow_rect = self.rect.copy()
         shadow_rect.move_ip(3, 3)
         pygame.draw.rect(surface, (0, 0, 0, 100), shadow_rect, border_radius=8)
         
-        # Draw main button
         pygame.draw.rect(surface, current_color, self.rect, border_radius=8)
         
-        # Draw highlight for 3D effect
         highlight_rect = pygame.Rect(self.rect.x, self.rect.y, self.rect.width, self.rect.height // 3)
         highlight_color = tuple(min(c + 40, 255) for c in current_color)
         pygame.draw.rect(surface, highlight_color, highlight_rect, border_radius=8)
         
-        # Draw text
         self.text_obj.draw(surface)
         
     def hit(self, mouse_pos):

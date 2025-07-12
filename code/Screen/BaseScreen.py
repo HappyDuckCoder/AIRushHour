@@ -1,9 +1,6 @@
 from constants import *
 from Resource.Resource import ResourceManager
 
-# ===============================
-# Screen Management
-# ===============================
 class ScreenManager:
     def __init__(self):
         self.screens = {}
@@ -27,9 +24,7 @@ class ScreenManager:
         if self.current_screen:
             self.current_screen.draw(surface)
 
-# ===============================
-# Base Screen Class
-# ===============================
+
 class Screen:
     def __init__(self, screen_manager):
         self.screen_manager = screen_manager

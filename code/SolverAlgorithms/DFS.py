@@ -1,24 +1,16 @@
 from SolverAlgorithms.Solver import SolverStrategy, BaseSolver
 import time
-#==============================================
-# Concrete Strategy: BFS
-#==============================================
-class DFSStrategy(SolverStrategy, BaseSolver):
-    """Depth-First Search strategy"""
 
+class DFSStrategy(SolverStrategy, BaseSolver):
     def __init__(self, map_obj, max_time=30):
         super().__init__(map_obj)
         self.max_time = max_time
         self.PADDING = bytes([220])
 
-    # def encode_state(state_tuple):
     def encode_state(self, state_tuple):
-        # Encode a sorted state tuple into bytes.
         return b''.join(bytes([ord(name), x, y]) for name, x, y in state_tuple)
     
-    # def decode_state(state_bytes):
     def decode_state(self, state_bytes):
-        # Decode bytes back into a list of (name, x, y) tuples.
         return [(chr(state_bytes[i]), state_bytes[i+1], state_bytes[i+2]) for i in range(0, len(state_bytes), 3)]
     
     def encode_signed(self, val):
@@ -29,15 +21,11 @@ class DFSStrategy(SolverStrategy, BaseSolver):
             return byte_val - 256
         return byte_val
     
-    # def encode_table_entry():
     def encode_table_entry(self, parent_state_bytes, move_tuple):
-        # Encode a table entry with parent, move, g(n), and f(n), seperate by PADDING.
         move_bytes = bytes([ord(move_tuple[0]), self.encode_signed(move_tuple[1]), self.encode_signed(move_tuple[2])]) if move_tuple else b''
         return parent_state_bytes + self.PADDING + move_bytes
     
-    # def decode_table_entry():
     def decode_table_entry(self, entry_bytes):
-        # Decode a table entry into its components.
         parts = entry_bytes.split(self.PADDING)
         parent_bytes = parts[0]
         move_bytes = parts[1]
@@ -46,9 +34,7 @@ class DFSStrategy(SolverStrategy, BaseSolver):
             move = (chr(move_bytes[0]), self.decode_signed(move_bytes[1]), self.decode_signed(move_bytes[2]))
         return parent_bytes, move
     
-    # def build_board_2d():
     def build_board_2d(self, state, car_info):
-        # Build a 6x6 board from the current state.
         board = [['.' for _ in range(6)] for _ in range(6)]
         for name, x, y in state:
             orient, length = car_info[name]
@@ -60,9 +46,7 @@ class DFSStrategy(SolverStrategy, BaseSolver):
                     board[y + i][x] = name
         return board
     
-    # generate_successors():
     def generate_successors(self, state, car_info):
-        # Generate all valid moves
         board = self.build_board_2d(state, car_info)
         successors = []
 
@@ -115,7 +99,6 @@ class DFSStrategy(SolverStrategy, BaseSolver):
         return expanded
 
     def reconstruct_path(self, goal_encoded, table):
-        # Return from goal_state to start_state to get list of move
         path = []
         current = goal_encoded
         while current in table:
@@ -128,9 +111,7 @@ class DFSStrategy(SolverStrategy, BaseSolver):
             current = parent
         return self.expand_path(path[::-1])
     
-    # is_solved:
     def is_solved(self, state, car_info):
-        # Check if red car (A) reaches the exit
         for name, x, y in state:
             if name == 'A':
                 length = car_info['A'][1]
@@ -154,7 +135,6 @@ class DFSStrategy(SolverStrategy, BaseSolver):
         return self.solving_DFS(start_state, start_tuple, car_info, max_time=self.max_time)
 
     def solving_DFS(self, start_state, start_tuple, car_info, max_time):
-        # Main DFS search loop
         start_time_clock = time.time()
         dfsStack = []
         table = {}

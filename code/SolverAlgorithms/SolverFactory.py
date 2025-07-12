@@ -3,11 +3,7 @@ from SolverAlgorithms.BFS import BFSStrategy
 from SolverAlgorithms.UCS import UCSStrategy
 from SolverAlgorithms.AStarr import AStarStrategy
 
-#==============================================
-# Strategy Factory (Optional - for easy creation)
-#==============================================
 class StrategyFactory:
-    """Factory to create different strategies"""
     
     @staticmethod
     def create_dfs(map_obj, max_time=30):

@@ -8,9 +8,7 @@ import json
 import time
 import os
 
-# ===============================
-# Map Class
-# ===============================
+
 class Map:
     def __init__(self):
         self.initial_vehicles = []
@@ -29,19 +27,17 @@ class Map:
         self.list_solver = []
         self.current_algorithm = ""
         
-        # Statistics tracking
         self.solve_start_time = 0
         self.current_algorithm = ""
         self.nodes_expanded = 0
         self.total_cost = 0
         
-        # Victory animation
         self.game_won = False
         self.victory_animation_started = False
 
         self.solving_failed = False
 
-    def create_level_data(self): # for testing
+    def create_level_data(self): 
         """Create 2 different level for testing"""
         levels = {
             1: [
@@ -74,9 +70,9 @@ class Map:
             self.current_level = level_num
 
             name_map = f"{level_num}.txt"
-            base_path = os.path.dirname(os.path.dirname(__file__))  # từ Game/ đi lên code/
-            map_folder = os.path.join(base_path, 'Map')             # code/Map/
-            full_path = os.path.join(map_folder, name_map)          # code/Map/1.txt
+            base_path = os.path.dirname(os.path.dirname(__file__))  
+            map_folder = os.path.join(base_path, 'Map')            
+            full_path = os.path.join(map_folder, name_map)          
 
             vehicles = []
 
@@ -91,7 +87,6 @@ class Map:
             self.reset()
 
     def reset(self):
-        """Reset game state"""
         self.vehicles = [v.copy() for v in self.initial_vehicles]
         self.selected_vehicle = None
         self.solving = False
@@ -103,24 +98,20 @@ class Map:
 
         self.current_algorithm = ""
         
-        # Reset statistics
         self.solve_start_time = 0
         self.current_algorithm = ""
         self.nodes_expanded = 0
 
     def update(self):
-        """Update game state"""
-        # Chỉ cập nhật solving animation khi đang solving
+
         if self.solving:
             self.update_solving()
         
-        # Chỉ cập nhật vehicles khi cần thiết
         for vehicle in self.vehicles:
             if vehicle.is_target or vehicle.dragging:
                 vehicle.update()
 
     def reset_victory_animation(self):
-        # reset victory animation
         for vehicle in self.vehicles:
             if vehicle.is_target:
                 vehicle.victory_animation_played = False
@@ -128,12 +119,10 @@ class Map:
                     character.is_performing_skill = False
 
     def start_solving(self, nameAlgo: str):
-        """Bắt đầu giải puzzle"""
         if not self.solving:
             print(f"Starting {nameAlgo} solver...")
             self.current_algorithm = nameAlgo
 
-            # Track solving start time and algorithm
             self.solve_start_time = time.time()
             self.current_algorithm = nameAlgo
             self.nodes_expanded = 0
@@ -159,17 +148,15 @@ class Map:
             else:
                 self.solving_failed = True
                 print("No solution found!")
-                self.save_statistics(0, False)  # Save with 0 moves, no solution
+                self.save_statistics(0, False)  
 
     def print_solution(self, solution):
         for move in solution:
             print(move)
 
     def save_statistics(self, solution_length, solved=True):
-        """Lưu thống kê vào file"""
         solve_time = time.time() - self.solve_start_time
         
-        # Get nodes expanded from solver if available
         if self.solver and hasattr(self.solver, 'nodes_expanded'):
             self.nodes_expanded = self.solver.nodes_expanded
         
@@ -183,7 +170,6 @@ class Map:
             'timestamp': time.time()
         }
         
-        # Ensure directory exists
         base_path = os.path.dirname(os.path.dirname(__file__))
         stats_file = os.path.join(base_path, 'statistic.txt')
         
@@ -195,28 +181,17 @@ class Map:
             print(f"Error saving statistics: {e}")
 
     def update_solving(self):
-        """Cập nhật quá trình giải puzzle tự động"""
         if self.solving and self.solution_moves:
             current_time = time.time()
             if current_time - self.move_timer >= self.move_delay:
                 if self.current_move_index < len(self.solution_moves):
                     move = self.solution_moves[self.current_move_index]
-                    
-                    # Extract move information from the dictionary format
-
-                    # move = {
-                    #     'name': move_name,
-                    #     'index': vehicle_index,
-                    #     'dx': dx,
-                    #     'dy': dy
-                    # }
                 
                     if isinstance(move, Dict):
                         vehicle_index = move['index']
                         dx = move['dx']
                         dy = move['dy']
                         
-                        # Apply the move
                         self.vehicles[vehicle_index].x += dx
                         self.vehicles[vehicle_index].y += dy
                         
@@ -224,10 +199,8 @@ class Map:
                         self.move_timer = current_time
 
                     else:
-                        # tuple type ('A', dx, dy)
                         vehicle_name, dx, dy = move
 
-                        # find index of vehicle by name
                         for idx, v in enumerate(self.vehicles):
                             if v.name == vehicle_name:
                                 v.x += dx
@@ -237,10 +210,8 @@ class Map:
                         self.current_move_index += 1
                         self.move_timer = current_time
                 else:
-                    # Solving complete
                     self.solving = False
                     
-                    # Save statistics when solving is complete
                     self.save_statistics(len(self.solution_moves), True)
 
                     for vehicle in self.vehicles:
@@ -252,7 +223,6 @@ class Map:
             pass
 
     def get_grid(self):
-        """Lấy grid hiện tại"""
         grid = [[0] * MAP_N for _ in range(MAP_N)]
         for i, vehicle in enumerate(self.vehicles):
             for x, y in vehicle.positions():
@@ -261,13 +231,10 @@ class Map:
         return grid
 
     def is_valid_move(self, vehicle, new_x, new_y):
-        """Kiểm tra xem nước đi có hợp lệ không"""
-        # Check bounds
         for x, y in Vehicle(vehicle.image_key, vehicle.orient, vehicle.len, new_x, new_y, vehicle.name).positions():
             if not (0 <= x < MAP_N and 0 <= y < MAP_N):
                 return False
         
-        # Check collisions
         grid = self.get_grid()
         vehicle_index = self.vehicles.index(vehicle)
         
@@ -284,7 +251,7 @@ class Map:
     def handle_mouse_down(self, pos):
         """Xử lý click chuột"""
         if self.solving:
-            return  # Don't allow manual moves while solving
+            return 
             
         for vehicle in self.vehicles:
             if vehicle.contains_point(pos[0], pos[1]):
@@ -297,16 +264,14 @@ class Map:
                 break
 
     def handle_mouse_up(self, pos):
-        """Xử lý thả chuột"""
         if self.selected_vehicle:
             self.selected_vehicle.dragging = False
             self.selected_vehicle.reset_movement_state()
             self.selected_vehicle = None
 
     def handle_mouse_motion(self, pos):
-        """Xử lý di chuyển chuột"""
         if self.solving:
-            return  # Don't allow manual moves while solving
+            return  
             
         if self.selected_vehicle and self.selected_vehicle.dragging:
             board_x = (pos[0] - BOARD_OFFSET_X) // TILE
@@ -315,7 +280,6 @@ class Map:
             new_x = board_x - self.selected_vehicle.drag_offset_x
             new_y = board_y - self.selected_vehicle.drag_offset_y
             
-            # Constrain movement based on orientation
             if self.selected_vehicle.orient == 'h':
                 new_y = self.selected_vehicle.y
             else:
@@ -326,27 +290,23 @@ class Map:
                 self.selected_vehicle.y = new_y
         
     def draw_map_overlay(self, surface):
-        """Vẽ overlay của map"""
         map_image = ResourceManager().get_image('map')
         if map_image:
             surface.blit(map_image, (BOARD_OFFSET_X, BOARD_OFFSET_Y))
 
     def draw_exit(self, surface):
-        """Vẽ vùng exit"""
         exit_image = ResourceManager().get_image('exit')
         if exit_image:
-            for i in range(5):  # vẽ 5 lần
-                x = BOARD_OFFSET_X + (MAP_N + i) * TILE  # MAP_N là cột bắt đầu
-                y = BOARD_OFFSET_Y + 2 * TILE  # hàng cố định (hàng 2)
+            for i in range(5): 
+                x = BOARD_OFFSET_X + (MAP_N + i) * TILE  
+                y = BOARD_OFFSET_Y + 2 * TILE  
                 surface.blit(exit_image, (x, y))
 
     def draw_all_vehicles(self, surface):
-        """Vẽ tất cả vehicles"""
         for vehicle in self.vehicles:
             vehicle.draw(surface)
 
     def draw(self, surf):
-        """Vẽ toàn bộ map"""
         self.draw_map_overlay(surf)
         self.draw_exit(surf)
         self.draw_all_vehicles(surf)

@@ -47,12 +47,9 @@ class ResourceManager:
 
     @staticmethod
     def upload_all():
-        """Load all necessary game resources"""
 
-        # Background
         ResourceManager.load_background()
 
-        # Map overlay
         map_size = MAP_N * TILE
         ResourceManager.load_image(
             "map",
@@ -60,21 +57,18 @@ class ResourceManager:
             size=(map_size, map_size + TILE)
         )
 
-        # Target vehicle
         ResourceManager.load_image(
             "target",
             "assets/target.png",
             size=(TILE * 2, TILE)
         )
 
-        # Mouse 
         ResourceManager.load_image(
             "mouse",
             "assets/Mouse.png",
             size=(MOUSE_SIZE, MOUSE_SIZE)
         )
 
-        # Bridge
         ResourceManager.load_image(
             "exit",
             "assets/Bridge.png",
@@ -89,14 +83,12 @@ class ResourceManager:
 
     @staticmethod
     def unload_all():
-        """Xóa hết tài nguyên đã load (nếu cần reset)."""
         ResourceManager._images.clear()
         ResourceManager._sounds.clear()
         ResourceManager._fonts.clear()
 
     @staticmethod
     def load_background():
-        """ Background cho intro, setting, menu"""
         ResourceManager.load_image(
             "background1",
             "assets/bgRes/bg2/background.png",
@@ -118,7 +110,6 @@ class ResourceManager:
             size=(SCREEN_W, SCREEN_H)
         )
 
-        """ Background cho game """
         ResourceManager.load_image(
             "background21",
             "assets/bgRes/bg1/background1.png",
@@ -137,9 +128,7 @@ class ResourceManager:
 
     @staticmethod
     def load_all_vehicle_image():
-        """Load tất cả ảnh cho vehicles"""
 
-        # Vehicle 2-tile (horizontal & vertical)
         ResourceManager.load_image(
             "v2_h",
             "assets/vh/vh2h.png",
@@ -151,7 +140,6 @@ class ResourceManager:
             size=(TILE, TILE * 2),
         )
 
-        # Vehicle 3-tile (horizontal & vertical)
         ResourceManager.load_image(
             "v3_h",
             "assets/vh/vh3h.png",
@@ -165,7 +153,6 @@ class ResourceManager:
 
     @staticmethod
     def load_all_character_animations():
-        """Load tất cả animations cho các nhân vật"""
         
         ResourceManager.load_frames(
             "archer_idle", 
@@ -183,7 +170,6 @@ class ResourceManager:
             FRAME_WIDTH, FRAME_HEIGHT, 8
         )
         
-        # Warrior animations
         ResourceManager.load_frames(
             "warrior_idle", 
             "assets/Units/Red Units/Warrior/Warrior_Idle.png", 
@@ -200,7 +186,6 @@ class ResourceManager:
             FRAME_WIDTH, FRAME_HEIGHT, 6
         )
     
-        # Monk animations
         ResourceManager.load_frames(
             "monk_idle", 
             "assets/Units/Black Units/Monk/Monk_Idle.png", 

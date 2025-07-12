@@ -5,16 +5,13 @@ from Screen.BaseScreen import Screen
 from Audio.AudioManager import AudioManager
 import pygame
 
-# ===============================
-# Level Select Screen
-# ===============================
+
 class LevelSelectScreen(Screen):
     def __init__(self, screen_manager):
         super().__init__(screen_manager)
         self.back_btn = Button("BACK", (50, 50), 120, 50)
         self.level_buttons = []
         
-        # Tạo Text object cho title
         self.select_level_title = Text("SELECT LEVEL", WHITE, (SCREEN_W//2, 150), font=Font(64))
         
         button_width = 140
@@ -55,7 +52,6 @@ class LevelSelectScreen(Screen):
         return True
 
     def on_enter(self):
-        """Called when entering level select screen"""
         audio_manager = AudioManager.get_instance()
         audio_manager.play_background_music('level_select')
         

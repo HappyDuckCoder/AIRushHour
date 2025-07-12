@@ -3,11 +3,8 @@ import heapdict
 from collections import defaultdict
 import time
 
-#==============================================
-# Concrete Strategy: A*
-#==============================================
+
 class AStarStrategy(SolverStrategy, BaseSolver):
-    """A* Search strategy"""
 
     def __init__(self, map_obj, max_time=30):
         super().__init__(map_obj)
@@ -16,14 +13,10 @@ class AStarStrategy(SolverStrategy, BaseSolver):
         self.total_nodes_expanded = 0
         self.total_cost = 0
 
-    # def encode_state(state_tuple):
     def encode_state(self, state_tuple):
-        # Encode a sorted state tuple into bytes.
         return b''.join(bytes([ord(name), x, y]) for name, x, y in state_tuple)
     
-    # def decode_state(state_bytes):
     def decode_state(self, state_bytes):
-        # Decode bytes back into a list of (name, x, y) tuples.
         return [(chr(state_bytes[i]), state_bytes[i+1], state_bytes[i+2]) for i in range(0, len(state_bytes), 3)]
     
     def encode_signed(self, val):
@@ -34,17 +27,13 @@ class AStarStrategy(SolverStrategy, BaseSolver):
             return byte_val - 256
         return byte_val
     
-    # def encode_table_entry():
     def encode_table_entry(self, parent_state_bytes, move_tuple, g_val, f_val):
-        # Encode a table entry with parent, move, g(n), and f(n), seperate by PADDING.
         move_bytes = bytes([ord(move_tuple[0]), self.encode_signed(move_tuple[1]), self.encode_signed(move_tuple[2])]) if move_tuple else b''
         g_bytes = g_val.to_bytes(4, 'little')
         f_bytes = f_val.to_bytes(4, 'little')
         return parent_state_bytes + self.PADDING + move_bytes + self.PADDING + g_bytes + self.PADDING + f_bytes
     
-    # def decode_table_entry():
     def decode_table_entry(self, entry_bytes):
-        # Decode a table entry into its components.
         parts = entry_bytes.split(self.PADDING)
         parent_bytes = parts[0]
         move_bytes = parts[1]
@@ -55,9 +44,7 @@ class AStarStrategy(SolverStrategy, BaseSolver):
             move = (chr(move_bytes[0]), self.decode_signed(move_bytes[1]), self.decode_signed(move_bytes[2]))
         return parent_bytes, move, g_val, f_val
     
-    # def build_board_2d():
     def build_board_2d(self, state, car_info):
-        # Build a 6x6 board from the current state.
         board = [['.' for _ in range(6)] for _ in range(6)]
         for name, x, y in state:
             orient, length = car_info[name]
@@ -69,9 +56,7 @@ class AStarStrategy(SolverStrategy, BaseSolver):
                     board[y + i][x] = name
         return board
     
-    # generate_successors():
     def generate_successors(self, state, car_info):
-        # Generate all valid moves
         board = self.build_board_2d(state, car_info)
         successors = []
 
@@ -125,7 +110,6 @@ class AStarStrategy(SolverStrategy, BaseSolver):
         return expanded
 
     def reconstruct_path(self, goal_encoded, table):
-        # Return from goal_state to start_state to get list of move
         path = []
         current = goal_encoded
         while current in table:
@@ -138,9 +122,7 @@ class AStarStrategy(SolverStrategy, BaseSolver):
             current = parent
         return self.expand_path(path[::-1])
     
-    # is_solved:
     def is_solved(self, state, car_info):
-        # Check if red car (A) reaches the exit
         for name, x, y in state:
             if name == 'A':
                 length = car_info['A'][1]
@@ -167,7 +149,6 @@ class AStarStrategy(SolverStrategy, BaseSolver):
         return self.solving_A_star(start_state, start_tuple, car_info, start_g, start_f, max_time=self.max_time)
 
     def get_blockers(self, name, x, y, car_info, board):
-        # Return cars blocking the given car
         direction, length = car_info[name]
         blockers = set()
         if direction == 'h':
@@ -185,7 +166,6 @@ class AStarStrategy(SolverStrategy, BaseSolver):
         return blockers
 
     def heuristic(self, state, car_info):
-        # recursively find all cars in the relative group and each car = estimated_moves * length
         board = self.build_board_2d(state, car_info)
         for name, x, y in state:
             if name == 'A':
@@ -218,7 +198,6 @@ class AStarStrategy(SolverStrategy, BaseSolver):
         return cost
     
     def solving_A_star(self, start_state, start_tuple, car_info, start_g, start_f, max_time=30):
-        # Main A* search loop
         start_time_clock = time.time()
         open_heap = heapdict.heapdict()
         table = {}

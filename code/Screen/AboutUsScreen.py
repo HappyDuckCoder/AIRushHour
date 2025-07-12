@@ -5,9 +5,7 @@ from Audio.AudioManager import AudioManager
 from constants import *
 import pygame
 
-# ===============================
-# About Us Screen
-# ===============================
+
 class AboutUsScreen(Screen):
     def __init__(self, screen_manager):
         super().__init__(screen_manager)
@@ -19,7 +17,6 @@ class AboutUsScreen(Screen):
         self.fade_alpha = 0
         self.max_alpha = 255
         
-        # Member lists
         self.team_members = [
             {
                 "name": "TRAN HAI DUC",
@@ -48,12 +45,10 @@ class AboutUsScreen(Screen):
         
         self.back_button = Button("BACK", (30, SCREEN_H - 80), 120, 50, BLUE)
         
-        # Text objects for current member
         self.member_name = Text("", WHITE, (SCREEN_W//2, 300), font=Font(36))
         self.member_role = Text("", YELLOW, (SCREEN_W//2, 350), font=Font(24))
         self.member_desc = Text("", GRAY, (SCREEN_W//2, 400), font=Font(18))
         
-        # Surface for fade effect
         self.fade_surface = pygame.Surface((SCREEN_W, SCREEN_H))
 
     def draw_background_(self, surface):
@@ -73,7 +68,6 @@ class AboutUsScreen(Screen):
         if self.current_member_index < len(self.team_members):
             member = self.team_members[self.current_member_index]
             
-            # Update current member
             self.member_name = Text(member["name"], WHITE, (SCREEN_W//2, 300), font=Font(36))
             self.member_role = Text(member["role"], YELLOW, (SCREEN_W//2, 350), font=Font(24))
             self.member_desc = Text(member["description"], GRAY, (SCREEN_W//2, 400), font=Font(18))
@@ -82,9 +76,9 @@ class AboutUsScreen(Screen):
         current_time = pygame.time.get_ticks()
         elapsed = current_time - self.member_start_time
         
-        if elapsed < 500:  # Fade in
+        if elapsed < 500: 
             self.fade_alpha = int((elapsed / 500) * self.max_alpha)
-        elif elapsed > self.member_display_time - 500:  # Fade out
+        elif elapsed > self.member_display_time - 500:  
             fade_out_progress = (elapsed - (self.member_display_time - 500)) / 500
             self.fade_alpha = int(self.max_alpha * (1 - fade_out_progress))
         else:
@@ -94,17 +88,14 @@ class AboutUsScreen(Screen):
         if self.current_member_index < len(self.team_members):
             member = self.team_members[self.current_member_index]
             
-            # create temporary surface with fade effect
             temp_surface = pygame.Surface((SCREEN_W, SCREEN_H))
             temp_surface.set_alpha(self.fade_alpha)
             temp_surface.fill((0, 0, 0))
             
-            # Draw member info
             self.member_name.draw(temp_surface)
             self.member_role.draw(temp_surface)
             self.member_desc.draw(temp_surface)
             
-            # Blit temporary surface to main surface
             surface.blit(temp_surface, (0, 0), special_flags=pygame.BLEND_ALPHA_SDL2)
 
     def draw(self, surface):
@@ -123,7 +114,6 @@ class AboutUsScreen(Screen):
         
         pygame.draw.rect(surface, GRAY, (indicator_x, indicator_y, indicator_width, indicator_height))
         
-        # Draw progress indicator
         if len(self.team_members) > 0:
             segment_width = indicator_width // len(self.team_members)
             for i in range(len(self.team_members)):

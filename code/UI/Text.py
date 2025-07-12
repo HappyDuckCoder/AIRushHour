@@ -34,11 +34,9 @@ class Text:
         self.image = self.font.render(self.text, self.color)
         
         if self.center:
-            # Giữ nguyên vị trí center khi thay đổi text
             center_pos = self.rect.center
             self.rect = self.image.get_rect(center=center_pos)
         else:
-            # Giữ nguyên vị trí topleft khi thay đổi text
             topleft_pos = self.rect.topleft
             self.rect = self.image.get_rect(topleft=topleft_pos)
     

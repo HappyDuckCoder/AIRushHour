@@ -7,9 +7,7 @@ import time
 from constants import *
 import pygame
 
-# ===============================
-# Game Screen
-# ===============================
+
 class GameScreen(Screen):
     def __init__(self, screen_manager):
         super().__init__(screen_manager)
@@ -17,81 +15,63 @@ class GameScreen(Screen):
         self.map = Map()
         self.is_paused = False
         
-        # UI State management
-        self.ui_state = "start"  # "start", "algorithm_select", "solving", "no_solution"
+        self.ui_state = "start"  
         
-        # Algorithm info tracking
         self.algorithm_start_time = 0
         self.current_execution_time = 0
         
-        # No solution message timer
         self.no_solution_timer = 0
-        self.no_solution_duration = 3.0  # Show message for 3 seconds
+        self.no_solution_duration = 3.0  
         
-        # Audio manager instance
         self.audio_manager = AudioManager()
         
-        # Track previous state for sound triggering
         self.previous_move_index = 0
         self.previous_solving_state = False
         
-        # Button dimensions
         button_width = 140
         button_height = 45
         button_spacing = 15
 
-        # Top navigation buttons (positioned at top)
         top_margin = 20
         self.back_btn = Button("Back", (20, top_margin), button_width, button_height)
         self.menu_btn = Button("Main Menu", (180, top_margin), button_width, button_height, GRAY)
         
-        # Top-right corner buttons
         right_margin = 20
         self.next_level_btn = Button("Next Level", (SCREEN_W - button_width - right_margin, top_margin), button_width, button_height, GREEN)
         
-        # Bottom-left corner buttons
         bottom_margin = 20
         left_margin = 20
         
-        # Start button (bottom-left)
         self.start_btn = Button("Start", (left_margin, SCREEN_H - button_height - bottom_margin), button_width, button_height, GREEN)
         
-        # Algorithm selection buttons (stacked vertically from bottom)
         algo_start_y = SCREEN_H - bottom_margin - button_height
         self.solve_bfs = Button("BFS", (left_margin, algo_start_y - (button_height + button_spacing) * 3), button_width, button_height, BLUE)
         self.solve_dfs = Button("DFS", (left_margin, algo_start_y - (button_height + button_spacing) * 2), button_width, button_height, ORANGE)
         self.solve_astar = Button("A*", (left_margin, algo_start_y - (button_height + button_spacing) * 1), button_width, button_height, PURPLE)
         self.solve_ucs = Button("UCS", (left_margin, algo_start_y), button_width, button_height, PINK)
         
-        # Solving control buttons (positioned in bottom-left)
         self.reset_btn = Button("Reset", (left_margin, algo_start_y - (button_height + button_spacing) * 1), button_width, button_height, RED)
         self.pause_btn = Button("Pause", (left_margin, algo_start_y), button_width, button_height, RED)
         
-        # Try Again button for no solution state
         self.try_again_btn = Button("Try Again", (left_margin, algo_start_y), button_width, button_height, ORANGE)
         
-        # Store all buttons for easy access
         self.all_buttons = [
             self.back_btn, self.menu_btn, self.next_level_btn,
             self.start_btn, self.solve_bfs, self.solve_dfs, self.solve_astar,
             self.solve_ucs, self.reset_btn, self.pause_btn, self.try_again_btn
         ]
         
-        # Text elements for game information - INCREASED FONT SIZES BY 5x
         self.level_text = Text("Level: 1", WHITE, (SCREEN_W//2, 30), font=Font(32)) 
         self.algorithm_text = Text("", WHITE, (SCREEN_W//2, 70), font=Font(24))  
         self.status_text = Text("Click Start to begin", WHITE, (SCREEN_W//2, SCREEN_H - 50), font=Font(20)) 
         self.instruction_text = Text("Select an algorithm:", (255, 255, 100), (left_margin + button_width + 20, algo_start_y - 60), font=Font(22), center=False)  
         
-        # No solution message
         self.no_solution_text = Text("No solution found for this puzzle!", (255, 100, 100), (SCREEN_W//2, SCREEN_H//2), font=Font(100))  
         
-        # Algorithm info panel - positioned on the left side (simplified) 
         info_panel_x = 20
         info_panel_y = 120
         info_spacing = 50
         
-        # Only show total moves and current move
         self.info_title = Text("Algorithm Info", (100, 200, 255), (info_panel_x, info_panel_y), font=Font(40), center=False)  
         self.total_moves_text = Text("Total Moves: 0", (100, 255, 100), (info_panel_x, info_panel_y + info_spacing), font=Font(30), center=False) 
         self.current_move_text = Text("Current Move: 0", (255, 200, 100), (info_panel_x, info_panel_y + info_spacing * 2), font=Font(30), center=False)
@@ -101,81 +81,64 @@ class GameScreen(Screen):
         
     def load_level(self, level_num):
         self.map.load_level_data_from_file(level_num)
-        self.ui_state = "start"  # Reset UI state when loading new level
+        self.ui_state = "start"  
         
-        # Reset algorithm info
         self.algorithm_start_time = 0
         self.current_execution_time = 0
         self.no_solution_timer = 0
         self.is_paused = False
         
-        # Reset sound tracking
         self.previous_move_index = 0
         self.previous_solving_state = False
         
         self.update_algorithm_info()
         
-        # Update level text
         self.level_text.set_text(f"Level: {level_num}")
         self.algorithm_text.set_text("")
         self.status_text.set_text("Click Start to begin")
 
     def update_algorithm_info(self):
-        """Update algorithm information display - simplified version"""
         if self.ui_state == "solving" and self.map.solving:
-            # Update total moves
             total_moves = len(self.map.solution_moves) if self.map.solution_moves else 0
             self.total_moves_text.set_text(f"Total Moves: {total_moves}")
             
-            # Update current move
             current_move = self.map.current_move_index if self.map.current_move_index < total_moves else total_moves
             self.current_move_text.set_text(f"Current Move: {current_move}")
 
-            # Update nodes expanded
             nodes_expanded = self.map.nodes_expanded if self.map.nodes_expanded else 0
             self.nodes_expanded_text.set_text(f"Nodes Expanded: {nodes_expanded}")
 
-            # Update total cost
             total_cost = self.map.total_cost if self.map.total_cost else 0
             self.total_cost_text.set_text(f"Total Cost (g(n)): {total_cost}")
         else:
-            # Reset display when not solving
             self.total_moves_text.set_text("Total Moves: 0")
             self.current_move_text.set_text("Current Move: 0")
             self.nodes_expanded_text.set_text("Nodes Expanded: 0")
             self.total_cost_text.set_text("Total Cost (g(n)): 0")
 
     def check_and_play_move_sound(self):
-        """Check if a move occurred and play car_move sound"""
         if self.ui_state == "solving" and self.map.solving and not self.is_paused:
-            # Check if move index changed (indicating a new move)
             current_move_index = getattr(self.map, 'current_move_index', 0)
             if current_move_index != self.previous_move_index:
-                # Play car move sound
                 self.audio_manager.play_car_move()
                 self.previous_move_index = current_move_index
             
-            # Also check if solving just started
             if not self.previous_solving_state and self.map.solving:
                 self.audio_manager.play_car_move()
             
             self.previous_solving_state = self.map.solving
         elif self.ui_state == "start":
-            # Reset tracking when not solving
             self.previous_move_index = 0
             self.previous_solving_state = False
 
     def handle_no_solution(self):
-        """Handle when no solution is found"""
         self.ui_state = "no_solution"
         self.no_solution_timer = time.time()
         self.algorithm_text.set_text(f"Algorithm: {self.map.current_algorithm} - No Solution")
-        self.is_paused = False  # Reset pause state
-        # Reset map solving state
-        self.map.solving_failed = False  # Reset the flag to prevent repeated calls
+        self.is_paused = False 
+        self.map.solving_failed = False  
 
     def reset_to_start(self):
-        """Reset game to start state"""
         self.ui_state = "start"
         self.algorithm_text.set_text("")
         self.algorithm_start_time = 0
@@ -184,11 +147,9 @@ class GameScreen(Screen):
         self.is_paused = False
         self.pause_btn.set_text("Pause")
         
-        # Reset sound tracking
         self.previous_move_index = 0
         self.previous_solving_state = False
         
-        # Reset map state
         if hasattr(self.map, 'reset'):
             self.map.reset()
 
@@ -198,37 +159,30 @@ class GameScreen(Screen):
                 self.screen_manager.set_screen('winning')
 
     def update(self):
-        # Handle no solution timer - FIXED: Only auto-reset if timer is active
         if self.ui_state == "no_solution" and self.no_solution_timer > 0:
             current_time = time.time()
             if current_time - self.no_solution_timer >= self.no_solution_duration:
-                print("No solution timer expired, returning to start")  # Debug
+                print("No solution timer expired, returning to start")  
                 self.reset_to_start()
 
-        # Update visible buttons (including hover state)
         visible_buttons = self.get_visible_buttons()
         for button in visible_buttons:
             button.update()
 
-        # Only update map if not paused
         if not self.is_paused:
             self.map.update()
             self.map.update_solving()
 
-        # Check for car movement sounds
         self.check_and_play_move_sound()
 
-        # FIXED: Check for solving failure
         if hasattr(self.map, 'solving_failed') and self.map.solving_failed:
-            print("Map solving failed, handling no solution")  # Debug
+            print("Map solving failed, handling no solution")  
             self.handle_no_solution()
 
-        # Update algorithm info
         self.update_algorithm_info()
 
         self.check_offscreen()
         
-        # Update status text based on current state
         if self.ui_state == "start":
             if getattr(self.map, 'is_solved', False):
                 self.status_text.set_text("Level Complete! Click Next Level")
@@ -252,7 +206,6 @@ class GameScreen(Screen):
         self.draw_background(surface, "game")
 
     def get_visible_buttons(self):
-        # Always visible buttons
         visible_buttons = [self.back_btn, self.next_level_btn, self.menu_btn]
         
         if self.ui_state == "start":
@@ -267,16 +220,12 @@ class GameScreen(Screen):
         return visible_buttons
 
     def get_visible_texts(self):
-        # Always visible
         visible_texts = [self.level_text, self.status_text] 
             
-        # Only visible when algorithm select
         if self.ui_state == "algorithm_select":
             visible_texts.append(self.instruction_text) 
-        # Only visible when no solution
         elif self.ui_state == "no_solution":
             visible_texts.append(self.no_solution_text) 
-        # Only visible when solving, algorithm select, or no solution
         elif self.ui_state in ["solving", "algorithm_select", "no_solution"]: 
             visible_texts.extend([
                 self.info_title,
@@ -292,14 +241,11 @@ class GameScreen(Screen):
         """Draw complete game screen"""
         self.draw_game_background(surface)
         
-        # Draw map
         self.map.draw(surface)
         
-        # Draw UI buttons
         for button in buttons:
             button.draw(surface)
             
-        # Draw text elements
         for text in texts:
             text.draw(surface)
 
@@ -311,7 +257,6 @@ class GameScreen(Screen):
     def handle_event(self, event):
         AudioManager().play_background_music('game', fade_in=False)
 
-        # Handle hover effects for all buttons
         visible_buttons = self.get_visible_buttons()
         for button in visible_buttons:
             button.handle_event(event)
@@ -327,7 +272,6 @@ class GameScreen(Screen):
                     self.algorithm_text.set_text("Algorithm: BFS")
                     self.ui_state = "solving"
                     self.is_paused = False
-                    # Reset move tracking for new algorithm
                     self.previous_move_index = 0
                     self.previous_solving_state = False
                 elif self.solve_dfs.hit(event.pos):
@@ -378,7 +322,6 @@ class GameScreen(Screen):
                     self.previous_move_index = 0
                     self.previous_solving_state = False
             
-            # Always check these buttons regardless of UI state
             if self.back_btn.hit(event.pos):
                 self.screen_manager.set_screen('level_select')
             elif self.next_level_btn.hit(event.pos):
@@ -405,7 +348,6 @@ class GameScreen(Screen):
                     
         elif event.type == pygame.MOUSEBUTTONUP:
             if self.ui_state == "start":
-                # Check for movement on mouse up as well
                 old_positions = {}
                 if hasattr(self.map, 'vehicles'):
                     for vehicle in self.map.vehicles:
@@ -413,7 +355,6 @@ class GameScreen(Screen):
                 
                 self.map.handle_mouse_up(event.pos)
                 
-                # Check if any vehicle moved and play sound
                 if hasattr(self.map, 'vehicles'):
                     for vehicle in self.map.vehicles:
                         vehicle_id = id(vehicle)
@@ -424,7 +365,6 @@ class GameScreen(Screen):
                                 break
                                 
         elif event.type == pygame.MOUSEMOTION:
-            # Handle hover effects for mouse motion
             visible_buttons = self.get_visible_buttons()
             for button in visible_buttons:
                 button.handle_event(event)
