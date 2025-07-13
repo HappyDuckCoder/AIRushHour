@@ -21,14 +21,14 @@ class StatisticScreen(Screen):
         self.map_title = Text("Map 1 Statistics", WHITE, (SCREEN_W//2, 100), font=Font(32))
         self.back_button = Button("BACK", (30, SCREEN_H - 80), 120, 50, BLUE)
         
-        self.prev_button = Button("◀", (100, SCREEN_H//2), 60, 60, GRAY)
-        self.next_button = Button("▶", (SCREEN_W - 160, SCREEN_H//2), 60, 60, GRAY)
+        self.prev_button = Button("<", (100, SCREEN_H//2), 60, 60, GRAY)
+        self.next_button = Button(">", (SCREEN_W - 160, SCREEN_H//2), 60, 60, GRAY)
         
         self.auto_button = Button("AUTO: OFF", (SCREEN_W//2 - 80, SCREEN_H - 80), 160, 50, GREEN)
         
         self.indicator_radius = 8
         self.indicator_spacing = 25
-        self.indicator_y = SCREEN_H - 150
+        self.indicator_y = SCREEN_H - 200
         
         self.map_statistics = []
         for i in range(1, 11):  
