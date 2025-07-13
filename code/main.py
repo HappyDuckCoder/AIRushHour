@@ -70,6 +70,7 @@ class Program:
         # Create mouse and font
         self.mouse = Mouse()
         self.MainFont = Font(24)
+        pygame.display.set_icon(ResourceManager().get_image("icon"))
         
         # Initialize screen manager
         self.screen_manager = ScreenManager()

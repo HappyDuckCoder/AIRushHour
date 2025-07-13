@@ -70,6 +70,12 @@ class ResourceManager:
         )
 
         ResourceManager.load_image(
+            "icon",
+            "assets/Units/Blue Units/Archer/Archer_Idle.png",
+            size=(ICON_SIZE, ICON_SIZE)
+        )
+
+        ResourceManager.load_image(
             "exit",
             "assets/Bridge.png",
             size=(TILE * 2, TILE)
